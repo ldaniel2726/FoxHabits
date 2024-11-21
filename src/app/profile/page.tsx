@@ -9,15 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, MapPin } from 'react-feather';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ProfileEditSheet } from '@/components/profile-edit-sheet';
 import { toast } from "sonner";
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 export default function Page() {
   const [email, setEmail] = useState('');
@@ -76,12 +71,30 @@ export default function Page() {
             </div>
             <div className="flex gap-2">
               <ProfileEditSheet />
-              <Button variant="outline" onClick={() => {router.push('/settings')}}>
-                <Settings />
-              </Button>
-              <Button variant="secondary" onClick={handleLogout}>
-                <LogOut />
-              </Button>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => {router.push('/settings')}}>
+                      <Settings />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-base">Beállítások</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="secondary" onClick={handleLogout}>
+                      <LogOut />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-base">Kijelentkezés</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
           </CardHeader>
           <CardContent>

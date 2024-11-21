@@ -13,16 +13,24 @@ import {
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
 import { UserRoundPen } from "lucide-react"
-
-
+import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 
 export function ProfileEditSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline">
-          <UserRoundPen />
-        </Button>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="outline">
+                <UserRoundPen />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-base">Profil szerkesztése</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>
