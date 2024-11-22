@@ -19,7 +19,10 @@ export function ProfileEditSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <TooltipProvider>
+        <Button variant="outline">
+          <UserRoundPen />
+        </Button>
+        {/*<TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant="outline">
@@ -30,7 +33,7 @@ export function ProfileEditSheet() {
               <p className="text-base">Profil szerkesztése</p>
             </TooltipContent>
           </Tooltip>
-        </TooltipProvider>
+        </TooltipProvider>*/}
       </SheetTrigger>
       <SheetContent>
         <SheetHeader>

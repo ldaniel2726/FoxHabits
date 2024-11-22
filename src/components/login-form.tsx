@@ -21,16 +21,6 @@ export function LoginForm() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      if (data.user) {
-        router.push('/profile');
-      }
-    };
-    checkUser();
-  }, [router]);
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
