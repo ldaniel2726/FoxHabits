@@ -1,8 +1,3 @@
-"use client";
-
-import { useEffect, useState } from 'react';
-import { supabase } from '@/app/supabaseClient';
-import { useRouter } from 'next/navigation';
 import { Moon, Sun, LogOut, Settings } from "lucide-react";
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,36 +5,20 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, MapPin } from 'react-feather';
 import { Skeleton } from "@/components/ui/skeleton";
-import { ProfileEditSheet } from '@/components/profile-edit-sheet';
+import ProfileEditSheetServer from "@/components/profile-edit-sheet-server";
 import { toast } from "sonner";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
+import { createClient } from '@/utils/supabase/server';
 
-export default function Page() {
-  const [email, setEmail] = useState('');
-  const router = useRouter();
+export default async function Page() {
+  
+  const supabase = await createClient()
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      const { data, error } = await supabase.auth.getUser();
-      if (error) {
-        router.push('/login');
-      } else {
-        setEmail(data.user?.email || '');
-      }
-    };
-    fetchUser();
-  }, [router]);
+  const { data, error } = await supabase.auth.getUser()
 
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
-      toast.success("Sikeres kijelentkezés");
-      router.push('/login');
-    } else {
-      toast.error("Valami hiba történt a kijelentkezés során");
-      console.error('Error logging out:', error);
-    }
-  };
+  /*if (error || !data?.user) {
+    redirect('/login')
+  }*/
 
   return (
     <>
@@ -52,29 +31,25 @@ export default function Page() {
                 <AvatarFallback>LD</AvatarFallback>
               </Avatar>
               <div className="text-center sm:text-left">
-                <CardTitle className="text-2xl">L. Dani</CardTitle>
-                <CardDescription>Szoftverfejlesztő</CardDescription>
+                <CardTitle className="text-2xl">{data.user?.user_metadata.name}</CardTitle>
                 <div className="flex flex-col sm:flex-row items-center gap-2 mt-2">
                   <div className="flex items-center">
                     <Mail className="mr-2 h-4 w-4 opacity-70" />
-                    {email ? (
-                      email
+                    {data.user?.email ? (
+                      data.user?.email
                     ) : (
                       <Skeleton className="w-40 h-4" />
                     )}
                   </div>
-                  {/*<div className="flex items-center">
-                    <MapPin className="mr-2 h-4 w-4 opacity-70" /> San Francisco, CA
-                  </div>*/}
                 </div>
               </div>
             </div>
             <div className="flex gap-2">
-              <ProfileEditSheet />
+              <ProfileEditSheetServer />
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline" onClick={() => {router.push('/settings')}}>
+                    <Button variant="outline">
                       <Settings />
                     </Button>
                   </TooltipTrigger>
@@ -86,7 +61,7 @@ export default function Page() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="secondary" onClick={handleLogout}>
+                    <Button variant="secondary" >
                       <LogOut />
                     </Button>
                   </TooltipTrigger>
@@ -98,24 +73,11 @@ export default function Page() {
             </div>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="bio" className="w-full">
+            <Tabs defaultValue="streaks" className="w-full">
               <TabsList>
-                <TabsTrigger value="bio">Bio</TabsTrigger>
                 <TabsTrigger value="streaks">Eredmények</TabsTrigger>
                 <TabsTrigger value="public-habits">Publikus szokások</TabsTrigger>
               </TabsList>
-              <TabsContent value="bio">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl text-orange-700">Bio</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p>
-                      Szoftverfejlesztő vagyok, aki szereti a kihívásokat és a problémamegoldást. A szabadidőmben szívesen sportolok, olvasok és tanulok. A kedvenc programozási nyelvem a JavaScript, de a Python és a C# is közel áll a szívemhez.
-                    </p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
               <TabsContent value="streaks">
                 <Card>
                   <CardHeader>

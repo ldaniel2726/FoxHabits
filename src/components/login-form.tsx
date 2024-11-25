@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import {
@@ -9,34 +12,28 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-
-import { useState, useEffect } from 'react';
-import { supabase } from '@/app/supabaseClient';
-import { useRouter } from 'next/navigation';
 import { toast } from "sonner"
+import { login } from '@/app/login/actions';
 
 export function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setError(error.message);
-      toast.error("Helytelen email vagy jelszó");
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setError(null);
+
+    const formData = new FormData(event.currentTarget);
+
+    const response = await login(formData);
+
+    if (response.error) {
+      setError(response.error);
+      toast.error(response.error);
     } else {
-      toast.success("Sikeres bejelentkezés");
-      router.push('/profile');
+      toast.success('Sikeres bejelentkezés!');
     }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleLogin(e);
-  };
+  }
 
   return (
     <Card>
@@ -53,9 +50,9 @@ export function LoginForm() {
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="yourname@example.com"
-                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -66,8 +63,13 @@ export function LoginForm() {
                   Elfelejtetted a jelszavad?
                 </Link>
               </div>
-              <Input id="password" type="password" required onChange={(e) => setPassword(e.target.value)} />
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required />
             </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
             <Button type="submit" className="w-full">
               Bejelentkezés
             </Button>
