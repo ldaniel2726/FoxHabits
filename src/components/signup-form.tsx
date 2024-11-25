@@ -24,9 +24,25 @@ export function SignUpForm(){
   
     const handleSignup = async (e: React.FormEvent) => {
       e.preventDefault();
-  
+
+      if (!name || !email || !password || !confirmPassword) {
+        toast.error("Minden mezőt ki kell tölteni");
+        return;
+      }
+
       if (password !== confirmPassword) {
         toast.error("A jelszavak nem egyeznek");
+        return;
+      }
+
+      if (password.length < 8) {
+        toast.error("A jelszónak legalább 8 karakter hosszúnak kell lennie");
+        return;
+      }
+
+      const passwordRegex = /^(?=.*[0-9])(?=.*[!@#$%^&*])/;
+      if (!passwordRegex.test(password)) {
+        toast.error("A jelszónak tartalmaznia kell számot és speciális karaktert");
         return;
       }
   
@@ -36,7 +52,12 @@ export function SignUpForm(){
       });
   
       if (error) {
-        toast.error(error.message);
+        if (error.message.includes("already registered")) {
+          toast.error("Ez az email cím már regisztrálva van");
+          router.push('/login');
+        } else {
+          toast.error(error.message);
+        }
       } else {
         toast.success("Sikeres regisztráció");
         router.push('/profile');
