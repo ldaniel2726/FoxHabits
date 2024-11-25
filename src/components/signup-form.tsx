@@ -99,7 +99,7 @@ export function SignUpForm(){
                 </form>
                 <div className="mt-4 text-center text-sm">
                 Már van fiókod?{" "}
-                <Link href="/signin" className="underline">
+                <Link href="/login" className="underline">
                     Bejelentkezés
                 </Link>
             </div>
