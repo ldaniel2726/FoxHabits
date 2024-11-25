@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '@/app/supabaseClient';
 import { useRouter } from 'next/navigation';
 import { Moon, Sun, LogOut, Settings } from "lucide-react";
 import { Button } from '@/components/ui/button';

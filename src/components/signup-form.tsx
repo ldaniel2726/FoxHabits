@@ -54,7 +54,6 @@ export function SignUpForm(){
       if (error) {
         if (error.message.includes("already registered")) {
           toast.error("Ez az email cím már regisztrálva van");
-          router.push('/login');
         } else {
           toast.error(error.message);
         }

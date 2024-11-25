@@ -2,7 +2,7 @@
 
 import { LoginForm } from '@/components/login-form';
 import { useEffect } from 'react';
-import { supabase } from '../supabaseClient';
+import { supabase } from '@/app/supabaseClient';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
