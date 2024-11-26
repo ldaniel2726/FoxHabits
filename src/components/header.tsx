@@ -1,18 +1,13 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/utils/supabase/server"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default async function Component() {
 
   const supabase = await createClient()
 
   const { data, error } = await supabase.auth.getUser()
-
-  const handleSignout = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) console.error("Kijelentkezés sikertelen")
-  }
 
   return (
     <div className="container mx-auto px-4 md:px-6 lg:px-8">
@@ -53,13 +48,19 @@ export default async function Component() {
             {data.user ? (
                 <>
                     <Link href="/profile">
-                        <Button variant="secondary" className="justify-self-end">
+                        <Button variant="ghost" className="justify-self-end">
                             {data.user?.user_metadata.name}
+                            <Avatar className="w-8 h-8">
+                              <AvatarImage src="https://github.com/shadcn.png" alt="User's avatar" />
+                              <AvatarFallback>LD</AvatarFallback>
+                            </Avatar>
                         </Button>
                     </Link>
-                    <Button>
-                        Kijelentkezés
-                    </Button>
+                    <Link href="/logout">
+                        <Button variant="secondary">
+                            Kijelentkezés
+                        </Button>
+                    </Link>
                 </>
                 ) : (
                 <>
