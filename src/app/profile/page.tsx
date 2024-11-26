@@ -6,9 +6,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Mail, MapPin } from 'react-feather';
 import { Skeleton } from "@/components/ui/skeleton";
 import ProfileEditSheetServer from "@/components/profile-edit-sheet-server";
-import { toast } from "sonner";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { createClient } from '@/utils/supabase/server';
+import Header from '@/components/header';
 
 export default async function Page() {
   
@@ -16,13 +16,9 @@ export default async function Page() {
 
   const { data, error } = await supabase.auth.getUser()
 
-  /*if (error || !data?.user) {
-    redirect('/login')
-  }*/
-
   return (
     <>
-      <div className="container mx-auto py-10">
+      <div className="container mx-auto py-2">
         <Card>
           <CardHeader className="flex flex-col sm:flex-row items-center gap-4 justify-between">
             <div className="flex gap-4 items-center">
@@ -61,9 +57,9 @@ export default async function Page() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="secondary" >
+                    {/*<Button onClick={handleSignOut} variant="secondary" >
                       <LogOut />
-                    </Button>
+                    </Button>*/}
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="text-base">Kijelentkezés</p>
