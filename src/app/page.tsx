@@ -1,19 +1,37 @@
 import Link from "next/link";
+import Hero from "@/components/hero";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <section className="text-center sm:text-left">
-          <h1 className="text-4xl font-bold mb-4">FoxHabits</h1>
-          <p className="text-lg mb-8">Habit Tracker</p>
-            <Link href="/login">
-            <button className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-              Login
-            </button>
+    <div>
+      <Hero />
+      <div className="container mx-auto px-4 py-16">
+        <h1 className="text-4xl font-bold mt-12">Üdv a Fox Habits-en!</h1>
+        <p className="text-lg text-gray-600 mt-4">
+          A Fox Habits egy webalkalmazás, amely segít a felhasználóknak
+          megfigyelni a szokásaikat és teendőiket.
+        </p>
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold">Föbb funkciók</h2>
+          <ul className="list-disc list-inside mt-4">
+            <li>Kövesd nyomon a szokásaid!</li>
+            <li>Állíts be emlékezetőket!</li>
+            <li>Böngészd a statisztikát!</li>
+          </ul>
+        </div>
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold">Vágjunk bele.</h2>
+          <p className="text-lg text-gray-600 mt-4">
+            Regisztrálj, és kezdj el szokásokat hozzáadni, és kövesd azokat!
+          </p>
+          <div className="mt-4">
+            <Link href="/signup">
+              <Button>Regisztráció</Button>
             </Link>
-        </section>
-      </main>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
