@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Hero from "@/components/hero";
 import { Button } from "@/components/ui/button";
+import Footer from "@/components/footer";
 
 export default function Home() {
   return (
@@ -32,6 +33,7 @@ export default function Home() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
