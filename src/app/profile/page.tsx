@@ -9,6 +9,7 @@ import ProfileEditSheetServer from "@/components/profile-edit-sheet-server";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { createClient } from '@/utils/supabase/server';
 import Header from '@/components/header';
+import Link from "next/link";
 
 export default async function Page() {
   
@@ -45,9 +46,11 @@ export default async function Page() {
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button variant="outline">
-                      <Settings />
-                    </Button>
+                    <Link href="/settings">
+                      <Button variant="outline">
+                        <Settings />
+                      </Button>
+                    </Link>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="text-base">Beállítások</p>

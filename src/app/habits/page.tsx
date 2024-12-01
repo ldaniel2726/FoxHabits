@@ -1,8 +1,3 @@
-/*
-habits table schema:
-("habit_id", "related_user_id", "habit_type", "interval", "habit_interval_type", "start_date", "is_active", "created_date", "habit_name_id")
-*/
-
 import { createClient } from "@/utils/supabase/server";
 import { Card } from "@/components/ui/card";
 import { HabitCard } from "@/components/habit-card";
