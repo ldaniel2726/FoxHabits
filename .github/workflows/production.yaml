@@ -18,8 +18,8 @@ jobs:
           fetch-depth: 0
       - name: Set Commit Author to Your Account
         run: |
-          git config user.name "Your Name"
-          git config user.email "your-email@example.com"
+          git config user.name "Lénárt Dániel"
+          git config user.email "lenart.daniel.peter@gmail.com"
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
       - name: Pull Vercel Environment Information
