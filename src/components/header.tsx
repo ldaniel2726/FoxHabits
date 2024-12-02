@@ -56,7 +56,7 @@ export default async function Component() {
                             </Avatar>
                         </Button>
                     </Link>
-                    <Link href="/logout">
+                    <Link href="/logout" prefetch={false}>
                         <Button variant="secondary">
                             Kijelentkezés
                         </Button>
