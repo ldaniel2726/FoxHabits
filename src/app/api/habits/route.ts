@@ -23,21 +23,10 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
   
-    const formattedData = data.map((habit) => ({
-      habit_id: habit.habit_id,
-      related_user_id: habit.related_user_id,
-      habit_type: habit.habit_type,
-      interval: habit.interval,
-      habit_interval_type: habit.habit_interval_type,
-      start_date: habit.start_date,
-      is_active: habit.is_active,
-      habit_name: habit.habit_names?.habit_name || null,
-    }));
   
-    return NextResponse.json(formattedData);
+    return NextResponse.json(data);
   }
   
-
 
 // // Új szokás hozzáadása
 // export async function POST(request: Request) {
