@@ -5,15 +5,38 @@ import { createClient } from "@/utils/supabase/server";
 
 // GET /api/habits ~ Az összes szokás visszaadása
 export async function GET() {
-    const supabase = await createClient(); 
-    const { data, error } = await supabase.from('habits').select('*');
+    const supabase = await createClient();
+    const { data, error } = await supabase
+      .from("habits")
+      .select(`
+        habit_id, 
+        related_user_id, 
+        habit_type, 
+        interval, 
+        habit_interval_type, 
+        start_date, 
+        is_active, 
+        habit_names!inner(habit_name)
+      `);
   
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
   
-    return NextResponse.json(data);
-}
+    const formattedData = data.map((habit) => ({
+      habit_id: habit.habit_id,
+      related_user_id: habit.related_user_id,
+      habit_type: habit.habit_type,
+      interval: habit.interval,
+      habit_interval_type: habit.habit_interval_type,
+      start_date: habit.start_date,
+      is_active: habit.is_active,
+      habit_name: habit.habit_names?.habit_name || null,
+    }));
+  
+    return NextResponse.json(formattedData);
+  }
+  
 
 
 // // Új szokás hozzáadása
@@ -21,11 +44,12 @@ export async function GET() {
 //     const supabase = await createClient();
 //     const { 
 //         habit_name, 
+//         habit_name_type,
 //         habit_type, 
 //         interval, 
 //         habit_interval_type,
 //         start_date = new Date().toISOString(),
-//         is_active = true // Alapértelmezett aktív szokás
+//         is_active = true
 //     } = await request.json();
   
 //     const {
