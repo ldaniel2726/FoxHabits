@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/utils/supabase/server"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import LogoutButton from '@/components/logout-button';
 
 export default async function Component() {
 
@@ -56,11 +57,7 @@ export default async function Component() {
                             </Avatar>
                         </Button>
                     </Link>
-                    <Link href="/logout" prefetch={false}>
-                        <Button variant="secondary">
-                            Kijelentkezés
-                        </Button>
-                    </Link>
+                    <LogoutButton />
                 </>
                 ) : (
                 <>
