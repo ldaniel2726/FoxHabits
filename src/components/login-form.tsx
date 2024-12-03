@@ -1,23 +1,28 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { toast } from "sonner"
-import { login, loginWithGoogle } from '@/app/login/actions';
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
+import { login, loginWithGoogle } from "@/app/login/actions";
+import { Eye, EyeOff } from "lucide-react";
 
 export function LoginForm() {
-  
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -31,11 +36,11 @@ export function LoginForm() {
       setError(response.error);
       toast.error(response.error);
     } else {
-      toast.success('Sikeres bejelentkezés!');
+      toast.success("Sikeres bejelentkezés!");
     }
   }
 
-  const handleGoogleLogin = async(event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleGoogleLogin = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event?.preventDefault();
     const data = await loginWithGoogle();
     if (data.error) {
@@ -44,15 +49,13 @@ export function LoginForm() {
     } else {
       window.location.href = data.url as string;
     }
-  }
+  };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="text-2xl">Bejelentkezés</CardTitle>
-        <CardDescription>
-          Jelentkezz be egyszerűen az email címeddel
-        </CardDescription>
+        <CardDescription>Jelentkezz be egyszerűen az email címeddel</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit}>
@@ -74,11 +77,25 @@ export function LoginForm() {
                   Elfelejtetted a jelszavad?
                 </Link>
               </div>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="absolute right-2 top-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <Button type="submit" className="w-full">
