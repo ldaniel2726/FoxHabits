@@ -26,3 +26,20 @@ export async function login(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect('/profile')
 }
+
+export async function loginWithGoogle() {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+  })
+
+  if (error) {
+    return { sucess: false, error: "Google bejelentkezés sikertelen. Próbálja újra." }
+  } else {
+    return { sucess: true, url: data.url }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/profile')
+}
