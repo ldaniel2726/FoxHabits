@@ -33,7 +33,7 @@ export async function loginWithGoogle() {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: 'http://localhost:3000/auth/callback',
+      redirectTo: 'https://foxhabits.com/auth/callback',
     }
   })
 
@@ -42,7 +42,4 @@ export async function loginWithGoogle() {
   } else {
     return { sucess: true, url: data.url }
   }
-
-  revalidatePath('/', 'layout')
-  redirect('/profile')
 }
