@@ -43,3 +43,22 @@ export async function loginWithGoogle() {
     return { sucess: true, url: data.url }
   }
 }
+
+export async function resetPassword(formData: FormData) {
+  const supabase = await createClient()
+  const email = formData.get('email') as string
+
+  if (!email) {
+    return { error: "Email cím megadása kötelező." }
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://foxhabits.com/auth/reset-password',
+  })
+
+  if (error) {
+    return { error: "Hiba történt a jelszó visszaállítása során. Kérjük próbálja újra." }
+  }
+
+  return { success: true }
+}
