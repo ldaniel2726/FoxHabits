@@ -8,7 +8,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ProfileEditSheetServer from "@/components/profile-edit-sheet-server";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { createClient } from '@/utils/supabase/server';
-import Header from '@/components/header';
 import Link from "next/link";
 
 export default async function Page() {
@@ -42,7 +41,7 @@ export default async function Page() {
               </div>
             </div>
             <div className="flex gap-2">
-              <ProfileEditSheetServer />
+              {await ProfileEditSheetServer()}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>

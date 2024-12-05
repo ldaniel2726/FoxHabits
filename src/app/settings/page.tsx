@@ -36,8 +36,10 @@ export default function SettingsPage() {
     fetchSettings()
   }, [])
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     setIsPending(true)
+    const formData = new FormData(event.currentTarget)
     const result = await updateSettings(formData)
     setIsPending(false)
     if (result.success) {
@@ -106,7 +108,7 @@ export default function SettingsPage() {
   return (
     <div className="container mx-auto py-10">
       <h1 className="text-3xl font-bold mb-6">Beállítások</h1>
-      <form action={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Általános beállítások</CardTitle>

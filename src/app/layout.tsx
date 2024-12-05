@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner"
-import Header from "@/components/header"
+import { lazy, Suspense } from 'react';
+import LoadingFallback from '@/components/loading-fallback';
+import { createClient } from "@/utils/supabase/server";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -20,20 +22,27 @@ export const metadata: Metadata = {
   description: "A Fox Habits egy webalkalmazás, amely segít a felhasználóknak megfigyelni a szokásaikat és teendőiket.",
 };
 
-export default function RootLayout({
+const Header = lazy(() => import('@/components/header'));
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const supabase = await createClient()
+
+  const { data, error } = await supabase.auth.getUser()
+
   return (
     <html lang="en" className={geistSans.className}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased m-auto`}
-      >
-        <div className="m-auto">
-          <Header />
-          {children}
-        </div>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased m-auto`}>
+        <Suspense fallback={<LoadingFallback />}>
+          <div className="m-auto">
+            <Header data={data} />
+            {children}
+          </div>
+        </Suspense>
         <Toaster />
       </body>
     </html>
