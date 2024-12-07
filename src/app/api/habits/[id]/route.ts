@@ -114,7 +114,24 @@ export async function PATCH(request: Request) {
 
         let updated_related_user_id = related_user_id;
         if (user.id !== related_user_id && user.user_metadata?.role !== 'admin') {
-            updated_related_user_id = user.id;
+            updated_related_user_id = user.id;  
+        }
+        
+        const { data: habitData, error: habitError } = await supabase
+            .from('habits')
+            .select('related_user_id')
+            .eq('habit_id', habit_id)
+            .single();
+
+        if (habitError) {
+            return NextResponse.json({ error: habitError.message }, { status: 500 });
+        }
+
+        if (!habitData || habitData.related_user_id !== user.id) {
+            return NextResponse.json(
+                { error: 'Nincs jogosultságod a szokás módosításához.' },
+                { status: 403 }
+            );
         }
 
         const validHabitTypes = ['normal_habit', 'bad_habit'];
@@ -175,10 +192,14 @@ if (habit_name) {
     }
 
     if (!habitNameData) {
-
+        let habit_name_status_new = habit_name_status;
+        if (!habit_name_status) {
+            habit_name_status_new = 'new';
+        }
         const { data: newHabitNameData, error: newHabitNameError } = await supabase
             .from('habit_names')
-            .insert([{ habit_name }])
+            .insert([{ habit_name,
+                habit_name_status: habit_name_status_new }])
             .select('habit_name_id')
             .single();
 
