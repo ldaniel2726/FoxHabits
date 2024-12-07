@@ -1,1 +1,2 @@
-# HabitTracker
+# FoxHabits
+- [FoxHabits](https://foxhabits.com/)
