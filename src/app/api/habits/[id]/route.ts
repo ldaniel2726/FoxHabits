@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
-// /api/habits/[id] ~ A szokás adatainak lekérdezése
+// GET /api/habits/[id] ~ A szokás adatainak lekérdezése
 export async function GET(request: Request) {
     const url = new URL(request.url);
     const habit_id = url.pathname.split('/').pop();
@@ -137,6 +137,10 @@ export async function PATCH(request: Request) {
         const validHabitTypes = ['normal_habit', 'bad_habit'];
         const validHabitIntervalTypes = ['hours', 'days', 'weeks', 'months', 'years'];
         const validHabitNameStatus = ['new', 'private'];
+        if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
+            validHabitNameStatus.push('public');
+            validHabitNameStatus.push('rejected');
+        }
 
         if (habit_name && (typeof habit_name !== 'string' || habit_name.trim() === '')) {
             return NextResponse.json({ error: 'A szokás neve kötelező, és szöveg típusúnak kell lennie.' }, { status: 400 });
@@ -187,7 +191,7 @@ if (habit_name) {
         .eq('habit_name', habit_name)
         .single();
 
-    if (habitNameError && habitNameError.code !== 'PGRST116') {
+    if (habitNameError) {
         return NextResponse.json({ error: habitNameError.message }, { status: 500 });
     }
 
@@ -199,7 +203,8 @@ if (habit_name) {
         const { data: newHabitNameData, error: newHabitNameError } = await supabase
             .from('habit_names')
             .insert([{ habit_name,
-                habit_name_status: habit_name_status_new }])
+                habit_name_status: habit_name_status_new,
+                sender_user_id: user.id }])
             .select('habit_name_id')
             .single();
 
@@ -249,7 +254,7 @@ if (habit_name) {
 }
 
 
-// /api/habits/[id] ~ A szokás törlése
+// DELETE /api/habits/[id] ~ A szokás törlése
 export async function DELETE(request: Request) {
     const url = new URL(request.url);
     const splitted_url = url.pathname.split('/');

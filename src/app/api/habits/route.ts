@@ -61,9 +61,28 @@ export async function POST(request: Request) {
           is_active = true,
       } = await request.json();
 
+      const supabase = await createClient();
+
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user) {
+          return NextResponse.json(
+              { error: 'A felhasználó nem található! Kérlek jelentkezz be.' },
+              { status: 401 }
+          );
+      }
+
       const validHabitTypes = ['normal_habit', 'bad_habit'];
       const validHabitIntervalTypes = ['hours', 'days', 'weeks', 'months', 'years'];
       const validHabitNameStatus = ['new', 'private'];
+
+      if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
+        validHabitNameStatus.push('public');
+        validHabitNameStatus.push('rejected');
+    }
 
       if (typeof habit_name !== 'string' || habit_name.trim() === '') {
           return NextResponse.json({ error: 'A szokás neve kötelező, és szöveg típusúnak kell lennie.' }, { status: 400 });
@@ -93,20 +112,6 @@ export async function POST(request: Request) {
           return NextResponse.json({ error: 'Az aktivitás státusza boolean típusú kell legyen.' }, { status: 400 });
       }
 
-      const supabase = await createClient();
-
-
-      const {
-          data: { user },
-          error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-          return NextResponse.json(
-              { error: 'A felhasználó nem található! Kérlek jelentkezz be.' },
-              { status: 401 }
-          );
-      }
 
 
       let habit_name_id;
