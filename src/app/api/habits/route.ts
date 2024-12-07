@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
-// (admin auth hiányzik)
-
-// GET /api/habits ~ Az összes szokás visszaadása
+// GET /api/habits ~ Az összes szokás visszaadása admin felhasználóknak
 export async function GET() {
   const supabase = await createClient();
 
@@ -11,11 +9,20 @@ export async function GET() {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
-  
+
   if (userError || !user) {
     return NextResponse.json(
-      { error: "A felhasználó nem található! Kérlek jelentkezz be." },
+      { error: "Nem vagy bejelentkezve." },
       { status: 401 }
+    );
+  }
+
+  const role = user.user_metadata?.role;
+
+  if (role !== "admin") {
+    return NextResponse.json(
+      { error: "Nincs jogosultságod az adatok lekérdezéséhez." },
+      { status: 403 }
     );
   }
 
@@ -31,7 +38,7 @@ export async function GET() {
       start_date, 
       is_active, 
       habit_names!inner(habit_name)
-      `
+    `
     );
 
   if (error) {
@@ -40,6 +47,7 @@ export async function GET() {
 
   return NextResponse.json(data, { status: 200 });
 }
+
 
 
 // // Új szokás hozzáadása
