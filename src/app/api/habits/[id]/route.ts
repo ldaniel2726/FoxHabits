@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
+// /api/habits/[id] ~ A szokás adatainak lekérdezése
 export async function GET(request: Request) {
     const url = new URL(request.url);
     const habit_id = url.pathname.split('/').pop();
@@ -62,7 +63,7 @@ export async function GET(request: Request) {
 
     if (!data || data.length === 0) {
         return NextResponse.json(
-            { message: 'A szokás nem létezik, vagy nincs jogosultságod hozzá.' },
+            { message: 'A szokás nem létezik, vagy nincs jogosultságod a megtekintéséhez.' },
             { status: 404 }
         );
     }
@@ -70,8 +71,7 @@ export async function GET(request: Request) {
     return NextResponse.json(data, { status: 200 });
 }
 
-
-
+// /api/habits/[id] ~ A szokás törlése
 export async function DELETE(request: Request) {
     const url = new URL(request.url);
     const splitted_url = url.pathname.split('/');

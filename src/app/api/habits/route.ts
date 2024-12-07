@@ -48,7 +48,7 @@ export async function GET() {
   return NextResponse.json(data, { status: 200 });
 }
 
-// POST /api/habits/[id] ~ Szokás létrehozása
+// POST /api/habits ~ Szokás létrehozása
 export async function POST(request: Request) {
   try {
       const {
@@ -63,9 +63,14 @@ export async function POST(request: Request) {
 
       const validHabitTypes = ['normal_habit', 'bad_habit'];
       const validHabitIntervalTypes = ['hours', 'days', 'weeks', 'months', 'years'];
+      const validHabitNameStatus = ['new', 'private'];
 
       if (typeof habit_name !== 'string' || habit_name.trim() === '') {
           return NextResponse.json({ error: 'A szokás neve kötelező, és szöveg típusúnak kell lennie.' }, { status: 400 });
+      }
+
+      if (!validHabitNameStatus.includes(habit_name_status)) {
+          return NextResponse.json({ error: `A szokás nevének státusza csak ${validHabitNameStatus.join(', ')} lehet.` }, { status: 400 });
       }
 
       if (!validHabitTypes.includes(habit_type)) {
@@ -161,8 +166,9 @@ export async function POST(request: Request) {
 
       return NextResponse.json(data, { status: 200 });
   } catch (err) {
-      return NextResponse.json({ error: 'Hibás kérés vagy szerverhiba.' }, { status: 500 });
-  }
+    console.error(err);
+    return NextResponse.json({ error: `Hibás kérés vagy szerverhiba: ${err}` }, { status: 500 });
+}
 }
 
 
