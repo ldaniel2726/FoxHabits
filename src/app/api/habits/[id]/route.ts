@@ -150,26 +150,58 @@ export async function PATCH(request: Request) {
         }
 
         type HabitUpdates = {
-            habit_name?: string;
-            habit_name_status?: string;
             habit_type?: 'normal_habit' | 'bad_habit';
             interval?: number;
             habit_interval_type?: 'hours' | 'days' | 'weeks' | 'months' | 'years';
             start_date?: string;
             is_active?: boolean;
             related_user_id?: string;
+            habit_name_id?: number;
         };
         
         const updates: HabitUpdates = {};
-        
-        if (habit_name) updates.habit_name = habit_name;
-        if (habit_name_status) updates.habit_name_status = habit_name_status;
+
+let habit_name_id;
+
+if (habit_name) {
+    const { data: habitNameData, error: habitNameError } = await supabase
+        .from('habit_names')
+        .select('habit_name_id')
+        .eq('habit_name', habit_name)
+        .single();
+
+    if (habitNameError && habitNameError.code !== 'PGRST116') {
+        return NextResponse.json({ error: habitNameError.message }, { status: 500 });
+    }
+
+    if (!habitNameData) {
+
+        const { data: newHabitNameData, error: newHabitNameError } = await supabase
+            .from('habit_names')
+            .insert([{ habit_name }])
+            .select('habit_name_id')
+            .single();
+
+        if (newHabitNameError) {
+            return NextResponse.json({ error: newHabitNameError.message }, { status: 500 });
+        }
+
+        habit_name_id = newHabitNameData.habit_name_id;
+        } else {
+               habit_name_id = habitNameData.habit_name_id;
+
+            }
+
+            updates.habit_name_id = habit_name_id;
+        }
+
         if (habit_type) updates.habit_type = habit_type;
         if (interval) updates.interval = interval;
         if (habit_interval_type) updates.habit_interval_type = habit_interval_type;
         if (start_date) updates.start_date = start_date;
         if (is_active !== undefined) updates.is_active = is_active;
         updates.related_user_id = updated_related_user_id;
+
         
 
         if (Object.keys(updates).length === 0) {
