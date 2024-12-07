@@ -159,8 +159,18 @@ export async function PATCH(request: Request) {
             is_active?: boolean;
             related_user_id?: string;
         };
-
+        
         const updates: HabitUpdates = {};
+        
+        if (habit_name) updates.habit_name = habit_name;
+        if (habit_name_status) updates.habit_name_status = habit_name_status;
+        if (habit_type) updates.habit_type = habit_type;
+        if (interval) updates.interval = interval;
+        if (habit_interval_type) updates.habit_interval_type = habit_interval_type;
+        if (start_date) updates.start_date = start_date;
+        if (is_active !== undefined) updates.is_active = is_active;
+        updates.related_user_id = updated_related_user_id;
+        
 
         if (Object.keys(updates).length === 0) {
             return NextResponse.json({ error: 'Nincs frissítendő mező.' }, { status: 400 });
