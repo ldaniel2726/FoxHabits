@@ -109,14 +109,14 @@ export async function DELETE(request: Request) {
 
     let query = supabase
         .from('habits')
-        .delete()
+        .delete({count: 'exact'})
         .eq('habit_id', habit_id);
 
         if (userRole !== 'admin') {
             query = query.eq('related_user_id', user.id);
         }
     
-        const { data, error } = await query;
+        const { error, count } = await query;
     
         if (error) {
             return NextResponse.json(
@@ -124,9 +124,16 @@ export async function DELETE(request: Request) {
                 { status: 500 }
             );
         }
+
+        if (count === 0) {
+            return NextResponse.json(
+                { message: 'A szokás nem létezik, vagy nincs jogosultságod a törléshez.' },
+                { status: 404 }
+            );
+        }
     
         return NextResponse.json(
-            { message: 'Sikeres törlés!', data },
+            { message: 'Sikeres törlés!' },
             { status: 200 }
         );
 }
