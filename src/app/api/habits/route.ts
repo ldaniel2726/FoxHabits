@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
+import { badContentReturn, numberValidator, permissionDeniedReturn, selectValidator, stringValidator } from "@/utils/validators/APIValidators";
+import { getValidHabitNameStatuses } from "@/utils/validators/HabitValidators";
+import { z } from "zod";
 
 // GET /api/habits ~ Az összes szokás visszaadása admin felhasználóknak
 export async function GET() {
@@ -20,10 +23,7 @@ export async function GET() {
   const role = user.user_metadata?.role;
 
   if (role !== "admin") {
-    return NextResponse.json(
-      { error: "Nincs jogosultságod az adatok lekérdezéséhez." },
-      { status: 403 }
-    );
+    return permissionDeniedReturn();
   }
 
   const { data, error } = await supabase
@@ -49,7 +49,7 @@ export async function GET() {
 }
 
 // POST /api/habits ~ Szokás létrehozása
-export async function POST(request: Request) {
+export async function POST(request: Request) {  
   try {
       const {
           habit_name,
@@ -75,26 +75,20 @@ export async function POST(request: Request) {
           );
       }
 
+      const role = user.user_metadata?.role;
+
       const validHabitTypes = ['normal_habit', 'bad_habit'];
       const validHabitIntervalTypes = ['hours', 'days', 'weeks', 'months', 'years'];
-      const validHabitNameStatus = ['new', 'private'];
-
-      if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
-        validHabitNameStatus.push('public');
-        validHabitNameStatus.push('rejected');
-    }
-
-      if (typeof habit_name !== 'string' || habit_name.trim() === '') {
-          return NextResponse.json({ error: 'A szokás neve kötelező, és szöveg típusúnak kell lennie.' }, { status: 400 });
+      const validHabitNameStatus = getValidHabitNameStatuses(role);
+      
+      if (!stringValidator(255, habit_name)) {
+          return badContentReturn("A szokás neve nem megfelelő.");
       }
 
-      if (!validHabitNameStatus.includes(habit_name_status)) {
-          return NextResponse.json({ error: `A szokás nevének státusza csak ${validHabitNameStatus.join(', ')} lehet.` }, { status: 400 });
-      }
+      if(!stringValidator) return badContentReturn("A szokás nevének státusza nem megfelelő.");
 
-      if (!validHabitTypes.includes(habit_type)) {
-          return NextResponse.json({ error: `A szokás típusa csak ${validHabitTypes.join(', ')} lehet.` }, { status: 400 });
-      }
+      if (!selectValidator) return badContentReturn(`A szokás nevének státusza csak ${validHabitNameStatus.join(', ')} lehet.`);
+
 
       if (typeof interval !== 'number' || interval <= 0) {
           return NextResponse.json({ error: 'Az intervallum kötelező, és pozitív számnak kell lennie.' }, { status: 400 });
