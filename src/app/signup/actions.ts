@@ -21,7 +21,7 @@ export async function signup(formData: FormData) {
     return { error: 'Minden mező kitöltése kötelező.' }
   }
 
-  if (password.length < 8 || !/[0-9]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+  if (password.length < 8 || !/[0-9]/.test(password) || !/[!@#$%^&*(),.?":{}|<>_-]/.test(password)) {
     return { error: 'A jelszónak legalább 8 karakter hosszúnak kell lennie, és tartalmaznia kell legalább egy számot és egy speciális karaktert.' }
   }
 
@@ -48,3 +48,5 @@ export async function signup(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect('/login')
 }
+
+// Helloszia_123
