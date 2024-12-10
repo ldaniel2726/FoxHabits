@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +13,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+
+  useEffect(() => {
+    const type = searchParams.get('type');
+    const accessToken = searchParams.get('access_token');
+
+    if (type !== 'recovery' || !accessToken) {
+      toast.error("Érvénytelen vagy lejárt jelszó-visszaállító link");
+      router.push('/login');
+    }
+  }, [searchParams, router]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,9 +45,16 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    if (password.length < 8 || !/[0-9]/.test(password) || !/[!@#$%^&*(),.?":{}|<>_-]/.test(password)) {
+      toast.error("A jelszónak legalább 8 karakter hosszúnak kell lennie, és tartalmaznia kell legalább egy számot és egy speciális karaktert.");
+      setIsLoading(false);
+      return;
+    }
+
     const { error } = await supabase.auth.updateUser({ password });
 
     if (error) {
+      console.log(error)
       toast.error("Hiba történt a jelszó módosítása során");
     } else {
       toast.success("Jelszó sikeresen módosítva!");
