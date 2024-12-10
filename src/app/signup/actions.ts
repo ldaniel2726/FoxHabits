@@ -48,5 +48,3 @@ export async function signup(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect('/login')
 }
-
-// Helloszia_123
