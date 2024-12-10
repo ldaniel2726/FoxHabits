@@ -1,10 +1,14 @@
 import { SignUpForm } from '@/components/signup-form';
+import { toast } from 'sonner';
 
-export default function LoginPage() {
+export default function SignupPage() {
 
   return (
     <div className="flex h-screen w-full items-center justify-center px-4">
-      <SignUpForm />
+      <SignUpForm onSuccess={() => {
+        toast.success("Sikeres regisztráció! Kérjük erősítsd meg az email címedet.");
+      }} />
     </div>
-  );
+  )
 }
+  

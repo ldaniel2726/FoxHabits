@@ -16,7 +16,11 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { signup } from '@/app/signup/actions';
 
-export function SignUpForm(){
+interface SignUpFormProps {
+  onSuccess: () => void;
+}
+
+export function SignUpForm({ onSuccess }: SignUpFormProps) {
 
   const [error, setError] = useState<string | null>(null);
 
@@ -33,6 +37,7 @@ export function SignUpForm(){
       toast.error(response.error);
     } else {
       toast.success('Sikeres regisztráció! Bejelentkezéshez lépj tovább.');
+      onSuccess();
     }
   }
 

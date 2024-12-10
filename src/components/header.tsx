@@ -9,6 +9,14 @@ import { User } from '@supabase/supabase-js';
 
 export default function Header({ data }: { data: { user: User | null } }) {
 
+  let imgSrc = ""
+
+  if (!(data.user?.user_metadata.picture) && !(data.user?.user_metadata.avatar_url)) {
+    imgSrc = "https://github.com/shadcn.png"
+  } else {
+    imgSrc = data.user?.user_metadata.picture || data.user?.user_metadata.avatar_url
+  }
+
   return (
     <div className="container mx-auto px-4 md:px-6 lg:px-8">
       <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6">
@@ -51,7 +59,7 @@ export default function Header({ data }: { data: { user: User | null } }) {
                         <Button variant="ghost" className="justify-self-end">
                             {data.user?.user_metadata.name}
                             <Avatar className="w-8 h-8">
-                              <AvatarImage src="https://github.com/shadcn.png" alt="User's avatar" />
+                              <AvatarImage src={imgSrc} alt="Avatar" />
                               <AvatarFallback>LD</AvatarFallback>
                             </Avatar>
                         </Button>

@@ -15,6 +15,14 @@ export default async function Page() {
   const supabase = await createClient()
 
   const { data, error } = await supabase.auth.getUser()
+  
+  let imgSrc = ""
+
+  if (!(data.user?.user_metadata.picture) && !(data.user?.user_metadata.avatar_url)) {
+    imgSrc = "https://github.com/shadcn.png"
+  } else {
+    imgSrc = data.user?.user_metadata.picture || data.user?.user_metadata.avatar_url
+  }
 
   return (
     <>
@@ -23,7 +31,7 @@ export default async function Page() {
           <CardHeader className="flex flex-col sm:flex-row items-center gap-4 justify-between">
             <div className="flex gap-4 items-center">
               <Avatar className="w-24 h-24">
-                <AvatarImage src="https://github.com/shadcn.png" alt="User's avatar" />
+                <AvatarImage src={imgSrc} alt="Avatar" />
                 <AvatarFallback>LD</AvatarFallback>
               </Avatar>
               <div className="text-center sm:text-left">
