@@ -1,21 +1,14 @@
 import type { Metadata } from "next";
-import localFont from "@next/font/local";
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner"
 import { lazy, Suspense } from 'react';
 import LoadingFallback from '@/components/loading-fallback';
 import { createClient } from "@/utils/supabase/server";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+const fontSans = GeistSans;
+const fontMono = GeistMono;
 
 export const metadata: Metadata = {
   title: "Fox Habits",
@@ -35,8 +28,8 @@ export default async function RootLayout({
   const { data, error } = await supabase.auth.getUser()
 
   return (
-    <html lang="en" className={geistSans.className}>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased m-auto`}>
+    <html lang="en" className={fontSans.className}>
+      <body className={`${fontSans.variable} ${fontMono.variable} antialiased m-auto`}>
         <Suspense fallback={<LoadingFallback />}>
           <div className="m-auto">
             <Header data={data} />
