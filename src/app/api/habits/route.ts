@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { badContentReturn, numberValidator, permissionDeniedReturn, selectValidator, stringValidator } from "@/utils/validators/APIValidators";
+import { badContentReturn, permissionDeniedReturn } from "@/utils/validators/APIValidators";
 import { getValidHabitNameStatuses } from "@/utils/validators/HabitValidators";
 import { z } from "zod";
 
@@ -51,16 +51,26 @@ export async function GET() {
 // POST /api/habits ~ Szokás létrehozása
 export async function POST(request: Request) {  
   try {
-      const {
-          habit_name,
-          habit_name_status = 'new',
-          habit_type,
-          interval,
-          habit_interval_type,
-          start_date = new Date().toISOString(),
-          is_active = true,
-      } = await request.json();
+      const habitSchema = z.object({
+          habit_name: z.string().min(1).max(255),
+          habit_name_status: z.string().default('new'),
+          habit_type: z.enum(['normal_habit', 'bad_habit']),
+          interval: z.number().positive(),
+          habit_interval_type: z.enum(['hours', 'days', 'weeks', 'months', 'years']),
+          start_date: z.string().datetime().default(() => new Date().toISOString()),
+          is_active: z.boolean().default(true),
+      });
 
+      const result = habitSchema.safeParse(await request.json());
+      
+      if (!result.success) {
+          return NextResponse.json(
+              { error: result.error.issues[0].message },
+              { status: 400 }
+          );
+      }
+
+      const validatedData = result.data;
       const supabase = await createClient();
 
       const {
@@ -76,44 +86,22 @@ export async function POST(request: Request) {
       }
 
       const role = user.user_metadata?.role;
-
-      const validHabitTypes = ['normal_habit', 'bad_habit'];
-      const validHabitIntervalTypes = ['hours', 'days', 'weeks', 'months', 'years'];
       const validHabitNameStatus = getValidHabitNameStatuses(role);
-      
-      if (!stringValidator(255, habit_name)) {
-          return badContentReturn("A szokás neve nem megfelelő.");
+
+      // Ellenőrizzük a habit_name_status értékét a szerepkör alapján
+      if (!validHabitNameStatus.includes(validatedData.habit_name_status)) {
+          return NextResponse.json(
+              { error: `A szokás nevének státusza csak ${validHabitNameStatus.join(', ')} lehet.` },
+              { status: 400 }
+          );
       }
-
-      if(!stringValidator) return badContentReturn("A szokás nevének státusza nem megfelelő.");
-
-      if (!selectValidator) return badContentReturn(`A szokás nevének státusza csak ${validHabitNameStatus.join(', ')} lehet.`);
-
-
-      if (typeof interval !== 'number' || interval <= 0) {
-          return NextResponse.json({ error: 'Az intervallum kötelező, és pozitív számnak kell lennie.' }, { status: 400 });
-      }
-
-      if (!validHabitIntervalTypes.includes(habit_interval_type)) {
-          return NextResponse.json({ error: `Az intervallum típusa csak ${validHabitIntervalTypes.join(', ')} lehet.` }, { status: 400 });
-      }
-
-      if (isNaN(Date.parse(start_date))) {
-          return NextResponse.json({ error: 'A kezdési dátum érvénytelen.' }, { status: 400 });
-      }
-
-      if (typeof is_active !== 'boolean') {
-          return NextResponse.json({ error: 'Az aktivitás státusza boolean típusú kell legyen.' }, { status: 400 });
-      }
-
-
 
       let habit_name_id;
 
       const { data: habitNameData, error: habitNameError } = await supabase
           .from('habit_names')
           .select('habit_name_id')
-          .eq('habit_name', habit_name)
+          .eq('habit_name', validatedData.habit_name)
           .single();
 
       if (habitNameError && habitNameError.code !== 'PGRST116') {
@@ -125,8 +113,8 @@ export async function POST(request: Request) {
               .from('habit_names')
               .insert([
                   { 
-                      habit_name,
-                      habit_name_status,
+                      habit_name: validatedData.habit_name,
+                      habit_name_status: validatedData.habit_name_status,
                       sender_user_id: user.id,
                   }
               ])
@@ -142,17 +130,16 @@ export async function POST(request: Request) {
           habit_name_id = habitNameData.habit_name_id;
       }
 
-
       const { data, error } = await supabase
           .from('habits')
           .insert([
               {
                   related_user_id: user.id,
-                  habit_type,
-                  interval,
-                  habit_interval_type,
-                  start_date,
-                  is_active,
+                  habit_type: validatedData.habit_type,
+                  interval: validatedData.interval,
+                  habit_interval_type: validatedData.habit_interval_type,
+                  start_date: validatedData.start_date,
+                  is_active: validatedData.is_active,
                   habit_name_id,
               }
           ])
@@ -165,7 +152,7 @@ export async function POST(request: Request) {
 
       return NextResponse.json(data, { status: 200 });
   } catch (err) {
-    console.error(err);
-    return NextResponse.json({ error: `Hibás kérés vagy szerverhiba` }, { status: 500 });
-}
+      console.error(err);
+      return NextResponse.json({ error: `Hibás kérés vagy szerverhiba` }, { status: 500 });
+  }
 }
