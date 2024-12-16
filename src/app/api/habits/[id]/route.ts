@@ -1,5 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
+import { z } from "zod";
 
 // GET /api/habits/[id] ~ A szokás adatainak lekérdezése
 export async function GET(request: Request) {
@@ -74,18 +75,27 @@ export async function GET(request: Request) {
 // PATCH /api/habits/[id] ~ Szokás módosítása
 export async function PATCH(request: Request) {
     try {
-        const payload = await request.json();
+        const habitUpdateSchema = z.object({
+            habit_name: z.string().min(1).max(255).optional(),
+            habit_name_status: z.enum(['new', 'private', 'public', 'rejected']).optional(),
+            habit_type: z.enum(['normal_habit', 'bad_habit']).optional(),
+            interval: z.number().positive().optional(),
+            habit_interval_type: z.enum(['hours', 'days', 'weeks', 'months', 'years']).optional(),
+            start_date: z.string().datetime().optional(),
+            is_active: z.boolean().optional(),
+            related_user_id: z.string().optional(),
+        });
 
-        const {
-            habit_name,
-            habit_name_status,
-            habit_type,
-            interval,
-            habit_interval_type,
-            start_date,
-            is_active,
-            related_user_id,
-        } = payload;
+        const result = habitUpdateSchema.safeParse(await request.json());
+        
+        if (!result.success) {
+            return NextResponse.json(
+                { error: result.error.issues[0].message },
+                { status: 400 }
+            );
+        }
+
+        const validatedData = result.data;
 
         const url = new URL(request.url);
         const splitted_url = url.pathname.split('/');
@@ -112,11 +122,11 @@ export async function PATCH(request: Request) {
             );
         }
 
-        let updated_related_user_id = related_user_id;
-        if (user.id !== related_user_id && user.user_metadata?.role !== 'admin') {
-            updated_related_user_id = user.id;  
+        let updated_related_user_id = validatedData.related_user_id;
+        if (user.id !== validatedData.related_user_id && user.user_metadata?.role !== 'admin') {
+            updated_related_user_id = user.id;
         }
-        
+
         const { data: habitData, error: habitError } = await supabase
             .from('habits')
             .select('related_user_id')
@@ -134,40 +144,19 @@ export async function PATCH(request: Request) {
             );
         }
 
-        const validHabitTypes = ['normal_habit', 'bad_habit'];
-        const validHabitIntervalTypes = ['hours', 'days', 'weeks', 'months', 'years'];
-        const validHabitNameStatus = ['new', 'private'];
-        if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
-            validHabitNameStatus.push('public');
-            validHabitNameStatus.push('rejected');
-        }
+        // Ellenőrizzük a habit_name_status jogosultságot
+        if (validatedData.habit_name_status) {
+            const validHabitNameStatus = ['new', 'private'];
+            if (user.user_metadata?.role === 'admin' || user.user_metadata?.role === 'moderator') {
+                validHabitNameStatus.push('public', 'rejected');
+            }
 
-        if (habit_name && (typeof habit_name !== 'string' || habit_name.trim() === '')) {
-            return NextResponse.json({ error: 'A szokás neve kötelező, és szöveg típusúnak kell lennie.' }, { status: 400 });
-        }
-
-        if (habit_name_status && !validHabitNameStatus.includes(habit_name_status)) {
-            return NextResponse.json({ error: `A szokás nevének státusza csak ${validHabitNameStatus.join(', ')} lehet.` }, { status: 400 });
-        }
-
-        if (habit_type && !validHabitTypes.includes(habit_type)) {
-            return NextResponse.json({ error: `A szokás típusa csak ${validHabitTypes.join(', ')} lehet.` }, { status: 400 });
-        }
-
-        if (interval && (typeof interval !== 'number' || interval <= 0)) {
-            return NextResponse.json({ error: 'Az intervallum kötelező, és pozitív számnak kell lennie.' }, { status: 400 });
-        }
-
-        if (habit_interval_type && !validHabitIntervalTypes.includes(habit_interval_type)) {
-            return NextResponse.json({ error: `Az intervallum típusa csak ${validHabitIntervalTypes.join(', ')} lehet.` }, { status: 400 });
-        }
-
-        if (start_date && isNaN(Date.parse(start_date))) {
-            return NextResponse.json({ error: 'A kezdési dátum érvénytelen.' }, { status: 400 });
-        }
-
-        if (is_active !== undefined && typeof is_active !== 'boolean') {
-            return NextResponse.json({ error: 'Az aktivitás státusza boolean típusú kell legyen.' }, { status: 400 });
+            if (!validHabitNameStatus.includes(validatedData.habit_name_status)) {
+                return NextResponse.json(
+                    { error: `A szokás nevének státusza csak ${validHabitNameStatus.join(', ')} lehet.` },
+                    { status: 400 }
+                );
+            }
         }
 
         type HabitUpdates = {
@@ -179,56 +168,53 @@ export async function PATCH(request: Request) {
             related_user_id?: string;
             habit_name_id?: number;
         };
-        
+
         const updates: HabitUpdates = {};
 
-let habit_name_id;
+        let habit_name_id;
 
-if (habit_name) {
-    const { data: habitNameData, error: habitNameError } = await supabase
-        .from('habit_names')
-        .select('habit_name_id')
-        .eq('habit_name', habit_name)
-        .single();
+        if (validatedData.habit_name) {
+            const { data: habitNameData, error: habitNameError } = await supabase
+                .from('habit_names')
+                .select('habit_name_id')
+                .eq('habit_name', validatedData.habit_name)
+                .single();
 
-    if (habitNameError) {
-        return NextResponse.json({ error: habitNameError.message }, { status: 500 });
-    }
+            if (habitNameError) {
+                return NextResponse.json({ error: habitNameError.message }, { status: 500 });
+            }
 
-    if (!habitNameData) {
-        let habit_name_status_new = habit_name_status;
-        if (!habit_name_status) {
-            habit_name_status_new = 'new';
-        }
-        const { data: newHabitNameData, error: newHabitNameError } = await supabase
-            .from('habit_names')
-            .insert([{ habit_name,
-                habit_name_status: habit_name_status_new,
-                sender_user_id: user.id }])
-            .select('habit_name_id')
-            .single();
+            if (!habitNameData) {
+                const habit_name_status_new = validatedData.habit_name_status || 'new';
+                const { data: newHabitNameData, error: newHabitNameError } = await supabase
+                    .from('habit_names')
+                    .insert([{
+                        habit_name: validatedData.habit_name,
+                        habit_name_status: habit_name_status_new,
+                        sender_user_id: user.id
+                    }])
+                    .select('habit_name_id')
+                    .single();
 
-        if (newHabitNameError) {
-            return NextResponse.json({ error: newHabitNameError.message }, { status: 500 });
-        }
+                if (newHabitNameError) {
+                    return NextResponse.json({ error: newHabitNameError.message }, { status: 500 });
+                }
 
-        habit_name_id = newHabitNameData.habit_name_id;
-        } else {
-               habit_name_id = habitNameData.habit_name_id;
-
+                habit_name_id = newHabitNameData.habit_name_id;
+            } else {
+                habit_name_id = habitNameData.habit_name_id;
             }
 
             updates.habit_name_id = habit_name_id;
         }
 
-        if (habit_type) updates.habit_type = habit_type;
-        if (interval) updates.interval = interval;
-        if (habit_interval_type) updates.habit_interval_type = habit_interval_type;
-        if (start_date) updates.start_date = start_date;
-        if (is_active !== undefined) updates.is_active = is_active;
+        // Frissítjük az updates objektumot a validált adatokkal
+        if (validatedData.habit_type) updates.habit_type = validatedData.habit_type;
+        if (validatedData.interval) updates.interval = validatedData.interval;
+        if (validatedData.habit_interval_type) updates.habit_interval_type = validatedData.habit_interval_type;
+        if (validatedData.start_date) updates.start_date = validatedData.start_date;
+        if (validatedData.is_active !== undefined) updates.is_active = validatedData.is_active;
         updates.related_user_id = updated_related_user_id;
-
-        
 
         if (Object.keys(updates).length === 0) {
             return NextResponse.json({ error: 'Nincs frissítendő mező.' }, { status: 400 });
