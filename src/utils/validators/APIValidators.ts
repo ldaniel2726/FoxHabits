@@ -12,4 +12,4 @@ export function badContentReturn(errorMessage: string) {
         { error: errorMessage },
         { status: 400 }
     );
-}
+}   

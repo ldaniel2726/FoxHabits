@@ -131,3 +131,6 @@ dist
 
 .DS_Store
 .vercel
+documentation/~$Manuális_tesztek.xlsx
+documentation/~$st_api.docx
+.gitignore
