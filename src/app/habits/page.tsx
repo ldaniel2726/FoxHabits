@@ -9,6 +9,19 @@ export default async function Page() {
     const result = await response.json();
     console.log(result);
 
+    interface Habit {
+        habit_id: string;
+        habit_type: string;
+        interval: number;
+        habit_interval_type: string;
+        start_date: string;
+        is_active: boolean;
+        created_date: string;
+        habit_names: {
+          habit_name: string;
+        };
+    }      
+
     if (result.message) {
         return (
             <div className="mx-14 py-10">
@@ -25,14 +38,14 @@ export default async function Page() {
         );
     }
 
-    const { data: habits } = result;
+    const { data: habits }: { data: Habit[] } = result;
 
     return (
         <div className="mx-14 py-10">
             <h1 className="text-4xl font-bold pt-12">Összes szokásod</h1>
             <p className="text-lg pb-6 text-zinc-600">{habits?.length || 0} szokás található</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
-                {habits?.map((habit) => (
+                {habits?.map((habit: Habit) => (
                     <HabitCard 
                         key={habit.habit_id}
                         habit_id={habit.habit_id}
