@@ -11,6 +11,8 @@ export async function GET() {
     error: userError,
   } = await supabase.auth.getUser();
 
+  console.log(user);
+
   if (userError || !user) {
     return NextResponse.json(
       { error: "Nem vagy bejelentkezve." },
