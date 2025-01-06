@@ -10,29 +10,28 @@ export default async function HabitPage({
   }: {
     params: Promise<{ id: string }>;
   }) {
-
-  const supabase = await createClient();
-
-  const { data: habit, error } = await supabase
-    .from("habits")
-    .select(`
-      *,
-      habit_names!inner(habit_name)
-    `)
-    .eq("habit_id", (await params).id)
-    .single();
-
-  if (error || !habit) {
-    notFound();
-  }
-
-  const translations: { [key: string]: string } = {
-    hours: "órában",
-    days: "nap",
-    weeks: "héten",
-    months: "hónapban",
-    years: "évben",
-  };
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const host = process.env.VERCEL_URL || 'localhost:3000';
+    const response = await fetch(`${protocol}://${host}/api/habits/${(await params).id}`);
+    const result = await response.json();
+  
+    if (result.error) {
+      notFound();
+    }
+  
+    const habit = result.data;
+  
+    if (!habit) {
+      notFound();
+    }
+  
+    const translations: { [key: string]: string } = {
+      hours: "órában",
+      days: "nap", 
+      weeks: "héten",
+      months: "hónapban",
+      years: "évben",
+    };
 
   return (
     <div className="container mx-auto py-10">
