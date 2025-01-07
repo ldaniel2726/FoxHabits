@@ -58,9 +58,9 @@ export function HabitCard({
           </CardTitle>
           <CardDescription>
             {habit_type === "normal_habit"
-              ? "Normál szokás"
+              ? "Szokás"
               : habit_type === "bad_habit"
-              ? "kKros szokás"
+              ? "Káros szokás"
               : habit_type}
           </CardDescription>
         </CardHeader>
