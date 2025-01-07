@@ -1,53 +1,64 @@
-import { createClient } from '@/utils/supabase/server';
-import { NextResponse } from 'next/server';
-
+import { createClient } from "@/utils/supabase/server";
+import { NextResponse } from "next/server";
 
 // /api/habits/own ~ A felhasználó saját szokásainak a visszaadása
-export async function GET() {
-  const supabase = await createClient();
+export async function GET(request: Request) {
+  try {
+    const authHeader = request.headers.get("authorization");
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    if (!authHeader) {
+      return NextResponse.json(
+        { error: "Hiányzó autentikációs token" },
+        { status: 401 }
+      );
+    }
 
-  console.log(user);
+    const supabase = await createClient();
 
-  if (userError || !user) {
-    return NextResponse.json(
-      { error: "Nem vagy bejelentkezve." },
-      { status: 401 }
-    );
-  }
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""));
 
-  const userid = user.id;
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: "Érvénytelen vagy lejárt token" },
+        { status: 401 }
+      );
+    }
 
-
-  const { data, error } = await supabase
-    .from("habits")
-    .select(
+    const { data, error } = await supabase
+      .from("habits")
+      .select(
+        `
+        habit_id, 
+        habit_type, 
+        interval, 
+        habit_interval_type, 
+        start_date, 
+        is_active, 
+        habit_names!inner(habit_name),
+        created_date
       `
-      habit_id, 
-      habit_type, 
-      interval, 
-      habit_interval_type, 
-      start_date, 
-      is_active, 
-      habit_names!inner(habit_name)
-    `
-    )
-    .eq('related_user_id', userid);
+      )
+      .eq("related_user_id", user.id);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-  if (!data || data.length === 0) {
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        { message: "Nincs egyetlen szokásod sem." },
+        { status: 200 }
+      );
+    }
+
+    return NextResponse.json(data, { status: 200 });
+  } catch (error) {
     return NextResponse.json(
-      { message: "Nincs egyetlen szokásod sem." },
-      { status: 200 }
+      { error: "Szerver hiba történt" },
+      { status: 500 }
     );
   }
-
-  return NextResponse.json(data, { status: 200 });
 }
