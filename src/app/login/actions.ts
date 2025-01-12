@@ -23,7 +23,7 @@ export async function login(formData: FormData) {
     }
   }
 
-  revalidatePath('/', 'layout')
+revalidatePath('/', 'layout')
   redirect('/profile')
 }
 
