@@ -1,5 +1,6 @@
 import { createClient } from "@/utils/supabase/server";
 import { notFound } from "next/navigation";
+import { cookies } from "next/headers";
 import {
   Card,
   CardContent,
@@ -18,19 +19,41 @@ export default async function HabitPage({
 }) {
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
   const host = process.env.VERCEL_URL || "localhost:3000";
+  const cookieStore = await cookies();
   const response = await fetch(
-    `${protocol}://${host}/api/habits/${(await params).id}`
+    `${protocol}://${host}/api/habits/${(await params).id}`,
+    {
+      credentials: "include",
+      headers: {
+        Cookie: cookieStore.toString(),
+      },
+    }
   );
+
+  if (!response.ok) {
+    console.error("API Response error:", {
+      status: response.status,
+      statusText: response.statusText,
+      body: await response.text(),
+    });
+    notFound();
+  }
+
   const result = await response.json();
 
-  if (result.error) {
+  if (!result || !result.data) {
+    console.error("Result error:", result);
     notFound();
   }
 
   const habit = result.data;
 
-  if (!habit) {
-    notFound();
+  let formattedStartDate;
+  try {
+    formattedStartDate = format(new Date(habit.start_date), "yyyy MMMM d.");
+  } catch (error) {
+    console.error("Date formatting error:", error);
+    formattedStartDate = "Invalid date";
   }
 
   const translations: { [key: string]: string } = {
@@ -76,9 +99,7 @@ export default async function HabitPage({
 
             <div className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-muted-foreground" />
-              <span className="text-lg">
-                Elkezdve: {format(new Date(habit.start_date), "yyyy MMMM d.")}
-              </span>
+              <span className="text-lg">Elkezdve: {formattedStartDate}</span>
             </div>
 
             <div className="flex items-center gap-2">

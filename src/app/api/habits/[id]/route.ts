@@ -5,75 +5,89 @@ import { z } from "zod";
 
 // GET /api/habits/[id] ~ A szokás adatainak lekérdezése
 export async function GET(request: Request) {
-  const url = new URL(request.url);
-  const habit_id = url.pathname.split("/").pop();
+  try {
+    const url = new URL(request.url);
+    const habit_id = url.pathname.split("/").pop();
 
-  if (!habit_id) {
+    if (!habit_id) {
+      return NextResponse.json(
+        { error: "A szokás azonosítója nem található!" },
+        { status: 400 }
+      );
+    }
+    if (isNaN(Number(habit_id))) {
+      return NextResponse.json(
+        { error: "A szokás azonosítónak számnak kell lennie!" },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    console.log("Auth debug:", { user, userError });
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: "A felhasználó nem található! Kérlek jelentkezz be." },
+        { status: 401 }
+      );
+    }
+
+    const userRole = user.user_metadata?.role;
+    console.log("User role:", userRole);
+
+    let query = supabase
+      .from("habits")
+      .select(
+        `
+              habit_id, 
+              related_user_id, 
+              habit_type, 
+              interval, 
+              habit_interval_type, 
+              start_date, 
+              is_active, 
+              habit_names!inner(habit_name),
+              created_date
+              `
+      )
+      .eq("habit_id", habit_id);
+
+    if (userRole !== ADMIN) {
+      query = query.eq("related_user_id", user.id);
+    }
+
+    const { data, error } = await query;
+    console.log("Query debug:", { data, error });
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    if (!data || data.length === 0) {
+      return NextResponse.json(
+        {
+          error:
+            "A szokás nem létezik, vagy nincs jogosultságod a megtekintéséhez.",
+        },
+        { status: 404 }
+      );
+    }
+
+    const habitData = Array.isArray(data) ? data[0] : data;
+    return NextResponse.json({ data: habitData }, { status: 200 });
+  } catch (error) {
+    console.error("Server error:", error);
     return NextResponse.json(
-      { error: "A szokás azonosítója nem található!" },
-      { status: 400 }
+      { error: "Szerver hiba történt!" },
+      { status: 500 }
     );
   }
-  if (isNaN(Number(habit_id))) {
-    return NextResponse.json(
-      { error: "A szokás azonosítónak számnak kell lennie!" },
-      { status: 400 }
-    );
-  }
-
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    return NextResponse.json(
-      { error: "A felhasználó nem található! Kérlek jelentkezz be." },
-      { status: 401 }
-    );
-  }
-
-  const userRole = user.user_metadata?.role;
-
-  let query = supabase
-    .from("habits")
-    .select(
-      `
-            habit_id, 
-            related_user_id, 
-            habit_type, 
-            interval, 
-            habit_interval_type, 
-            start_date, 
-            is_active, 
-            habit_names!inner(habit_name)
-            `
-    )
-    .eq("habit_id", habit_id);
-
-  if (userRole !== ADMIN) {
-    query = query.eq("related_user_id", user.id);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  if (!data || data.length === 0) {
-    return NextResponse.json(
-      {
-        message:
-          "A szokás nem létezik, vagy nincs jogosultságod a megtekintéséhez.",
-      },
-      { status: 404 }
-    );
-  }
-
-  return NextResponse.json(data, { status: 200 });
 }
 
 // PATCH /api/habits/[id] ~ Szokás módosítása
@@ -123,6 +137,8 @@ export async function PATCH(request: Request) {
       error: userError,
     } = await supabase.auth.getUser();
 
+    console.log("Auth debug:", { user, userError });
+
     if (userError || !user) {
       return NextResponse.json(
         { error: "A felhasználó nem található! Kérlek jelentkezz be." },
@@ -143,6 +159,8 @@ export async function PATCH(request: Request) {
       .select("related_user_id")
       .eq("habit_id", habit_id)
       .single();
+
+    console.log("Habit data debug:", { habitData, habitError });
 
     if (habitError) {
       return NextResponse.json({ error: habitError.message }, { status: 500 });
@@ -198,6 +216,8 @@ export async function PATCH(request: Request) {
         .eq("habit_name", validatedData.habit_name)
         .single();
 
+      console.log("Habit name data debug:", { habitNameData, habitNameError });
+
       if (habitNameError) {
         return NextResponse.json(
           { error: habitNameError.message },
@@ -219,6 +239,11 @@ export async function PATCH(request: Request) {
             ])
             .select("habit_name_id")
             .single();
+
+        console.log("New habit name data debug:", {
+          newHabitNameData,
+          newHabitNameError,
+        });
 
         if (newHabitNameError) {
           return NextResponse.json(
@@ -259,11 +284,13 @@ export async function PATCH(request: Request) {
       .select()
       .single();
 
+    console.log("Update debug:", { data, error });
+
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json({ data }, { status: 200 });
   } catch (err) {
     console.error(err);
     return NextResponse.json(
@@ -299,6 +326,8 @@ export async function DELETE(request: Request) {
     error: userError,
   } = await supabase.auth.getUser();
 
+  console.log("Auth debug:", { user, userError });
+
   if (userError || !user) {
     return NextResponse.json(
       { error: "A felhasználó nem található! Kérlek jelentkezz be." },
@@ -318,6 +347,7 @@ export async function DELETE(request: Request) {
   }
 
   const { error, count } = await query;
+  console.log("Delete debug:", { error, count });
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
