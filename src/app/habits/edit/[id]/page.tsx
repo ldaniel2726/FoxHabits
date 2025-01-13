@@ -4,7 +4,7 @@ import { cookies } from "next/headers";
 import HabitEditFormComponent from "@/components/habit-edit-form";
 
 const formSchema = z.object({
-  habit_name: z.string().min(1).max(255),
+  habit_names: z.object({"habit_name": z.string().min(1).max(255)}),
   habit_type: z.enum(["normal_habit", "bad_habit"]),
   interval: z.number().positive(),
   habit_interval_type: z.enum(["hours", "days", "weeks", "months", "years"]),
@@ -13,6 +13,11 @@ const formSchema = z.object({
 });
 
 type FormSchema = z.infer<typeof formSchema>;
+
+interface PageProps {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+}
 
 async function getHabit(id: string): Promise<FormSchema> {
     const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
@@ -29,35 +34,37 @@ async function getHabit(id: string): Promise<FormSchema> {
     if (!res.ok) {
         throw new Error('Nem sikerült lekérni a szokás adatait');
     }
-    return res.json();
+    
+    const result = await res.json();
+    return result.data;
 }
 
-export default async function HabitEditPage({ params }: { params: { id: string } }) {
-    const { id } = params;
-    let habit: FormSchema | null = null;
-    let error: string | null = null;
-  
-    try {
-      habit = await getHabit(id);
-    } catch (err) {
-      console.error("Hiba a szokás adatainak lekérésekor:", err);
-      error = 'Nem sikerült betölteni a szokás adatait.';
-    }
-  
-    if (error) return <div>{error}</div>;
-    if (!habit) return <div>Nem található szokás.</div>;
-  
-    return (
-      <div className="container mx-auto py-10">
-        <Card className="max-w-lg mx-auto">
-          <CardHeader>
-            <CardTitle className="text-2xl">Szokás szerkesztése</CardTitle>
-            <CardDescription>Szerkeszd a szokásod részleteit alább.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <HabitEditFormComponent habit={habit} id={id} />
-          </CardContent>
-        </Card>
-      </div>
-    );
+export default async function HabitEditPage({ params }: PageProps) {
+  const { id } = await params;
+  let habit: FormSchema | null = null;
+  let error: string | null = null;
+
+  try {
+    habit = await getHabit(id);
+  } catch (err) {
+    console.error("Hiba a szokás adatainak lekérésekor:", err);
+    error = 'Nem sikerült betölteni a szokás adatait.';
+  }
+
+  if (error) return <div>{error}</div>;
+  if (!habit) return <div>Nem található szokás.</div>;
+
+  return (
+    <div className="container mx-auto py-10">
+      <Card className="max-w-lg mx-auto">
+        <CardHeader>
+          <CardTitle className="text-2xl">Szokás szerkesztése</CardTitle>
+          <CardDescription>Szerkeszd a szokásod részleteit alább.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <HabitEditFormComponent habit={habit} id={id} />
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
