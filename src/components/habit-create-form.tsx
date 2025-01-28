@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -6,16 +6,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+  SelectValue,
+} from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   habit_name: z.string().min(1).max(255),
   habit_type: z.enum(["normal_habit", "bad_habit"]),
   interval: z.number().positive(),
-  habit_interval_type: z.enum(["hours", "days", "weeks", "months", "years"]),
+  habit_interval_type: z.enum(["days", "weeks", "months", "years"]),
   start_date: z.string().datetime(),
   is_active: z.boolean(),
 });
@@ -25,7 +31,13 @@ type FormSchema = z.infer<typeof formSchema>;
 export default function HabitCreateFormComponent() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors } } = useForm<FormSchema>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    setValue: setValueHook,
+  } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       habit_type: "normal_habit",
@@ -39,22 +51,22 @@ export default function HabitCreateFormComponent() {
   const onSubmit = async (data: FormSchema) => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/habits', {
-        method: 'POST',
+      const response = await fetch("/api/habits", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
-        throw new Error('Hiba történt a szokás létrehozásakor');
+        throw new Error("Hiba történt a szokás létrehozásakor");
       }
 
-      router.push('/habits');
+      router.push("/habits");
       router.refresh();
     } catch (error) {
-      console.error('Hiba:', error);
+      console.error("Hiba:", error);
     } finally {
       setIsLoading(false);
     }
@@ -64,50 +76,68 @@ export default function HabitCreateFormComponent() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
         <Label htmlFor="habit_name">Szokás neve</Label>
-        <Input
-          id="habit_name"
-          {...register("habit_name")}
-        />
-        {errors.habit_name && <p className="text-red-500">{errors.habit_name.message}</p>}
+        <Input id="habit_name" {...register("habit_name")} />
+        {errors.habit_name && (
+          <p className="text-red-500">{errors.habit_name.message}</p>
+        )}
       </div>
 
       <div>
         <Label htmlFor="habit_type">Szokás típusa</Label>
-        <Select {...register("habit_type")}>
+        <Select
+          defaultValue="normal_habit"
+          onValueChange={(value: "normal_habit" | "bad_habit") =>
+            setValue("habit_type", value)
+          }
+        >
           <SelectTrigger>
-            <SelectContent>
-              <SelectItem value="normal_habit">Normál szokás</SelectItem>
-              <SelectItem value="bad_habit">Rossz szokás</SelectItem>
-            </SelectContent>
+            <SelectValue placeholder="Válassz típust" />
           </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="normal_habit">Normál szokás</SelectItem>
+            <SelectItem value="bad_habit">Káros szokás</SelectItem>
+          </SelectContent>
         </Select>
-        {errors.habit_type && <p className="text-red-500">{errors.habit_type.message}</p>}
+        {errors.habit_type && (
+          <p className="text-red-500">{errors.habit_type.message}</p>
+        )}
       </div>
 
-      <div>
-        <Label htmlFor="interval">Intervallum</Label>
-        <Input
-          id="interval"
-          type="number"
-          {...register("interval", { valueAsNumber: true })}
-        />
-        {errors.interval && <p className="text-red-500">{errors.interval.message}</p>}
-      </div>
+      <div className="flex space-x-4">
+        <div className="flex-1">
+          <Label htmlFor="interval">Intervallum</Label>
+          <Input
+            id="interval"
+            type="number"
+            {...register("interval", { valueAsNumber: true })}
+          />
+          {errors.interval && (
+            <p className="text-red-500">{errors.interval.message}</p>
+          )}
+        </div>
 
-      <div>
-        <Label htmlFor="habit_interval_type">Intervallum típusa</Label>
-        <Select {...register("habit_interval_type")}>
-          <SelectTrigger>
+        <div className="flex-1">
+          <Label htmlFor="habit_interval_type">Intervallum típusa</Label>
+          <Select
+            defaultValue="days"
+            onValueChange={(value: "days" | "weeks" | "months" | "years") =>
+              setValue("habit_interval_type", value)
+            }
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
             <SelectContent>
-              <SelectItem value="hours">Óra</SelectItem>
-              <SelectItem value="days">Nap</SelectItem>
-              <SelectItem value="weeks">Hét</SelectItem>
-              <SelectItem value="months">Hónap</SelectItem>
-              <SelectItem value="years">Év</SelectItem>
+              <SelectItem value="days">naponta</SelectItem>
+              <SelectItem value="weeks">hetente</SelectItem>
+              <SelectItem value="months">havonta</SelectItem>
+              <SelectItem value="years">évente</SelectItem>
             </SelectContent>
-          </SelectTrigger>
-        </Select>
-        {errors.habit_interval_type && <p className="text-red-500">{errors.habit_interval_type.message}</p>}
+          </Select>
+          {errors.habit_interval_type && (
+            <p className="text-red-500">{errors.habit_interval_type.message}</p>
+          )}
+        </div>
       </div>
 
       <div>
@@ -117,17 +147,18 @@ export default function HabitCreateFormComponent() {
           type="datetime-local"
           {...register("start_date")}
         />
-        {errors.start_date && <p className="text-red-500">{errors.start_date.message}</p>}
+        {errors.start_date && (
+          <p className="text-red-500">{errors.start_date.message}</p>
+        )}
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="is_active"
-          {...register("is_active")}
-        />
+      {/* <div className="flex items-center space-x-2">
+        <Checkbox id="is_active" {...register("is_active")} defaultChecked />
         <Label htmlFor="is_active">Aktív</Label>
-      </div>
-      {errors.is_active && <p className="text-red-500">{errors.is_active.message}</p>}
+      </div> */}
+      {errors.is_active && (
+        <p className="text-red-500">{errors.is_active.message}</p>
+      )}
 
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? "Létrehozás..." : "Szokás létrehozása"}
