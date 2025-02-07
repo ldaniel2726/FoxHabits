@@ -13,7 +13,6 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -22,8 +21,7 @@ const formSchema = z.object({
   habit_type: z.enum(["normal_habit", "bad_habit"]),
   interval: z.number().positive(),
   habit_interval_type: z.enum(["days", "weeks", "months", "years"]),
-  start_date: z.string().datetime(),
-  is_active: z.boolean(),
+  start_date: z.string(),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
@@ -31,20 +29,29 @@ type FormSchema = z.infer<typeof formSchema>;
 export default function HabitCreateFormComponent() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
-    setValue: setValueHook,
   } = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       habit_type: "normal_habit",
       interval: 1,
       habit_interval_type: "days",
-      start_date: new Date().toISOString().slice(0, 16),
-      is_active: true,
+      start_date: getCurrentDateTime(),
     },
   });
 
@@ -151,14 +158,6 @@ export default function HabitCreateFormComponent() {
           <p className="text-red-500">{errors.start_date.message}</p>
         )}
       </div>
-
-      {/* <div className="flex items-center space-x-2">
-        <Checkbox id="is_active" {...register("is_active")} defaultChecked />
-        <Label htmlFor="is_active">Aktív</Label>
-      </div> */}
-      {errors.is_active && (
-        <p className="text-red-500">{errors.is_active.message}</p>
-      )}
 
       <Button type="submit" className="w-full" disabled={isLoading}>
         {isLoading ? "Létrehozás..." : "Szokás létrehozása"}
