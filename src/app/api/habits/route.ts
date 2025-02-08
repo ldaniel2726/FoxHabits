@@ -51,7 +51,6 @@ export async function GET() {
 
 // POST /api/habits ~ Szokás létrehozása
 export async function POST(request: Request) {
-  console.log("ASD");
   try {
     const habitSchema = z.object({
       habit_name: z.string().min(1).max(255),

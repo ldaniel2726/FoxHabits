@@ -4,6 +4,7 @@ import {
   Clock,
   Repeat,
   Calendar,
+  CheckIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -16,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { Button } from "./ui/button";
 
 interface HabitCardProps {
   habit_id: string;
@@ -79,13 +81,16 @@ export function HabitCard({
             </span>
           </div>
         </CardContent>
-        <CardFooter className="text-sm text-muted-foreground">
+        <CardFooter className="text-sm text-muted-foreground flex justify-between">
           <div className="flex items-center space-x-2">
             <CalendarDays className="h-4 w-4" />
             <span>
               Létrehozva: {format(new Date(created_date), "yyyy MMMM d.")}
             </span>
           </div>
+          <Button variant="outline">
+            <CheckIcon className="h-4 w-4" />
+          </Button>
         </CardFooter>
       </Card>
     </Link>
