@@ -1,5 +1,7 @@
 import { HabitCard } from "@/components/habit-card";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/server";
+import Link from "next/link";
 
 export default async function Page() {
   const supabase = await createClient();
@@ -51,7 +53,12 @@ export default async function Page() {
   console.log(result);
   return (
     <div className="mx-14 py-10">
-      <h1 className="text-4xl font-bold pt-12">Összes szokásod</h1>
+      <div className="flex items-end justify-between">
+        <h1 className="text-4xl font-bold pt-12">Összes szokásod</h1>
+        <Link href="/habits/add">
+          <Button>Szokás hozzáadása</Button>
+        </Link>
+      </div>
       <p className="text-lg pb-6 text-zinc-600">
         {habits?.length || 0} szokás található
       </p>
