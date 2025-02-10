@@ -2,7 +2,7 @@ import { createClient } from "@/utils/supabase/server";
 import { permissionDeniedReturn } from "@/utils/validators/APIValidators";
 import { NextResponse } from "next/server";
 
-// GET /api/reports ~ A saját reportok visszaadása felhasználóknak
+// GET /api/reports/admin ~ A saját reportok visszaadása felhasználóknak
 export async function GET() {
   const supabase = await createClient();
 
@@ -18,6 +18,11 @@ export async function GET() {
     );
   }
 
+  const role = user.user_metadata?.role;
+
+    if (role !== "admin") {
+        return permissionDeniedReturn();
+    }
 
   const { data, error } = await supabase
     .from("reports")
@@ -31,7 +36,7 @@ export async function GET() {
       `
     )
     .eq("requester_user_id", user.id)
-    .eq("report_type", "user_report");
+    .eq("report_type", "admin_report");
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
