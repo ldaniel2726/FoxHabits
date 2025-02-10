@@ -1,4 +1,5 @@
 import { createClient } from "@/utils/supabase/server";
+import { ADMIN } from "@/utils/validators/APIConstants";
 import { permissionDeniedReturn } from "@/utils/validators/APIValidators";
 import { NextResponse } from "next/server";
 
@@ -20,7 +21,7 @@ export async function GET() {
 
   const role = user.user_metadata?.role;
 
-    if (role !== "admin") {
+    if (role !== ADMIN) {
         return permissionDeniedReturn();
     }
 
