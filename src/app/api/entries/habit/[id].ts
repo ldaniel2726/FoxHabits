@@ -82,7 +82,7 @@ export async function GET(request: Request) {
   return NextResponse.json(data);
 }
 
-// POST /api/entries/habit/[id] ~ Egy szokáshoz tartozó bejegyzések lekérdezése
+// POST /api/entries/habit/[id] ~ Egy szokás logolása
 export async function POST(request: Request) {
   try {
     const url = new URL(request.url);
