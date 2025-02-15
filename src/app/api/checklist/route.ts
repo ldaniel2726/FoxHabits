@@ -1,0 +1,35 @@
+import { createClient } from "@/utils/supabase/server";
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return NextResponse.json(
+      { error: "Nem vagy bejelentkezve." },
+      { status: 401 }
+    );
+  }
+
+  const { data, error } = await supabase.from("checklists").select(
+    `
+        id,
+        user_id,
+        name,
+        elements,
+        created_at,
+        updated_at
+      `
+  );
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json(data, { status: 200 });
+}
