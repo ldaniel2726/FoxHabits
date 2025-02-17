@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -9,14 +9,14 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "@/components/ui/tabs"
+} from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -26,23 +26,25 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Checkbox } from "@/components/ui/checkbox"
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type ChecklistElement = {
-    description: string;
-    status: string;
-  };
-  
-  type Checklist = {
-    id: number;
-    user_id?: number;
-    name: string;
-    elements?: ChecklistElement[] | Record<string, string>;
-  };
+  description: string;
+  status: string;
+};
+
+type Checklist = {
+  id: number;
+  user_id?: number;
+  name: string;
+  elements?: ChecklistElement[] | Record<string, string>;
+};
 
 export default function ListsPage() {
   const [checklists, setChecklists] = useState<Checklist[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchChecklists() {
@@ -53,6 +55,7 @@ export default function ListsPage() {
       } else {
         console.error("Error fetching checklists");
       }
+      setIsLoading(false);
     }
     fetchChecklists();
   }, []);
@@ -65,7 +68,7 @@ export default function ListsPage() {
     const newStatus = checked ? "CHECKED" : "UNCHECKED";
     const checklist = checklists.find((cl) => cl.id === checklistId);
     if (!checklist) return;
-  
+
     let elementsArray: { description: string; status: string }[];
     if (Array.isArray(checklist.elements)) {
       elementsArray = checklist.elements;
@@ -77,7 +80,7 @@ export default function ListsPage() {
     } else {
       elementsArray = [];
     }
-  
+
     let found = false;
     const updatedElements = elementsArray.map((el) => {
       if (el.description === description) {
@@ -89,14 +92,14 @@ export default function ListsPage() {
     if (!found) {
       updatedElements.push({ description, status: newStatus });
     }
-  
+
     const payload = {
       id: checklist.id,
       user_id: checklist.user_id,
       name: checklist.name,
       elements: updatedElements,
     };
-  
+
     try {
       const res = await fetch("/api/checklists", {
         method: "POST",
@@ -105,11 +108,13 @@ export default function ListsPage() {
         },
         body: JSON.stringify(payload),
       });
-  
+
       if (!res.ok) {
         console.error("Error updating checklist element");
       } else {
-        console.log(`Updated element "${description}" to ${newStatus} in checklist ${checklistId}`);
+        console.log(
+          `Updated element "${description}" to ${newStatus} in checklist ${checklistId}`
+        );
         setChecklists((prev) =>
           prev.map((cl) =>
             cl.id === checklistId ? { ...cl, elements: updatedElements } : cl
@@ -120,6 +125,49 @@ export default function ListsPage() {
       console.error("Error during POST call", error);
     }
   };
+
+  if (isLoading) {
+    // Render skeletons that mimic the header, tabs, and card content
+    return (
+      <div className="mx-14 py-10">
+        <div className="flex items-end justify-between">
+          <Skeleton className="h-10 w-48" />
+        </div>
+        <div className="mt-8">
+          {/* Skeleton for Tabs */}
+          <div className="grid w-full grid-cols-3 gap-2 mb-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          {/* Skeleton for card and table rows */}
+          <Card>
+            <CardHeader>
+              <CardTitle>
+                <Skeleton className="h-8 w-64" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableBody>
+                  {[1, 2, 3].map((item) => (
+                    <TableRow key={item}>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Skeleton className="h-4 w-4 rounded" />
+                          <Skeleton className="h-6 w-48" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-14 py-10">
@@ -145,34 +193,42 @@ export default function ListsPage() {
                   <Table>
                     <TableBody>
                       {checklist.elements ? (
-                        Object.entries(checklist.elements).map(([description, status]) => (
+                        Object.entries(checklist.elements).map(
+                          ([description, status]) => (
                             <TableRow key={description}>
-                                <TableCell>
+                              <TableCell>
                                 <div className="flex items-center space-x-2">
-                                <Checkbox
+                                  <Checkbox
                                     id={description}
                                     defaultChecked={status === "CHECKED"}
                                     onChange={(e) =>
-                                        handleCheckboxChange(
+                                      handleCheckboxChange(
                                         checklist.id,
                                         description,
                                         (e.target as HTMLInputElement).checked
-                                        )
+                                      )
                                     }
-                                    />
-                                    <label
+                                  />
+                                  <label
                                     htmlFor={description}
-                                    className={`text-lg ${status === "CHECKED" ? "line-through text-gray-500" : ""}`}
-                                    >
+                                    className={`text-lg ${
+                                      status === "CHECKED"
+                                        ? "line-through text-gray-500"
+                                        : ""
+                                    }`}
+                                  >
                                     {description}
-                                </label>
+                                  </label>
                                 </div>
-                                </TableCell>
+                              </TableCell>
                             </TableRow>
-                        ))
+                          )
+                        )
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={2}>Üres a lista.</TableCell>
+                          <TableCell colSpan={2}>
+                            Üres a lista.
+                          </TableCell>
                         </TableRow>
                       )}
                     </TableBody>
@@ -183,7 +239,7 @@ export default function ListsPage() {
           ))}
         </Tabs>
       ) : (
-        <p className="mt-8">Listák betöltése...</p>
+        <p className="mt-8">Nincs elérhető lista.</p>
       )}
     </div>
   );
