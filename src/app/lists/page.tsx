@@ -40,10 +40,9 @@ export default function ListsPage() {
 
   const updateChecklistElements = async (checklist: Checklist) => {
     const payload = {
-      id: checklist.id, // required field
+      id: checklist.id,
       user_id: checklist.user_id,
       name: checklist.name,
-      // Send the elements as an object mapping item descriptions to their status.
       elements: checklist.elements || {},
       updated_at: new Date().toISOString(),
     };
