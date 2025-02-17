@@ -61,67 +61,17 @@ export default function ListsPage() {
     checked: boolean
   ) => {
     const newStatus = checked ? "CHECKED" : "UNCHECKED";
-    const checklist = checklists.find((cl) => cl.id === checklistId);
-    if (!checklist) return;
-
-    let elementsArray: { description: string; status: string }[];
-    if (Array.isArray(checklist.elements)) {
-      elementsArray = checklist.elements;
-    } else if (
-      typeof checklist.elements === "object" &&
-      checklist.elements !== null
-    ) {
-      elementsArray = Object.entries(checklist.elements).map(([desc, st]) => ({
-        description: desc,
-        status: st as string,
-      }));
-    } else {
-      elementsArray = [];
-    }
-
-    let found = false;
-    const updatedElements = elementsArray.map((el) => {
-      if (el.description === description) {
-        found = true;
-        return { ...el, status: newStatus };
-      }
-      return el;
-    });
-    if (!found) {
-      updatedElements.push({ description, status: newStatus });
-    }
-
-    const payload = {
-      id: checklist.id,
-      user_id: checklist.user_id,
-      name: checklist.name,
-      elements: updatedElements,
-    };
-
-    try {
-      const res = await fetch("/api/checklists", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    const updatedChecklists = checklists.map((cl) => {
+      if (cl.id !== checklistId || !cl.elements) return cl;
+      return {
+        ...cl,
+        elements: {
+          ...cl.elements,
+          [description]: newStatus,
         },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        console.error("Error updating checklist element");
-      } else {
-        console.log(
-          `Updated element "${description}" to ${newStatus} in checklist ${checklistId}`
-        );
-        setChecklists((prev) =>
-          prev.map((cl) =>
-            cl.id === checklistId ? { ...cl, elements: updatedElements } : cl
-          )
-        );
-      }
-    } catch (error) {
-      console.error("Error during POST call", error);
-    }
+      };
+    });
+    setChecklists(updatedChecklists);
   };
 
   if (isLoading) {
@@ -170,7 +120,10 @@ export default function ListsPage() {
         <h1 className="text-4xl font-bold pt-12">Listák</h1>
       </div>
       {checklists.length > 0 ? (
-        <Tabs defaultValue={checklists[0].id.toString()} className="w-auto mt-8">
+        <Tabs
+          defaultValue={checklists[0].id.toString()}
+          className="w-auto mt-8"
+        >
           <TabsList className="w-auto">
             {checklists.map((checklist) => (
               <TabsTrigger value={checklist.id.toString()} key={checklist.id}>
@@ -191,31 +144,31 @@ export default function ListsPage() {
                         Object.entries(checklist.elements).map(
                           ([description, status]) => (
                             <TableRow key={description}>
-                              <TableCell>
-                                <div className="flex items-center space-x-2">
-                                  <Checkbox
-                                    id={description}
-                                    defaultChecked={status === "CHECKED"}
-                                    onChange={(e) =>
-                                      handleCheckboxChange(
-                                        checklist.id,
-                                        description,
-                                        (e.target as HTMLInputElement).checked
-                                      )
-                                    }
-                                  />
-                                  <label
-                                    htmlFor={description}
-                                    className={`text-lg ${
-                                      status === "CHECKED"
-                                        ? "line-through text-gray-500"
-                                        : ""
-                                    }`}
-                                  >
-                                    {description}
-                                  </label>
-                                </div>
-                              </TableCell>
+                                <TableCell>
+                                    <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id={description}
+                                        checked={status === "CHECKED"}
+                                        onCheckedChange={(checked: boolean) =>
+                                        handleCheckboxChange(
+                                            checklist.id,
+                                            description,
+                                            checked
+                                        )
+                                        }
+                                    />
+                                    <label
+                                        htmlFor={description}
+                                        className={`text-lg transition-colors duration-500 ease-in-out ${
+                                        status === "CHECKED"
+                                            ? "line-through text-gray-500"
+                                            : ""
+                                        }`}
+                                    >
+                                        {description}
+                                    </label>
+                                    </div>
+                                </TableCell>
                             </TableRow>
                           )
                         )
