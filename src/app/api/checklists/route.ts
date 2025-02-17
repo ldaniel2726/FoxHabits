@@ -44,8 +44,6 @@ export async function POST(request: Request) {
     const StatusEnum = z.enum(["CHECKED", "UNCHECKED"]);
 
     const checklistSchema = z.object({
-      id: z.number().positive().int(),
-      user_id: z.string().uuid(),
       name: z.string().min(1).max(255),
       elements: z
         .array(
@@ -82,11 +80,15 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data, error } = await supabase.from("checklists").insert({
-      user_id: user.id,
-      name: validatedData.name,
-      elements: validatedData.elements,
-    });
+    const { data, error } = await supabase
+      .from("checklists")
+      .insert({
+        user_id: user.id,
+        name: validatedData.name,
+        elements: validatedData.elements,
+      })
+      .select()
+      .single();
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });

@@ -96,16 +96,8 @@ export async function PATCH(request: Request) {
       id: z.number().positive().int(),
       user_id: z.string().uuid(),
       name: z.string().min(1).max(255),
-      elements: z
-        .array(
-          z.object({
-            description: z.string(),
-            status: statusEnum,
-          })
-        )
-        .default([]),
-      created_at: z.string().datetime(),
-      updated_at: z.string().datetime(),
+      elements: z.record(z.enum(["CHECKED", "UNCHECKED"])).default({}),
+      updated_at: z.string(),
     });
 
     const result = checklistSchema.safeParse(await request.json());
@@ -149,7 +141,7 @@ export async function PATCH(request: Request) {
 
     const { data: checklistData, error: checklistError } = await supabase
       .from("checklists")
-      .select("related_user_id")
+      .select("user_id")
       .eq("id", checklist_id)
       .single();
 
@@ -160,7 +152,7 @@ export async function PATCH(request: Request) {
       );
     }
 
-    if (!checklistData || checklistData.related_user_id !== user.id) {
+    if (!checklistData || checklistData.user_id !== user.id) {
       return NextResponse.json(
         { error: "Nincs jogosultságod a szokás módosításához." },
         { status: 403 }
@@ -198,6 +190,49 @@ export async function PATCH(request: Request) {
     console.error(err);
     return NextResponse.json(
       { error: `Hibás kérés vagy szerverhiba: ${err}` },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const url = new URL(request.url);
+    const checklistId = url.pathname.split("/").pop();
+    if (!checklistId || isNaN(Number(checklistId))) {
+      return NextResponse.json(
+        { error: "Invalid checklist id" },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: "User not authenticated" },
+        { status: 401 }
+      );
+    }
+
+    const { error } = await supabase
+      .from("checklists")
+      .delete()
+      .eq("id", Number(checklistId));
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (err) {
+    console.error("DELETE error:", err);
+    return NextResponse.json(
+      { error: "Server error while deleting checklist." },
       { status: 500 }
     );
   }
