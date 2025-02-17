@@ -29,8 +29,20 @@ import {
 } from "@/components/ui/table"
 import { Checkbox } from "@/components/ui/checkbox"
 
+type ChecklistElement = {
+    description: string;
+    status: string;
+  };
+  
+  type Checklist = {
+    id: number;
+    user_id?: number;
+    name: string;
+    elements?: ChecklistElement[] | Record<string, string>;
+  };
+
 export default function ListsPage() {
-  const [checklists, setChecklists] = useState<any[]>([]);
+  const [checklists, setChecklists] = useState<Checklist[]>([]);
 
   useEffect(() => {
     async function fetchChecklists() {
