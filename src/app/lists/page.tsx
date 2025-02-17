@@ -11,12 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -72,7 +67,10 @@ export default function ListsPage() {
     let elementsArray: { description: string; status: string }[];
     if (Array.isArray(checklist.elements)) {
       elementsArray = checklist.elements;
-    } else if (typeof checklist.elements === "object" && checklist.elements !== null) {
+    } else if (
+      typeof checklist.elements === "object" &&
+      checklist.elements !== null
+    ) {
       elementsArray = Object.entries(checklist.elements).map(([desc, st]) => ({
         description: desc,
         status: st as string,
@@ -127,20 +125,17 @@ export default function ListsPage() {
   };
 
   if (isLoading) {
-    // Render skeletons that mimic the header, tabs, and card content
     return (
       <div className="mx-14 py-10">
         <div className="flex items-end justify-between">
           <Skeleton className="h-10 w-48" />
         </div>
         <div className="mt-8">
-          {/* Skeleton for Tabs */}
           <div className="grid w-full grid-cols-3 gap-2 mb-4">
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-10 w-full" />
           </div>
-          {/* Skeleton for card and table rows */}
           <Card>
             <CardHeader>
               <CardTitle>
@@ -175,8 +170,8 @@ export default function ListsPage() {
         <h1 className="text-4xl font-bold pt-12">Listák</h1>
       </div>
       {checklists.length > 0 ? (
-        <Tabs defaultValue={checklists[0].id.toString()} className="mt-8">
-          <TabsList className="grid w-full grid-cols-3 gap-2">
+        <Tabs defaultValue={checklists[0].id.toString()} className="w-auto mt-8">
+          <TabsList className="w-auto">
             {checklists.map((checklist) => (
               <TabsTrigger value={checklist.id.toString()} key={checklist.id}>
                 {checklist.name}
@@ -226,9 +221,7 @@ export default function ListsPage() {
                         )
                       ) : (
                         <TableRow>
-                          <TableCell colSpan={2}>
-                            Üres a lista.
-                          </TableCell>
+                          <TableCell colSpan={2}>Üres a lista.</TableCell>
                         </TableRow>
                       )}
                     </TableBody>
