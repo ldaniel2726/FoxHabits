@@ -134,26 +134,29 @@ export default function ListsPage() {
                     <TableBody>
                       {checklist.elements ? (
                         Object.entries(checklist.elements).map(([description, status]) => (
-                          <TableRow key={description}>
-                            <TableCell>
-                              <div className="flex items-center space-x-2">
+                            <TableRow key={description}>
+                                <TableCell>
+                                <div className="flex items-center space-x-2">
                                 <Checkbox
-                                  id={description}
-                                  defaultChecked={status === "CHECKED"}
-                                  onChange={(e) =>
-                                    handleCheckboxChange(
-                                      checklist.id,
-                                      description,
-                                      (e.target as HTMLInputElement).checked
-                                    )
-                                  }
-                                />
-                                <label htmlFor={description} className="text-lg">
-                                  {description}
+                                    id={description}
+                                    defaultChecked={status === "CHECKED"}
+                                    onChange={(e) =>
+                                        handleCheckboxChange(
+                                        checklist.id,
+                                        description,
+                                        (e.target as HTMLInputElement).checked
+                                        )
+                                    }
+                                    />
+                                    <label
+                                    htmlFor={description}
+                                    className={`text-lg ${status === "CHECKED" ? "line-through text-gray-500" : ""}`}
+                                    >
+                                    {description}
                                 </label>
-                              </div>
-                            </TableCell>
-                          </TableRow>
+                                </div>
+                                </TableCell>
+                            </TableRow>
                         ))
                       ) : (
                         <TableRow>
