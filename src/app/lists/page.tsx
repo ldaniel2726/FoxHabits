@@ -331,6 +331,11 @@ export default function ListsPage() {
             placeholder="Új lista neve"
             value={newListName}
             onChange={(e) => setNewListName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleAddList();
+              }
+            }}
           />
           <Button onClick={handleAddList}>Új lista hozzáadása</Button>
         </div>
@@ -357,6 +362,11 @@ export default function ListsPage() {
                       <Input
                         value={editingListName}
                         onChange={(e) => setEditingListName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleSaveEdit(checklist.id);
+                          }
+                        }}
                         className="text-2xl pt-2"
                       />
                       <Button
@@ -430,6 +440,11 @@ export default function ListsPage() {
                                             newDescription: e.target.value,
                                           })
                                         }
+                                        onKeyDown={(e) => {
+                                          if (e.key === "Enter") {
+                                            handleSaveEditingItem();
+                                          }
+                                        }}
                                         className="text-lg"
                                       />
                                       <Button
@@ -499,6 +514,11 @@ export default function ListsPage() {
                                   [checklist.id]: e.target.value,
                                 })
                               }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  handleAddItem(checklist.id);
+                                }
+                              }}
                               className="text-lg"
                             />
                             <Button
