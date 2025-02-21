@@ -9,6 +9,7 @@ import { Table, TableBody, TableRow, TableCell } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Edit, Trash } from "lucide-react";
+import { toast } from "sonner";
 
 type ChecklistElement = {
   description: string;
@@ -222,6 +223,14 @@ export default function ListsPage() {
   const handleAddItem = (checklistId: number) => {
     const text = newItemText[checklistId];
     if (!text?.trim()) return;
+
+    const checklist = checklists.find((cl) => cl.id === checklistId);
+    if (checklist?.elements && Object.keys(checklist.elements).includes(text)) {
+      console.log("Item already exists");
+      setNewItemText({ ...newItemText, [checklistId]: "" });
+      toast.error("Az elem már szerepel a listán.");
+      return;
+    }
     const updatedChecklists = checklists.map((cl) => {
       if (cl.id === checklistId) {
         const currentElements = cl.elements || {};
