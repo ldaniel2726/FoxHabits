@@ -37,7 +37,7 @@ export default async function Page() {
             <p className="text-lg pb-6 text-zinc-600">{habits?.length || 0} szokás található</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
                 {habits?.map((habit) => (
-                    HabitCard(habit)
+                    <HabitCard key={habit.habit_id} {...habit} />
                 ))}
             </div>
         </div>

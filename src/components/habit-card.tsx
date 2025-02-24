@@ -1,3 +1,5 @@
+"use client";
+
 import {
   CalendarDays,
   CheckCircle,
@@ -5,6 +7,7 @@ import {
   Repeat,
   Calendar,
   CheckIcon,
+  ForwardIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -48,6 +51,16 @@ export function HabitCard({
     years: "évben",
   };
 
+  const handleSkip = (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log("Szokás kihagyva:", habit_id);
+  };
+
+  const handleComplete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log("Szokás teljesítve:", habit_id);
+  };
+
   return (
     <Link href={`/habits/${habit_id}`}>
       <Card className="w-full transition-all hover:shadow-lg">
@@ -88,9 +101,14 @@ export function HabitCard({
               Létrehozva: {format(new Date(created_date), "yyyy MMMM d.")}
             </span>
           </div>
-          <Button variant="outline">
-            <CheckIcon className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center space-x-2 ml-auto">
+            <Button variant="outline" onClick={handleSkip}>
+              <ForwardIcon className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" onClick={handleComplete}>
+              <CheckIcon className="h-4 w-4" />
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     </Link>
