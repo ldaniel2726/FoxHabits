@@ -151,7 +151,7 @@ export async function POST(request: Request) {
     });
 
     const result = habit_entry_schema.safeParse(await request.json());
-
+    console.log(result)
     if (!result.success) {
       return NextResponse.json(
         { error: result.error.issues[0].message },

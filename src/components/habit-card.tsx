@@ -56,9 +56,28 @@ export function HabitCard({
     console.log("Szokás kihagyva:", habit_id);
   };
 
-  const handleComplete = (e: React.MouseEvent) => {
+  const handleComplete = async (e: React.MouseEvent) => {
     e.preventDefault();
-    console.log("Szokás teljesítve:", habit_id);
+    try {
+      const response = await fetch(`/api/entries/habit/${habit_id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: "completed" }),
+      });
+
+      if (!response.ok) {
+        console.log(response);
+        throw new Error("Network response was not ok");
+
+      }
+
+      const data = await response.json();
+      console.log("Szokás teljesítve:", data);
+    } catch (error) {
+      console.error("Error completing habit:", error);
+    }
   };
 
   return (
