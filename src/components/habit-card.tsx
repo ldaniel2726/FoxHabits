@@ -21,6 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { useState } from "react";
 
 interface HabitCardProps {
   habit_id: string;
@@ -43,6 +44,8 @@ export function HabitCard({
   created_date,
   habit_name_id,
 }: HabitCardProps & { habit_id: string }) {
+  const [isHidden, setIsHidden] = useState(false);
+  
   const translations: { [key: string]: string } = {
     hours: "órában",
     days: "nap",
@@ -75,7 +78,8 @@ export function HabitCard({
       }
 
       console.log("Szokás kihagyva:", responseData);
-      // Here you could add UI feedback like a toast notification
+      // Hide the card after successful skip
+      setIsHidden(true);
     } catch (error) {
       console.error("Error skipping habit:", error);
     }
@@ -105,11 +109,17 @@ export function HabitCard({
       }
 
       console.log("Szokás teljesítve:", responseData);
-      // Here you could add UI feedback like a toast notification
+      // Hide the card after successful completion
+      setIsHidden(true);
     } catch (error) {
       console.error("Error completing habit:", error);
     }
   };
+
+  // If the habit is hidden (completed or skipped), don't render anything
+  if (isHidden) {
+    return null;
+  }
 
   return (
     <Link href={`/habits/${habit_id}`}>
