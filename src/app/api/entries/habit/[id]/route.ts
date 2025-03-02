@@ -118,12 +118,8 @@ export async function POST(request: Request) {
 
     const role = user.user_metadata?.role;
 
-    if (role === ADMIN) {
-      const { data, error } = await supabase
-        .from("entries")
-        .select("*")
-        .eq("habit_id", habit_id);
-    } else {
+    // Check if the habit belongs to the user (unless admin)
+    if (role !== ADMIN) {
       const { data: habitData, error: habitError } = await supabase
         .from("habits")
         .select("*")
@@ -147,11 +143,15 @@ export async function POST(request: Request) {
         .optional()
         .default(new Date().toISOString()),
       time_of_entry: z.string().datetime(),
-      type_of_entry: z.enum(["done", "skipped"]).default("done"),
+      entry_type: z.enum(["done", "skipped"]).default("done"),
     });
 
-    const result = habit_entry_schema.safeParse(await request.json());
-    console.log(result)
+    const requestData = await request.json();
+    console.log("Request data:", requestData);
+    
+    const result = habit_entry_schema.safeParse(requestData);
+    console.log("Validation result:", result);
+    
     if (!result.success) {
       return NextResponse.json(
         { error: result.error.issues[0].message },
@@ -159,15 +159,21 @@ export async function POST(request: Request) {
       );
     }
 
-    const validatedData = result.data;
+    const validatedData = {
+      ...result.data
+    };
 
+    console.log("Inserting data:", validatedData);
+    
     const { data, error } = await supabase
       .from("entries")
-      .insert(validatedData);
+      .insert(validatedData)
+      .select();
 
     if (error) {
+      console.error("Database error:", error);
       return NextResponse.json(
-        { error: "Hiba történt a bejegyzések lekérdezése töltésében." },
+        { error: "Hiba történt a bejegyzés mentése közben." },
         { status: 500 }
       );
     }
@@ -176,7 +182,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Operation failed:", error);
     return NextResponse.json(
-      { error: "Hiba történt a bejegyzések lekérdezése töltésében." },
+      { error: "Hiba történt a bejegyzés feldolgozása közben." },
       { status: 500 }
     );
   }

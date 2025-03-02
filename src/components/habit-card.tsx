@@ -51,30 +51,61 @@ export function HabitCard({
     years: "évben",
   };
 
-  const handleSkip = (e: React.MouseEvent) => {
-    e.preventDefault();
-    console.log("Szokás kihagyva:", habit_id);
-  };
-
-  const handleComplete = async (e: React.MouseEvent) => {
+  const handleSkip = async (e: React.MouseEvent) => {
     e.preventDefault();
     try {
+      console.log("Skipping habit:", habit_id);
       const response = await fetch(`/api/entries/habit/${habit_id}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ status: "completed" }),
+        body: JSON.stringify({
+          habit_id: Number(habit_id),
+          time_of_entry: new Date().toISOString(),
+          entry_type: "skipped"
+        }),
       });
 
+      const responseData = await response.json();
+      
       if (!response.ok) {
-        console.log(response);
-        throw new Error("Network response was not ok");
-
+        console.error("Error response:", responseData);
+        throw new Error(responseData.error || "Network response was not ok");
       }
 
-      const data = await response.json();
-      console.log("Szokás teljesítve:", data);
+      console.log("Szokás kihagyva:", responseData);
+      // Here you could add UI feedback like a toast notification
+    } catch (error) {
+      console.error("Error skipping habit:", error);
+    }
+  };
+
+  const handleComplete = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      console.log("Completing habit:", habit_id);
+      const response = await fetch(`/api/entries/habit/${habit_id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          habit_id: Number(habit_id),
+          time_of_entry: new Date().toISOString(),
+          entry_type: "done"
+        }),
+      });
+
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        console.error("Error response:", responseData);
+        throw new Error(responseData.error || "Network response was not ok");
+      }
+
+      console.log("Szokás teljesítve:", responseData);
+      // Here you could add UI feedback like a toast notification
     } catch (error) {
       console.error("Error completing habit:", error);
     }
