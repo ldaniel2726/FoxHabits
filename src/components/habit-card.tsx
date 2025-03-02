@@ -9,6 +9,8 @@ import {
   CheckIcon,
   ForwardIcon,
   XIcon,
+  XCircleIcon,
+  BanIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -83,12 +85,10 @@ export function HabitCard({
       }
 
       console.log("Szokás kihagyva:", responseData);
-      // Update status instead of hiding
       setStatus({
         type: "skipped",
         time: new Date().toISOString()
       });
-      // Store the entry ID for potential undo
       if (responseData.data && responseData.data[0]) {
         setEntryId(responseData.data[0].entry_id);
       }
@@ -121,12 +121,10 @@ export function HabitCard({
       }
 
       console.log("Szokás teljesítve:", responseData);
-      // Update status instead of hiding
       setStatus({
         type: "done",
         time: new Date().toISOString()
       });
-      // Store the entry ID for potential undo
       if (responseData.data && responseData.data[0]) {
         setEntryId(responseData.data[0].entry_id);
       }
@@ -164,14 +162,54 @@ export function HabitCard({
     }
   };
 
-  // Define card style based on status
-  const cardStyle = status.type 
-    ? "w-full transition-all opacity-70 order-last" 
-    : "w-full transition-all hover:shadow-lg";
+  const cardStyle = () => {
+    let baseStyle = "w-full transition-all";
+    
+    if (status.type) {
+      baseStyle += " opacity-70 order-last";
+    } else {
+      baseStyle += " hover:shadow-lg";
+    }
+    
+    
+    return baseStyle;
+  };
+
+  const getStatusText = () => {
+    if (!status.type || !status.time) return "";
+    
+    if (habit_type === "bad_habit") {
+      return status.type === "done" 
+        ? "Szokás elbukva" 
+        : "Kihagyva";
+    } else {
+      return status.type === "done" 
+        ? "Elvégezve" 
+        : "Kihagyva";
+    }
+  };
+
+  const StatusIcon = () => {
+    if (!status.type) return null;
+    
+    if (habit_type === "bad_habit" && status.type === "done") {
+      return <XCircleIcon className="h-4 w-4 text-muted-foreground" />;
+    } else {
+      return <CheckCircle className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  const CompleteButtonIcon = () => {
+    if (habit_type === "bad_habit") {
+      return <BanIcon className="h-4 w-4" />;
+    } else {
+      return <CheckIcon className="h-4 w-4" />;
+    }
+  };
 
   return (
     <Link href={`/habits/${habit_id}`}>
-      <Card className={cardStyle}>
+      <Card className={cardStyle()}>
         <CardHeader>
           <CardTitle className="flex items-center justify-between capitalize text-xl">
             {habit_name_id}
@@ -179,7 +217,7 @@ export function HabitCard({
               {is_active ? "Aktív" : "Inaktív"}
             </Badge>
           </CardTitle>
-          <CardDescription>
+          <CardDescription className={habit_type === "bad_habit" ? "text-orange-700 font-medium" : ""}>
             {habit_type === "normal_habit"
               ? "Szokás"
               : habit_type === "bad_habit"
@@ -203,9 +241,9 @@ export function HabitCard({
           </div>
           {status.type && status.time && (
             <div className="flex items-center space-x-2 mt-2 font-medium">
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              <StatusIcon />
               <span>
-                {status.type === "done" ? "Elvégezve" : "Kihagyva"}: {format(new Date(status.time), "yyyy MMMM d. HH:mm")}
+                {getStatusText()}: {format(new Date(status.time), "yyyy MMMM d. HH:mm")}
               </span>
             </div>
           )}
@@ -224,11 +262,13 @@ export function HabitCard({
               </Button>
             ) : (
               <>
-                <Button variant="outline" onClick={handleSkip}>
-                  <ForwardIcon className="h-4 w-4" />
-                </Button>
+                {habit_type !== "bad_habit" && (
+                  <Button variant="outline" onClick={handleSkip}>
+                    <ForwardIcon className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button variant="outline" onClick={handleComplete}>
-                  <CheckIcon className="h-4 w-4" />
+                  <CompleteButtonIcon />
                 </Button>
               </>
             )}
