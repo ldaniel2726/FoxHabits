@@ -8,6 +8,7 @@ import {
   Calendar,
   CheckIcon,
   ForwardIcon,
+  XIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -44,7 +45,11 @@ export function HabitCard({
   created_date,
   habit_name_id,
 }: HabitCardProps & { habit_id: string }) {
-  const [isHidden, setIsHidden] = useState(false);
+  const [status, setStatus] = useState<{ type: null | "done" | "skipped", time: string | null }>({
+    type: null,
+    time: null
+  });
+  const [entryId, setEntryId] = useState<string | null>(null);
   
   const translations: { [key: string]: string } = {
     hours: "órában",
@@ -78,8 +83,15 @@ export function HabitCard({
       }
 
       console.log("Szokás kihagyva:", responseData);
-      // Hide the card after successful skip
-      setIsHidden(true);
+      // Update status instead of hiding
+      setStatus({
+        type: "skipped",
+        time: new Date().toISOString()
+      });
+      // Store the entry ID for potential undo
+      if (responseData.data && responseData.data[0]) {
+        setEntryId(responseData.data[0].entry_id);
+      }
     } catch (error) {
       console.error("Error skipping habit:", error);
     }
@@ -109,21 +121,57 @@ export function HabitCard({
       }
 
       console.log("Szokás teljesítve:", responseData);
-      // Hide the card after successful completion
-      setIsHidden(true);
+      // Update status instead of hiding
+      setStatus({
+        type: "done",
+        time: new Date().toISOString()
+      });
+      // Store the entry ID for potential undo
+      if (responseData.data && responseData.data[0]) {
+        setEntryId(responseData.data[0].entry_id);
+      }
     } catch (error) {
       console.error("Error completing habit:", error);
     }
   };
 
-  // If the habit is hidden (completed or skipped), don't render anything
-  if (isHidden) {
-    return null;
-  }
+  const handleUndo = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!entryId) return;
+    
+    try {
+      console.log("Undoing habit entry:", entryId);
+      const response = await fetch(`/api/entries/${entryId}`, {
+        method: "DELETE",
+      });
+
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        console.error("Error response:", responseData);
+        throw new Error(responseData.error || "Network response was not ok");
+      }
+
+      console.log("Szokás visszavonva:", responseData);
+      // Reset status
+      setStatus({
+        type: null,
+        time: null
+      });
+      setEntryId(null);
+    } catch (error) {
+      console.error("Error undoing habit entry:", error);
+    }
+  };
+
+  // Define card style based on status
+  const cardStyle = status.type 
+    ? "w-full transition-all opacity-70 order-last" 
+    : "w-full transition-all hover:shadow-lg";
 
   return (
     <Link href={`/habits/${habit_id}`}>
-      <Card className="w-full transition-all hover:shadow-lg">
+      <Card className={cardStyle}>
         <CardHeader>
           <CardTitle className="flex items-center justify-between capitalize text-xl">
             {habit_name_id}
@@ -153,6 +201,14 @@ export function HabitCard({
               Elkezdve: {format(new Date(start_date), "yyyy MMMM d.")}
             </span>
           </div>
+          {status.type && status.time && (
+            <div className="flex items-center space-x-2 mt-2 font-medium">
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              <span>
+                {status.type === "done" ? "Elvégezve" : "Kihagyva"}: {format(new Date(status.time), "yyyy MMMM d. HH:mm")}
+              </span>
+            </div>
+          )}
         </CardContent>
         <CardFooter className="text-sm text-muted-foreground flex justify-between">
           <div className="flex items-center space-x-2">
@@ -162,12 +218,20 @@ export function HabitCard({
             </span>
           </div>
           <div className="flex items-center space-x-2 ml-auto">
-            <Button variant="outline" onClick={handleSkip}>
-              <ForwardIcon className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" onClick={handleComplete}>
-              <CheckIcon className="h-4 w-4" />
-            </Button>
+            {status.type ? (
+              <Button variant="outline" onClick={handleUndo}>
+                <XIcon className="h-4 w-4" />
+              </Button>
+            ) : (
+              <>
+                <Button variant="outline" onClick={handleSkip}>
+                  <ForwardIcon className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" onClick={handleComplete}>
+                  <CheckIcon className="h-4 w-4" />
+                </Button>
+              </>
+            )}
           </div>
         </CardFooter>
       </Card>
