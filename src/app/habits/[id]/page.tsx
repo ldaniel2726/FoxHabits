@@ -11,6 +11,7 @@ import {
 import { CalendarDays, Clock, Repeat, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { HabitEntries } from "@/components/HabitEntries";
 
 export default async function HabitPage({
   params,
@@ -65,7 +66,7 @@ export default async function HabitPage({
   };
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 space-y-6">
       <Card className="max-w-3xl mx-auto">
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -119,6 +120,14 @@ export default async function HabitPage({
           </div>
         </CardContent>
       </Card>
+
+      {/* Entries list */}
+      <div className="max-w-3xl mx-auto">
+        <HabitEntries 
+          habitId={parseInt((await params).id)} 
+          entries={habit.entries || []} 
+        />
+      </div>
     </div>
   );
 }
