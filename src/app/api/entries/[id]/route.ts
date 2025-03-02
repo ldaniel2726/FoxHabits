@@ -5,11 +5,11 @@ import { validateEntryId } from "@/utils/validators/entry-validators";
 import { ApiErrors, createApiError } from "@/utils/errors/api-errors";
 
 // DELETE /api/entries/[id] ~ Egy bejegyzés törlése
-export async function DELETE(
-  request: Request,
-  context: { params: { id: string } }
-) {
-  const entryId = context.params.id;
+export async function DELETE(request: Request) {
+  const url = new URL(request.url);
+  const splitted_url = url.pathname.split("/");
+  const entryId = splitted_url[splitted_url.length - 1];
+  
   const validation = validateEntryId(entryId);
   
   if (validation.error) {
