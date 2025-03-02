@@ -7,9 +7,9 @@ import { ApiErrors, createApiError } from "@/utils/errors/api-errors";
 // DELETE /api/entries/[id] ~ Egy bejegyzés törlése
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const entryId = params.id;
+  const entryId = context.params.id;
   const validation = validateEntryId(entryId);
   
   if (validation.error) {
