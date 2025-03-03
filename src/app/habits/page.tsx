@@ -36,15 +36,29 @@ export default async function Page() {
   if (result.message) {
     return (
       <div className="mx-14 py-10">
-        <h1 className="text-4xl font-bold pt-12">Összes szokásod</h1>
-        <p className="text-lg pb-6 text-zinc-600">{result.message}</p>
+        <div className="flex items-end justify-between">
+          <h1 className="text-4xl font-bold pt-12">Összes szokásod</h1>
+          <Link href="/habits/add">
+            <Button>Szokás hozzáadása</Button>
+          </Link>
+        </div>
+        <p className="text-lg pb-6 text-zinc-600">
+          {result.message}
+        </p>
       </div>
     );
   } else if (result.error) {
     return (
       <div className="mx-14 py-10">
-        <h1 className="text-4xl font-bold pt-12">Összes szokásod</h1>
-        <p className="text-lg pb-6 text-zinc-600">{result.error}</p>
+        <div className="flex items-end justify-between">
+          <h1 className="text-4xl font-bold pt-12">Összes szokásod</h1>
+          <Link href="/habits/add">
+            <Button>Szokás hozzáadása</Button>
+          </Link>
+        </div>
+        <p className="text-lg pb-6 text-zinc-600">
+          {result.error}
+        </p>
       </div>
     );
   }
