@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { hu } from "date-fns/locale";
-import { Check, X, SkipForward } from "lucide-react";
+import { Check, X, SkipForward, Forward } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DeleteEntryButton } from "@/components/DeleteEntryButton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -27,7 +27,6 @@ export function HabitEntries({ habitId, entries: initialEntries }: HabitEntriesP
     setEntries(entries.filter(entry => entry.entry_id !== deletedEntryId));
   };
 
-  // Sort entries by datetime in descending order (newest first)
   const sortedEntries = [...entries].sort((a, b) => 
     new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
   );
@@ -69,7 +68,7 @@ export function HabitEntries({ habitId, entries: initialEntries }: HabitEntriesP
                         </div>
                       ) : (
                         <div className="flex items-center">
-                          <SkipForward className="h-5 w-5 text-blue-500 mr-2" />
+                          <Forward className="h-5 w-5 text-blue-500 mr-2" />
                           <span>Kihagyva</span>
                         </div>
                       )}

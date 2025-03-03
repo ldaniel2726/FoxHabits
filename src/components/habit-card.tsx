@@ -11,6 +11,7 @@ import {
   XIcon,
   XCircleIcon,
   BanIcon,
+  Undo2,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -258,7 +259,7 @@ export function HabitCard({
           <div className="flex items-center space-x-2 ml-auto">
             {status.type ? (
               <Button variant="outline" onClick={handleUndo}>
-                <XIcon className="h-4 w-4" />
+                <Undo2 className="h-4 w-4" />
               </Button>
             ) : (
               <>
