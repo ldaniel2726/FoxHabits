@@ -55,8 +55,8 @@ export async function GET(request: Request) {
     const { data: habitData, error: habitError } = await supabase
       .from("habits")
       .select("*")
-      .eq("id", habit_id)
-      .eq("user_id", user.id)
+      .eq("habit_id", habit_id)
+      .eq("related_user_id", user.id)
       .single();
 
     if (habitError || !habitData) {
@@ -123,8 +123,8 @@ export async function POST(request: Request) {
       const { data: habitData, error: habitError } = await supabase
         .from("habits")
         .select("*")
-        .eq("id", habit_id)
-        .eq("user_id", user.id)
+        .eq("habit_id", habit_id)
+        .eq("related_user_id", user.id)
         .single();
 
       if (habitError || !habitData) {
@@ -160,7 +160,8 @@ export async function POST(request: Request) {
     }
 
     const validatedData = {
-      ...result.data
+      ...result.data,
+      habit_id: Number(habit_id)
     };
 
     console.log("Inserting data:", validatedData);
