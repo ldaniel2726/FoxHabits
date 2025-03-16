@@ -12,6 +12,7 @@ import {
   XCircleIcon,
   BanIcon,
   Undo2,
+  MoreVertical,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -23,9 +24,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 import { Button } from "./ui/button";
 import { useState } from "react";
+import { DeleteHabitButton } from "./DeleteHabitButton";
+import { EditHabitButton } from "./EditHabitButton";
 
 interface HabitCardProps {
   habit_id: string;
@@ -64,6 +66,7 @@ export function HabitCard({
 
   const handleSkip = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     try {
       console.log("Skipping habit:", habit_id);
       const response = await fetch(`/api/entries/habit/${habit_id}`, {
@@ -100,6 +103,7 @@ export function HabitCard({
 
   const handleComplete = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     try {
       console.log("Completing habit:", habit_id);
       const response = await fetch(`/api/entries/habit/${habit_id}`, {
@@ -136,6 +140,7 @@ export function HabitCard({
 
   const handleUndo = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!entryId) return;
     
     try {
@@ -152,7 +157,6 @@ export function HabitCard({
       }
 
       console.log("Szokás visszavonva:", responseData);
-      // Reset status
       setStatus({
         type: null,
         time: null
@@ -208,15 +212,33 @@ export function HabitCard({
     }
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const isButton = target.closest('button');
+    
+    if (!isButton) {
+      window.location.href = `/habits/${habit_id}`;
+    }
+  };
+
   return (
-    <Link href={`/habits/${habit_id}`}>
-      <Card className={cardStyle()}>
+    <div>
+      <Card className={`${cardStyle()} cursor-pointer`} onClick={handleCardClick}>
         <CardHeader>
           <CardTitle className="flex items-center justify-between capitalize text-xl">
-            {habit_name_id}
-            <Badge variant={is_active ? "default" : "secondary"}>
-              {is_active ? "Aktív" : "Inaktív"}
-            </Badge>
+            <div className="truncate mr-2">{habit_name_id}</div>
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <EditHabitButton habitId={habit_id} />
+              <DeleteHabitButton 
+                habitId={habit_id} 
+                onDelete={() => {
+                  window.location.reload();
+                }} 
+              />
+              <Badge className="ml-1.5" variant={is_active ? "default" : "secondary"}>
+                {is_active ? "Aktív" : "Inaktív"}
+              </Badge>
+            </div>
           </CardTitle>
           <CardDescription className={habit_type === "bad_habit" ? "text-orange-700 font-medium" : ""}>
             {habit_type === "normal_habit"
@@ -256,7 +278,7 @@ export function HabitCard({
               Létrehozva: {format(new Date(created_date), "yyyy MMMM d.")}
             </span>
           </div>
-          <div className="flex items-center space-x-2 ml-auto">
+          <div className="flex items-center space-x-2 ml-auto" onClick={(e) => e.stopPropagation()}>
             {status.type ? (
               <Button variant="outline" onClick={handleUndo}>
                 <Undo2 className="h-4 w-4" />
@@ -276,6 +298,6 @@ export function HabitCard({
           </div>
         </CardFooter>
       </Card>
-    </Link>
+    </div>
   );
 }

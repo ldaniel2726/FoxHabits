@@ -12,6 +12,7 @@ import { CalendarDays, Clock, Repeat, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { HabitEntries } from "@/components/HabitEntries";
+import { HabitDetailActions } from "@/components/HabitDetailActions";
 
 export default async function HabitPage({
   params,
@@ -82,9 +83,12 @@ export default async function HabitPage({
                   : habit.habit_type}
               </CardDescription>
             </div>
-            <Badge variant={habit.is_active ? "default" : "secondary"}>
-              {habit.is_active ? "Aktív" : "Inaktív"}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <HabitDetailActions habitId={(await params).id} />
+              <Badge variant={habit.is_active ? "default" : "secondary"}>
+                {habit.is_active ? "Aktív" : "Inaktív"}
+              </Badge>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
