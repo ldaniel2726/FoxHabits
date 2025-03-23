@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 
 import { toast } from 'sonner';
 import { signup } from '@/app/signup/actions';
+import { GoogleButton } from '@/components/auth/google-button';
 
 export function SignUpForm() {
 
@@ -86,6 +87,15 @@ export function SignUpForm() {
                   Regisztráció
               </Button>
             </div>
+            <div className="relative my-4">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-gray-300"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="bg-white px-2 text-gray-500">vagy</span>
+          </div>
+        </div>
+        <GoogleButton />
           </form>
           <div className="mt-4 text-center text-sm">
             Már van fiókod?{" "}
