@@ -32,7 +32,7 @@ export default function Footer() {
           </nav>
           <div className="text-center md:text-left">
             <h3 className="text-lg font-semibold text-gray-800 mb-4">Kapcsolat</h3>
-            <p className="text-gray-600 mb-2">Email: info@fox-habits.com</p>
+            <p className="text-gray-600 mb-2">Email: info@foxhabits.com</p>
             <p className="text-gray-600">Telefonszám: (123) 456-7890</p>
           </div>
         </div>
