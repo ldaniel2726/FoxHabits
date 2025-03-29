@@ -11,7 +11,7 @@ export default function Home() {
         <section className="bg-gradient-to-b from-primary/10 to-background py-32 md:py-64">
           <div className="container mx-auto px-6 md:px-12 text-center">
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              Alakítsd ki az ideális szokásaidat a Fox Habits segítségével
+              Alakítsd ki az ideális szokásaidat a <span className="text-orange-700">Fox Habits</span> segítségével
             </h1>
             <p className="mt-6 mx-auto max-w-[700px] text-gray-600 md:text-xl dark:text-gray-400">
               Egyszerű és hatékony módszer a jó szokások kialakítására vagy a rossz szokások követésére.
