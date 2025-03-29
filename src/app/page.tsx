@@ -21,7 +21,7 @@ export default async function Home() {
               Egyszerű és hatékony módszer a jó szokások kialakítására vagy a rossz
               szokások követésére.
             </p>
-            {!user && (
+            {!user ? (
               <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                 <Link href="/signup">
                   <Button size="lg" className="font-semibold">
@@ -35,7 +35,7 @@ export default async function Home() {
                   </Button>
                 </Link>
               </div>
-            )} {(
+            ) : (
               <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                 <Link href="/habits">
                   <Button size="lg" className="font-semibold">
@@ -150,17 +150,17 @@ export default async function Home() {
               Csatlakozz most, és kezdd el felépíteni azokat a szokásokat, amelyek jobbá teszik az életed.
               Az első 30 nap teljesen ingyenes!
             </p>
-            {!user && (
-              <Link href="/signup">
-                <Button size="lg" variant="secondary" className="font-semibold shadow-lg hover:shadow-xl">
-                  Ingyenes regisztráció
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            )} {(
+            {!user ? (
               <Link href="/habits">
                 <Button size="lg" variant="secondary" className="font-semibold shadow-lg hover:shadow-xl">
                   Szokásaim megtekintése
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/signup">
+                <Button size="lg" variant="secondary" className="font-semibold shadow-lg hover:shadow-xl">
+                  Ingyenes regisztráció
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>

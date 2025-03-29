@@ -78,23 +78,23 @@ export default function Header({ data }: { data: { user: User | null } }) {
       </div>
       <div className={`lg:hidden overflow-hidden transition-all duration-300 ${isMobileMenuOpen ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'}`}>
         <nav className="top-20 left-0 right-0 p-4 shadow-md flex flex-col gap-4">
-          <Link href="/" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
-            <Button variant="ghost" className="w-full justify-start text-base">Kezdőlap</Button>
-          </Link>
-          <Link href="/habits" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
-            <Button variant="ghost" className="w-full justify-start text-base">Szokások</Button>
-          </Link>
-          <Link href="/lists" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
-            <Button variant="ghost" className="w-full justify-start text-base">Listák</Button>
-          </Link>
-          <Link href="/habits/today" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
-            <Button variant="ghost" className="w-full justify-start text-base">Napi nézet</Button>
-          </Link>
-          <Link href="/profile" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
-            <Button variant="ghost" className="w-full justify-start text-base">Fiók</Button>
-          </Link>
           {data.user ? (
             <>
+              <Link href="/" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+                <Button variant="ghost" className="w-full justify-start text-base">Kezdőlap</Button>
+              </Link>
+              <Link href="/habits" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+                <Button variant="ghost" className="w-full justify-start text-base">Szokások</Button>
+              </Link>
+              <Link href="/lists" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+                <Button variant="ghost" className="w-full justify-start text-base">Listák</Button>
+              </Link>
+              <Link href="/habits/today" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+                <Button variant="ghost" className="w-full justify-start text-base">Napi nézet</Button>
+              </Link>
+              <Link href="/profile" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+                <Button variant="ghost" className="w-full justify-start text-base">Fiók</Button>
+              </Link>
               <Link href="/analytics" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
                 <Button variant="ghost" className="w-full justify-start text-base">Statisztika</Button>
               </Link>
