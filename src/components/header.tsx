@@ -1,13 +1,15 @@
 "use client"
 
+import { useState } from "react";
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { createClient } from "@/utils/supabase/server"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import LogoutButton from '@/components/logout-button';
 import { User } from '@supabase/supabase-js';
+import { Menu, X } from "lucide-react";
 
 export default function Header({ data }: { data: { user: User | null } }) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   let imgSrc = ""
 
@@ -17,58 +19,46 @@ export default function Header({ data }: { data: { user: User | null } }) {
     imgSrc = data.user?.user_metadata.picture || data.user?.user_metadata.avatar_url
   }
 
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+
   return (
-    <div className="container mx-auto px-4 md:px-6 lg:px-8">
-      <header className="flex h-20 w-full shrink-0 items-center px-4 md:px-6">
-        <Link href="/" className="mr-6 hidden lg:flex" prefetch={false}>
-          <span className="sr-only">Fox Habits</span>
-          <LogoIcon />
-        </Link>
-        <div className="ml-auto flex gap-2">
-          <Link
-            href="/"
-            className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-            prefetch={false}
-          >
-            Kezdőlap
+    <div className="sticky top-0 z-50 bg-white/50 dark:bg-gray-950 backdrop-blur-md lg:shadow-lg">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8">
+        <header className="flex justify-between h-20 w-full shrink-0 items-center px-4 md:px-6">
+          <Link href="/" className="mr-6 flex" prefetch={false}>
+            <span className="sr-only">Fox Habits</span>
+            <LogoIcon />
           </Link>
-          <Link
-            href="/habits"
-            className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-            prefetch={false}
-          >
-            Szokások
-          </Link>
-          <Link
-            href="/lists"
-            className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-            prefetch={false}
-          >
-            Listák
-          </Link>
-          <Link
-            href="/habits/today"
-            className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-            prefetch={false}
-          >
-            Napi nézet
-          </Link>
-          <Link
-            href="/profile"
-            className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-            prefetch={false}
-          >
-            Fiók
-          </Link>
+          <button onClick={toggleMobileMenu} className="lg:hidden mr-4" aria-label="Toggle menu">
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+          <div className="ml-auto hidden lg:flex gap-2">
+            <Link
+              href="/"
+              className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white p-4 text-base font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
+              prefetch={false}>Kezdőlap</Link>
+            <Link
+              href="/habits"
+              className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white p-4 text-base font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
+              prefetch={false}>Szokások</Link>
+            <Link
+              href="/lists"
+              className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white p-4 text-base font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
+              prefetch={false}>Listák</Link>
+            <Link
+              href="/habits/today"
+              className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white p-4 text-base font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
+              prefetch={false}>Napi nézet</Link>
+            <Link
+              href="/profile"
+              className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white p-4 text-base font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
+              prefetch={false}>Fiók</Link>
             {data.user ? (
                 <>
                     <Link
                       href="/analytics"
-                      className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white px-4 py-2 text-sm font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
-                      prefetch={false}
-                    >
-                      Statisztika
-                    </Link>
+                      className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-white p-4 text-base font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
+                      prefetch={false}>Statisztika</Link>
                     <Link href="/profile">
                         <Button variant="ghost" className="justify-self-end">
                             {data.user?.user_metadata.name}
@@ -92,8 +82,54 @@ export default function Header({ data }: { data: { user: User | null } }) {
                     </Link>
                 </>
             )}
-        </div>
-      </header>
+          </div>
+        </header>
+      </div>
+      <div className={`lg:hidden overflow-hidden transition-all duration-300 ${isMobileMenuOpen ? 'max-h-[500px] opacity-100 translate-y-0' : 'max-h-0 opacity-0 -translate-y-4'}`}>
+        <nav className="top-20 left-0 right-0 p-4 shadow-md flex flex-col gap-4">
+          <Link href="/" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+            <Button variant="ghost" className="w-full justify-start text-base">Kezdőlap</Button>
+          </Link>
+          <Link href="/habits" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+            <Button variant="ghost" className="w-full justify-start text-base">Szokások</Button>
+          </Link>
+          <Link href="/lists" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+            <Button variant="ghost" className="w-full justify-start text-base">Listák</Button>
+          </Link>
+          <Link href="/habits/today" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+            <Button variant="ghost" className="w-full justify-start text-base">Napi nézet</Button>
+          </Link>
+          <Link href="/profile" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+            <Button variant="ghost" className="w-full justify-start text-base">Fiók</Button>
+          </Link>
+          {data.user ? (
+            <>
+              <Link href="/analytics" className="mx-6" onClick={() => setIsMobileMenuOpen(false)} prefetch={false}>
+                <Button variant="ghost" className="w-full justify-start text-base">Statisztika</Button>
+              </Link>
+              <Link href="/profile" className="mx-6" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="ghost" className="w-full flex justify-between items-center text-base py-6 bg-gray-50">
+                  {data.user?.user_metadata.name}
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={imgSrc} alt="Avatar" />
+                    <AvatarFallback>LD</AvatarFallback>
+                  </Avatar>
+                </Button>
+              </Link>
+              <LogoutButton />
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="mx-6" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button variant="outline" className="w-full">Bejelentkezés</Button>
+              </Link>
+              <Link href="/signup" className="mx-6" onClick={() => setIsMobileMenuOpen(false)}>
+                <Button className="w-full">Regisztráció</Button>
+              </Link>
+            </>
+          )}
+        </nav>
+      </div>
     </div>
   )
 }

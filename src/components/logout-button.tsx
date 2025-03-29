@@ -13,7 +13,7 @@ export default function LogoutButton() {
     };
 
     return (
-        <Button variant="secondary" onClick={handleLogout}>
+        <Button variant="secondary" className="text-base" onClick={handleLogout}>
             Kijelentkezés
         </Button>
     );
