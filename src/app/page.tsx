@@ -3,39 +3,55 @@ import { Button } from "@/components/ui/button";
 import Footer from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BadgeCheck, Bell, BarChart3, ArrowRight, Lightbulb, Smile, Plus, Check, ChartBar } from "lucide-react";
+import { createClient } from "@/utils/supabase/server";
 
-export default function Home() {
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow">
-        <section className="bg-gradient-to-b from-primary/10 to-background py-32 md:py-64">
+      <section className="bg-gradient-to-b from-white to-gray-200 py-32 md:py-80">
           <div className="container mx-auto px-6 md:px-12 text-center">
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
               Alakítsd ki az ideális szokásaidat a <span className="text-orange-700">Fox Habits</span> segítségével
             </h1>
-            <p className="mt-6 mx-auto max-w-[700px] text-gray-600 md:text-xl dark:text-gray-400">
-              Egyszerű és hatékony módszer a jó szokások kialakítására vagy a rossz szokások követésére.
+            <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
+              Egyszerű és hatékony módszer a jó szokások kialakítására vagy a rossz
+              szokások követésére.
             </p>
-            <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-              <Link href="/signup">
-                <Button size="lg" className="font-semibold">
-                  Kezdj neki ingyen
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button variant="outline" size="lg">
-                  Bejelentkezés
-                </Button>
-              </Link>
-            </div>
+            {!user && (
+              <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <Link href="/signup">
+                  <Button size="lg" className="font-semibold">
+                    Kezdj neki ingyen
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button variant="outline" size="lg">
+                    Bejelentkezés
+                  </Button>
+                </Link>
+              </div>
+            )} {(
+              <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <Link href="/habits">
+                  <Button size="lg" className="font-semibold">
+                    Szokásaim megtekintése
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 
-        <section className="bg-gray-100 dark:bg-gray-900 pt-20 pb-24 px-6 md:px-12">
+        <section className="bg-gradient-to-bl from-sky-300/90 to-orange-500/90 dark:bg-gray-900 pt-20 pb-24 px-6 md:px-12">
           <div className="container mx-auto text-center">
             <h2 className="text-4xl font-bold mb-6 text-orange-700">Hogyan működik?</h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-12 max-w-[700px] mx-auto">Három egyszerű lépésben kezdheted el az utadat a jobb szokások felé. Könnyen érthető és gyorsan beállítható!</p>
+            <p className="text-white text-lg dark:text-gray-300 mb-12 max-w-[700px] mx-auto">Három egyszerű lépésben kezdheted el az utadat a jobb szokások felé. Könnyen érthető és gyorsan beállítható!</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="flex flex-col items-center bg-white dark:bg-gray-800 shadow-xl border border-orange-700 rounded-lg p-6 transition transform hover:-translate-y-1 hover:shadow-2xl duration-300">
                 <Plus className="w-16 h-16 mb-4 text-orange-700" />
@@ -58,7 +74,7 @@ export default function Home() {
 
         <section className="bg-white dark:bg-gray-900 py-20 px-6 md:px-12 mb-14">
           <div className="container mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-20 text-orange-700">Főbb funkciók</h2>
+            <h2 className="text-4xl font-bold mb-20 text-orange-700">Főbb funkciók</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <Card className="shadow-lg transition transform hover:-translate-y-1 hover:shadow-2xl duration-300 border border-orange-700">
                 <CardHeader>
@@ -91,9 +107,9 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-gradient-to-r from-orange-800 to-orange-600 shadow-2xl text-white py-20 px-6 md:px-12">
+        <section className="bg-gradient-to-r from-orange-900 to-orange-500 shadow-2xl text-white py-20 px-6 md:px-12">
           <div className="container mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-12">Miért válaszd a Fox Habits-t?</h2>
+            <h2 className="text-4xl font-bold mb-12">Miért válaszd a Fox Habits-t?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <Card className="bg-primary/5 text-gray-200 shadow-lg hover:shadow-2xl transition-shadow duration-300 p-6 border-none">
                 <CardHeader>
@@ -127,19 +143,28 @@ export default function Home() {
             </div>
           </div>
         </section>
-        <section className="bg-gray-200 text-black py-40 px-6 md:px-12">
+        <section className="bg-gradient-to-b from-gray-300 to-gray-100 text-black py-40 px-6 md:px-12">
           <div className="container mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Készen állsz a <span className="text-orange-700">változás</span>ra?</h2>
+            <h2 className="text-4xl md:text-4xl font-bold mb-6">Készen állsz a <span className="text-orange-700">változás</span>ra?</h2>
             <p className="text-lg md:text-xl mb-8 max-w-[600px] mx-auto">
               Csatlakozz most, és kezdd el felépíteni azokat a szokásokat, amelyek jobbá teszik az életed.
               Az első 30 nap teljesen ingyenes!
             </p>
-            <Link href="/signup">
-              <Button size="lg" variant="secondary" className="font-semibold shadow-lg hover:shadow-xl">
-                Ingyenes regisztráció
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
+            {!user && (
+              <Link href="/signup">
+                <Button size="lg" variant="secondary" className="font-semibold shadow-lg hover:shadow-xl">
+                  Ingyenes regisztráció
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            )} {(
+              <Link href="/habits">
+                <Button size="lg" variant="secondary" className="font-semibold shadow-lg hover:shadow-xl">
+                  Szokásaim megtekintése
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            )}
           </div>
         </section>
       </main>
