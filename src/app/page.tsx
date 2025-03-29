@@ -2,99 +2,145 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BadgeCheck, Bell, BarChart3, ArrowRight } from "lucide-react";
+import { BadgeCheck, Bell, BarChart3, ArrowRight, Lightbulb, Smile, Plus, Check, ChartBar } from "lucide-react";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow">
-        <section className="bg-gradient-to-b from-primary/10 to-background py-64">
-          <div className="px-12 md:px-6">
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
-                Alakítsd ki az ideális szokásaidat a{" "}
-                <span className="text-primary">Fox Habits</span> segítségével
-              </h1>
-              <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                Egyszerű és hatékony módszer a jó szokások kialakítására vagy a rossz szokások követésére.
-              </p>
-              <div className="space-x-4">
-                <Link href="/signup">
-                  <Button size="lg" className="font-semibold">
-                    Kezdj neki ingyen
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href="/login">
-                  <Button variant="outline" size="lg">
-                    Bejelentkezés
-                  </Button>
-                </Link>
+        <section className="bg-gradient-to-b from-primary/10 to-background py-32 md:py-64">
+          <div className="container mx-auto px-6 md:px-12 text-center">
+            <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+              Alakítsd ki az ideális szokásaidat a Fox Habits segítségével
+            </h1>
+            <p className="mt-6 mx-auto max-w-[700px] text-gray-600 md:text-xl dark:text-gray-400">
+              Egyszerű és hatékony módszer a jó szokások kialakítására vagy a rossz szokások követésére.
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <Link href="/signup">
+                <Button size="lg" className="font-semibold">
+                  Kezdj neki ingyen
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href="/login">
+                <Button variant="outline" size="lg">
+                  Bejelentkezés
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-gray-100 dark:bg-gray-900 pt-20 pb-24 px-6 md:px-12">
+          <div className="container mx-auto text-center">
+            <h2 className="text-4xl font-bold mb-6 text-orange-700">Hogyan működik?</h2>
+            <p className="text-gray-600 dark:text-gray-300 mb-12 max-w-[700px] mx-auto">Három egyszerű lépésben kezdheted el az utadat a jobb szokások felé. Könnyen érthető és gyorsan beállítható!</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="flex flex-col items-center bg-white dark:bg-gray-800 shadow-xl border border-orange-700 rounded-lg p-6 transition transform hover:-translate-y-1 hover:shadow-2xl duration-300">
+                <Plus className="w-16 h-16 mb-4 text-orange-700" />
+                <h3 className="text-xl font-semibold mb-2">1. Regisztráció</h3>
+                <p className="text-gray-600 dark:text-gray-300">Hozz létre egy fiókot néhány kattintással. Add meg céljaidat, és készen állsz a kezdésre!</p>
+                  </div>
+                  <div className="flex flex-col items-center bg-white dark:bg-gray-800 shadow-xl border border-orange-700 rounded-lg p-6 transition transform hover:-translate-y-1 hover:shadow-2xl duration-300">
+                    <Check className="w-16 h-16 mb-4 text-orange-700" />
+                    <h3 className="text-xl font-semibold mb-2">2. Szokások hozzáadása</h3>
+                    <p className="text-gray-600 dark:text-gray-300">Adj hozzá szokásokat, amelyeket követni szeretnél. Legyenek azok jó szokások vagy rosszak, amelyeket szeretnél leküzdeni.</p>
+                  </div>
+                  <div className="flex flex-col items-center bg-white dark:bg-gray-800 shadow-xl border border-orange-700 rounded-lg p-6 transition transform hover:-translate-y-1 hover:shadow-2xl duration-300">
+                <ChartBar className="w-16 h-16 mb-4 text-orange-700" />
+                <h3 className="text-xl font-semibold mb-2">3. Követés és fejlődés</h3>
+                <p className="text-gray-600 dark:text-gray-300">Kövesd nyomon a fejlődésedet vizuális statisztikákkal és emlékeztetőkkel, hogy mindig motivált maradj.</p>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="px-12 py-32">
-          <h2 className="text-3xl font-bold text-center mb-12">Főbb funkciók</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <BadgeCheck className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Szokások követése</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">
-                  Kövesd nyomon napi, heti vagy havi szokásaidat. 
-                  Állíts be célokat és érd el őket következetesen.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <Bell className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Emlékeztetők</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">
-                  Személyre szabott értesítések, hogy soha ne feledkezz meg 
-                  a kitűzött céljaidról és feladataidról.
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <BarChart3 className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Részletes statisztikák</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-500">
-                  Elemezd fejlődésedet vizuális grafikonokkal és 
-                  kövesd nyomon a hosszú távú eredményeidet.
-                </p>
-              </CardContent>
-            </Card>
+        <section className="bg-white dark:bg-gray-900 py-20 px-6 md:px-12 mb-14">
+          <div className="container mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-20 text-orange-700">Főbb funkciók</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <Card className="shadow-lg transition transform hover:-translate-y-1 hover:shadow-2xl duration-300 border border-orange-700">
+                <CardHeader>
+                  <BadgeCheck className="w-12 h-12 text-orange-700 mb-4 mx-auto" />
+                  <CardTitle>Szokások követése</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-500">Kövesd nyomon napi, heti vagy havi szokásaidat. Állíts be célokat és érd el őket következetesen.</p>
+                </CardContent>
+                    </Card>
+                    <Card className="shadow-lg transition transform hover:-translate-y-1 hover:shadow-2xl duration-300 border border-orange-700">
+                <CardHeader>
+                  <Bell className="w-12 h-12 text-orange-700 mb-4 mx-auto" />
+                  <CardTitle>Emlékeztetők</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-500">Személyre szabott értesítések, hogy soha ne feledkezz meg a kitűzött céljaidról és feladataidról.</p>
+                </CardContent>
+                    </Card>
+                    <Card className="shadow-lg transition transform hover:-translate-y-1 hover:shadow-2xl duration-300 border border-orange-700">
+                <CardHeader>
+                  <BarChart3 className="w-12 h-12 text-orange-700 mb-4 mx-auto" />
+                  <CardTitle>Részletes statisztikák</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-500">Elemezd fejlődésedet vizuális grafikonokkal és kövesd nyomon a hosszú távú eredményeidet.</p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </section>
 
-        <section className="px-12 py-32">
-          <Card className="bg-primary/5 border-0">
-            <CardContent className="p-8 text-center">
-              <h2 className="text-2xl font-bold mb-4">
-                Készen állsz a változásra?
-              </h2>
-              <p className="text-gray-500 mb-6 max-w-[600px] mx-auto">
-                Csatlakozz most, és kezdd el felépíteni azokat a szokásokat, 
-                amelyek jobbá teszik az életed. Az első 30 nap teljesen ingyenes!
-              </p>
-              <Link href="/signup">
-                <Button size="lg" className="font-semibold">
-                  Ingyenes regisztráció
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+        <section className="bg-gradient-to-r from-orange-800 to-orange-600 shadow-2xl text-white py-20 px-6 md:px-12">
+          <div className="container mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-12">Miért válaszd a Fox Habits-t?</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <Card className="bg-primary/5 text-gray-200 shadow-lg hover:shadow-2xl transition-shadow duration-300 p-6 border-none">
+                <CardHeader>
+                  <Lightbulb className="w-12 h-12 mb-4 mx-auto" />
+                  <CardTitle>Motiváció növelése</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>A vizuális statisztikák segítenek fenntartani a motivációdat és elérni céljaidat.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-primary/5 text-gray-200 shadow-lg hover:shadow-2xl transition-shadow duration-300 p-6 border-none">
+                <CardHeader>
+                  <Smile className="w-12 h-12 mb-4 mx-auto" />
+                  <CardTitle>Egyszerű használat</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>A felület intuitív és könnyen kezelhető, így mindenki számára elérhető.</p>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-primary/5 text-gray-200 shadow-lg hover:shadow-2xl transition-shadow duration-300 p-6 border-none">
+                <CardHeader>
+                  <BarChart3 className="w-12 h-12 mb-4 mx-auto" />
+                  <CardTitle>Hosszú távú eredmények</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p>Segítünk abban, hogy ne csak elkezdj valamit, hanem hosszú távon is kitarts mellette.</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+        <section className="bg-gray-200 text-black py-40 px-6 md:px-12">
+          <div className="container mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Készen állsz a <span className="text-orange-700">változás</span>ra?</h2>
+            <p className="text-lg md:text-xl mb-8 max-w-[600px] mx-auto">
+              Csatlakozz most, és kezdd el felépíteni azokat a szokásokat, amelyek jobbá teszik az életed.
+              Az első 30 nap teljesen ingyenes!
+            </p>
+            <Link href="/signup">
+              <Button size="lg" variant="secondary" className="font-semibold shadow-lg hover:shadow-xl">
+                Ingyenes regisztráció
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </section>
       </main>
       <Footer />
