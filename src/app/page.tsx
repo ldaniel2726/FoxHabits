@@ -150,7 +150,7 @@ export default async function Home() {
               Csatlakozz most, és kezdd el felépíteni azokat a szokásokat, amelyek jobbá teszik az életed.
               Az első 30 nap teljesen ingyenes!
             </p>
-            {!user ? (
+            {user ? (
               <Link href="/habits">
                 <Button size="lg" variant="secondary" className="font-semibold shadow-lg hover:shadow-xl">
                   Szokásaim megtekintése
