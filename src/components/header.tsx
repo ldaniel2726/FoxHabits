@@ -22,7 +22,7 @@ export default function Header({ data }: { data: { user: User | null } }) {
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   return (
-    <div className="sticky top-0 z-50 bg-white/50 dark:bg-gray-950 backdrop-blur-md lg:shadow-lg">
+    <div className="sticky top-0 z-50 bg-white/50 dark:bg-gray-950 backdrop-blur-md shadow-lg">
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <header className="flex justify-between h-20 w-full shrink-0 items-center px-4 md:px-6">
           <Link href="/" className="mr-6 flex" prefetch={false}>
@@ -63,14 +63,14 @@ export default function Header({ data }: { data: { user: User | null } }) {
                 </>
                 ) : (
                 <>
-                    <Link href="/login">
-                        <Button variant="outline" className="justify-self-end">
-                            Bejelentkezés
-                        </Button>
-                    </Link>
-                    <Link href="/signup">
-                        <Button className="justify-self-end">Regisztráció</Button>
-                    </Link>
+                  <Link href="/login">
+                      <Button variant="outline" className="justify-self-end">
+                          Bejelentkezés
+                      </Button>
+                  </Link>
+                  <Link href="/signup">
+                      <Button className="justify-self-end">Regisztráció</Button>
+                  </Link>
                 </>
             )}
           </div>
