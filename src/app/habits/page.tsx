@@ -17,8 +17,6 @@ export default async function Page() {
     },
   });
   const result = await response.json();
-  console.log(`${protocol}://${host}/api/habits/own`);
-  console.log(result);
 
   interface Habit {
     habit_id: string;
@@ -35,7 +33,7 @@ export default async function Page() {
 
   if (result.message) {
     return (
-      <div className="mx-14 py-10">
+      <div className="px-4 md:px-14 py-10">
         <div className="flex items-end justify-between">
           <h1 className="text-4xl font-bold pt-12">Összes szokásod</h1>
           <Link href="/habits/add">
@@ -49,7 +47,7 @@ export default async function Page() {
     );
   } else if (result.error) {
     return (
-      <div className="mx-14 py-10">
+      <div className="px-4 md:px-14 py-10">
         <div className="flex items-end justify-between">
           <h1 className="text-4xl font-bold pt-12">Összes szokásod</h1>
           <Link href="/habits/add">
@@ -64,19 +62,18 @@ export default async function Page() {
   }
 
   const habits = result as Habit[];
-  console.log(result);
   return (
-    <div className="mx-14 py-10">
-      <div className="flex items-end justify-between">
+    <div className="px-4 md:px-14 py-10">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between">
         <h1 className="text-4xl font-bold pt-12">Összes szokásod</h1>
-        <Link href="/habits/add">
+        <Link href="/habits/add" className="py-4 md:py-0">
           <Button>Szokás hozzáadása</Button>
         </Link>
       </div>
       <p className="text-lg pb-6 text-zinc-600">
         {habits?.length || 0} szokás található
       </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
         {habits?.map((habit: Habit) => (
           <HabitCard
             key={habit.habit_id}
