@@ -59,60 +59,57 @@ export async function GET() {
 
     console.log(allHabits);
 
-    let dayStatistics = [0, 0];
-    let weekStatistics = [0, 0];
-    let monthStatistics = [0, 0];
+    const dayStatistics = [0, 0];
+    const weekStatistics = [0, 0];
+    const monthStatistics = [0, 0];
 
-    let previousDayStatistics = [0, 0];
-    let previousWeekStatistics = [0, 0];
-    let previousMonthStatistics = [0, 0];
+    const previousDayStatistics = [0, 0];
+    const previousWeekStatistics = [0, 0];
+    const previousMonthStatistics = [0, 0];
 
-    // Create dates with explicit time values to avoid timezone issues
-    let today = new Date();
+    const today = new Date();
     today.setHours(23, 59, 59, 999); 
 
-    // Create a new date object for first day of the month
-    let monthStart2 = new Date(today.getFullYear(), today.getMonth(), 1);
+    const monthStart2 = new Date(today.getFullYear(), today.getMonth(), 1);
     monthStart2.setHours(0, 0, 0, 0);
     
-    // Create a new date object for first day of the week (Monday)
-    let weekFirstDay = new Date(today);
-    const dayOfWeek = today.getDay(); // 0 is Sunday, 1 is Monday, etc.
-    const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Adjust for Monday as first day
+    const weekFirstDay = new Date(today);
+    const dayOfWeek = today.getDay(); 
+    const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
     weekFirstDay.setDate(today.getDate() - diff);
     weekFirstDay.setHours(0, 0, 0, 0);
 
-    let day = today.toISOString().split('T')[0];
-    let currentWeekFirstDay = weekFirstDay.toISOString().split('T')[0];
-    let month = monthStart2.toISOString().split('T')[0];
+    const day = today.toISOString().split('T')[0];
+    const currentWeekFirstDay = weekFirstDay.toISOString().split('T')[0];
+    const month = monthStart2.toISOString().split('T')[0];
     
     console.log("Today:", day);
     console.log("Week start:", currentWeekFirstDay);
     console.log("Month start:", month);
 
-    let dayCompletionRateChange = 0;
-    let weekCompletionRateChange = 0;
-    let monthCompletionRateChange = 0;
+    const dayCompletionRateChange = 0;
+    const weekCompletionRateChange = 0;
+    const monthCompletionRateChange = 0;
 
     allHabits.forEach(habit => {
     if (habit.habit_interval_type === "days") {
-        let habitStartDate = new Date(habit.start_date);
+        const habitStartDate = new Date(habit.start_date);
         habitStartDate.setHours(23, 59, 59, 999); 
         
-        let monthStartDate = new Date(month);
-        let startDate = new Date(Math.max(monthStartDate.getTime(), habitStartDate.getTime()));
+        const monthStartDate = new Date(month);
+        const startDate = new Date(Math.max(monthStartDate.getTime(), habitStartDate.getTime()));
         
         console.log(`Processing habit: ${habit.habit_names?.[0]?.habit_name || "Unknown"}, starting from: ${startDate.toISOString().split('T')[0]}`);
         
         for (let currentDate = new Date(startDate); currentDate <= today; currentDate.setDate(currentDate.getDate() + 1)) {
         const currentDay = currentDate.toISOString().split('T')[0];
         
-        let habitEntries = habit.entries.filter(entry => {
-            let entryDate = new Date(entry.datetime);
+        const habitEntries = habit.entries.filter(entry => {
+            const entryDate = new Date(entry.datetime);
             return entryDate.toISOString().split('T')[0] === currentDay;
         });
 
-        let isCompleted = habitEntries.length > 0 && habitEntries[0].entry_type === "done";
+        const isCompleted = habitEntries.length > 0 && habitEntries[0].entry_type === "done";
         
         const isBadHabit = habit.habit_type === "bad_habit";
         const isSuccess = isBadHabit ? !isCompleted : isCompleted;
