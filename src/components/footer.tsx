@@ -48,7 +48,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-500">2025 - Fox Habits</p>
+          <p className="text-sm text-gray-500">{new Date().getFullYear()} - Fox Habits</p>
         </div>
       </div>
     </footer>
