@@ -28,17 +28,7 @@ import { Button } from "./ui/button";
 import { useState } from "react";
 import { DeleteHabitButton } from "./DeleteHabitButton";
 import { EditHabitButton } from "./EditHabitButton";
-
-interface HabitCardProps {
-  habit_id: string;
-  habit_type: string;
-  interval: number;
-  habit_interval_type: string;
-  start_date: string;
-  is_active: boolean;
-  created_date: string;
-  habit_name_id: string;
-}
+import { HabitCardProps } from "@/types/HabitCardProps";
 
 export function HabitCard({
   habit_id,
