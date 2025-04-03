@@ -193,9 +193,9 @@ export async function GET() {
     const activeWeek = weekStatistics[2] - weekStatistics[1];
     const activeMonth = monthStatistics[2] - monthStatistics[1];
     
-    let todayCompletionRate = activeDay > 0 ? dayStatistics[0] / activeDay : 0;
-    let weeklyCompletionRate = activeWeek > 0 ? weekStatistics[0] / activeWeek : 0;
-    let monthlyCompletionRate = activeMonth > 0 ? monthStatistics[0] / activeMonth : 0;
+    const todayCompletionRate = activeDay > 0 ? dayStatistics[0] / activeDay : 0;
+    const weeklyCompletionRate = activeWeek > 0 ? weekStatistics[0] / activeWeek : 0;
+    const monthlyCompletionRate = activeMonth > 0 ? monthStatistics[0] / activeMonth : 0;
     
     let dayCompletionRateChange = 0;
     let weekCompletionRateChange = 0;
