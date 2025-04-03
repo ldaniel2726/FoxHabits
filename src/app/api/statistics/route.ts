@@ -169,8 +169,8 @@ export async function GET() {
       if (maxStreak > longestStreakHabit.days) {
         longestStreakHabit = {
           habitName: Array.isArray(habit.habit_names) 
-            ? (habit.habit_names[0] as any)?.habit_name || "Ismeretlen"
-            : (habit.habit_names as any)?.habit_name || "Ismeretlen",
+            ? (habit.habit_names[0] as { habit_name?: string })?.habit_name || "Ismeretlen"
+            : (habit.habit_names as { habit_name?: string })?.habit_name || "Ismeretlen",
           days: maxStreak
         };
       }
@@ -178,8 +178,8 @@ export async function GET() {
       if (currentStreak > currentStreakHabit.days) {
         currentStreakHabit = {
           habitName: Array.isArray(habit.habit_names)
-            ? (habit.habit_names[0] as any)?.habit_name || "Ismeretlen"
-            : (habit.habit_names as any)?.habit_name || "Ismeretlen",
+            ? (habit.habit_names[0] as { habit_name?: string })?.habit_name || "Ismeretlen"
+            : (habit.habit_names as { habit_name?: string })?.habit_name || "Ismeretlen",
           days: currentStreak
         };
       }
