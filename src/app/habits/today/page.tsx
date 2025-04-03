@@ -2,6 +2,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { HabitCard } from "@/components/habit-card";
+import { HabitCardProps } from "@/types/HabitCardProps";
 
 const dayVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -104,7 +105,7 @@ export default function Page() {
               return (
                 <motion.section
                   key={day.offset}
-                  ref={(el) => (sectionsRef.current[index] = el)}
+                  ref={(el) => { (sectionsRef.current[index] as HTMLElement | null) = el; }}
                   className="min-h-screen pt-12 border-b border-gray-200 snap-start"
                   initial="hidden"
                   animate="visible"
@@ -113,7 +114,7 @@ export default function Page() {
                   <h2 className="text-3xl font-semibold mb-4 text-gray-700 capitalize">{day.label}</h2>
                   <p className="text-lg mb-6 text-gray-500">{habits.length} szokás található</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
-                    {habits.map((habit: any) => (
+                    {habits.map((habit: HabitCardProps) => (
                       <HabitCard key={habit.habit_id} {...habit} />
                     ))}
                   </div>
