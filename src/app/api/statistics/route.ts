@@ -3,10 +3,21 @@ import { createClient } from "@/utils/supabase/server";
 import { ADMIN } from "@/utils/validators/APIConstants";
 import { permissionDeniedReturn } from "@/utils/validators/APIValidators";
 import { ApiErrors, createApiError } from "@/utils/errors/api-errors";
-import { startOfDay, startOfWeek, startOfMonth, subDays, eachDayOfInterval, isSameDay, parseISO, max } from "date-fns";
+import { 
+  startOfDay, startOfWeek, startOfMonth, subDays, eachDayOfInterval, 
+  isSameDay, parseISO, max, subWeeks, subMonths, endOfWeek, endOfMonth, addDays 
+} from "date-fns";
+import { 
+  isHabitCompletedOnDate, 
+  isHabitCompletedExactDay, 
+  isHabitCompletedForPeriod,
+  calculateHabitStreak 
+} from "@/utils/habit-utils";
 
 // GET /api/statistics ~ Statisztikák lekérdezése
 export async function GET() {
+  console.log("Statistics route called");
+
   try {
     const supabase = await createClient();
 
@@ -19,23 +30,37 @@ export async function GET() {
       return createApiError("UNAUTHORIZED");
     }
 
-    const now = new Date();
-    const todayStart = startOfDay(now).toISOString();
-    const weekStart = startOfWeek(now, { weekStartsOn: 1 }).toISOString();
-    const monthStart = startOfMonth(now).toISOString();
+    const today = new Date();
+    today.setHours(23, 59, 59, 999); 
 
-    const { data: todayHabits, error: todayError } = await supabase
-      .from("habits")
-      .select("habit_id, is_active")
-      .eq("related_user_id", user.id)
-      .eq("is_active", true);
+    const yesterday = subDays(today, 1);
+    
+    const thisWeekStart = addDays(startOfWeek(today), 1);
+    const thisWeekEnd = addDays(endOfWeek(today), 1);
+    const lastWeekStart = addDays(startOfWeek(subWeeks(today, 1)), 1);
+    const lastWeekEnd = addDays(endOfWeek(subWeeks(today, 1)), 1);
+    
+    const thisMonthStart = startOfMonth(today);
+    const thisMonthEnd = endOfMonth(today);
+    const lastMonthStart = startOfMonth(subMonths(today, 1));
+    const lastMonthEnd = endOfMonth(subMonths(today, 1));
 
-    if (todayError) {
-      console.error("Error fetching today's habits:", todayError);
-      return createApiError("ENTRY_FETCH_ERROR");
-    }
+    console.log(today);
+    console.log(yesterday);
+    console.log(thisWeekStart);
+    console.log(thisWeekEnd);
+    console.log(lastWeekStart);
+    console.log(lastWeekEnd);
+    console.log(thisMonthStart);
+    console.log(thisMonthEnd);
+    console.log(lastMonthStart);
+    console.log(lastMonthEnd);
 
-    const todayHabitIds = todayHabits.map(habit => habit.habit_id);
+
+    const thisWeekDays = eachDayOfInterval({ start: thisWeekStart, end: thisWeekEnd });
+    const lastWeekDays = eachDayOfInterval({ start: lastWeekStart, end: lastWeekEnd });
+    const thisMonthDays = eachDayOfInterval({ start: thisMonthStart, end: thisMonthEnd });
+    const lastMonthDays = eachDayOfInterval({ start: lastMonthStart, end: lastMonthEnd });
 
     const { data: allHabits, error: allHabitsError } = await supabase
       .from("habits")
@@ -44,6 +69,7 @@ export async function GET() {
         habit_names:habit_name_id(habit_name), 
         entries(*),
         habit_interval_type,
+        interval,
         start_date,
         is_active,
         habit_type
@@ -57,105 +83,142 @@ export async function GET() {
       return createApiError("ENTRY_FETCH_ERROR");
     }
 
-    console.log(allHabits);
+    const dayStatistics = [0, 0, 0];
+    const weekStatistics = [0, 0, 0];
+    const monthStatistics = [0, 0, 0];
 
-    const dayStatistics = [0, 0];
-    const weekStatistics = [0, 0];
-    const monthStatistics = [0, 0];
+    const previousDayStatistics = [0, 0, 0];
+    const previousWeekStatistics = [0, 0, 0];
+    const previousMonthStatistics = [0, 0, 0];
 
-    const previousDayStatistics = [0, 0];
-    const previousWeekStatistics = [0, 0];
-    const previousMonthStatistics = [0, 0];
-
-    const today = new Date();
-    today.setHours(23, 59, 59, 999); 
-
-    const monthStart2 = new Date(today.getFullYear(), today.getMonth(), 1);
-    monthStart2.setHours(0, 0, 0, 0);
+    let longestStreakHabit = { habitName: "Nincs adat", days: 0 };
+    let currentStreakHabit = { habitName: "Nincs adat", days: 0 };
+    let totalCompletedCount = 0;
+    let totalSkippedCount = 0;
     
-    const weekFirstDay = new Date(today);
-    const dayOfWeek = today.getDay(); 
-    const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; 
-    weekFirstDay.setDate(today.getDate() - diff);
-    weekFirstDay.setHours(0, 0, 0, 0);
-
-    const day = today.toISOString().split('T')[0];
-    const currentWeekFirstDay = weekFirstDay.toISOString().split('T')[0];
-    const month = monthStart2.toISOString().split('T')[0];
-    
-    console.log("Today:", day);
-    console.log("Week start:", currentWeekFirstDay);
-    console.log("Month start:", month);
-
-    const dayCompletionRateChange = 0;
-    const weekCompletionRateChange = 0;
-    const monthCompletionRateChange = 0;
-
     allHabits.forEach(habit => {
-    if (habit.habit_interval_type === "days") {
-        const habitStartDate = new Date(habit.start_date);
-        habitStartDate.setHours(23, 59, 59, 999); 
+      console.log("TESZT");
+      console.log(habit);
+      console.log(isHabitCompletedOnDate(habit, today));
+      const habitStartDate = new Date(habit.start_date);
+      
+      if (habitStartDate <= today) {
+        const todayResult = isHabitCompletedExactDay(habit, today);
         
-        const monthStartDate = new Date(month);
-        const startDate = new Date(Math.max(monthStartDate.getTime(), habitStartDate.getTime()));
-        
-        console.log(`Processing habit: ${habit.habit_names?.[0]?.habit_name || "Unknown"}, starting from: ${startDate.toISOString().split('T')[0]}`);
-        
-        for (let currentDate = new Date(startDate); currentDate <= today; currentDate.setDate(currentDate.getDate() + 1)) {
-        const currentDay = currentDate.toISOString().split('T')[0];
-        
-        const habitEntries = habit.entries.filter(entry => {
-            const entryDate = new Date(entry.datetime);
-            return entryDate.toISOString().split('T')[0] === currentDay;
-        });
-
-        const isCompleted = habitEntries.length > 0 && habitEntries[0].entry_type === "done";
-        
-        const isBadHabit = habit.habit_type === "bad_habit";
-        const isSuccess = isBadHabit ? !isCompleted : isCompleted;
-        
-        if (isSuccess) {
-            monthStatistics[0]++; 
-        } else {
-            monthStatistics[1]++; 
+        if (todayResult.isCompleted) {
+          dayStatistics[0]++;
+        } else if (todayResult.isSkipped) {
+          dayStatistics[1]++;
         }
+        dayStatistics[2]++;
         
-        if (currentDate >= weekFirstDay) {
-            if (isSuccess) {
-                weekStatistics[0]++;
-            } else {
-                weekStatistics[1]++;
-            }
+        if (habitStartDate <= yesterday) {
+          const yesterdayResult = isHabitCompletedExactDay(habit, yesterday);
+          if (yesterdayResult.isCompleted) {
+            previousDayStatistics[0]++;
+          } else if (yesterdayResult.isSkipped) {
+            previousDayStatistics[1]++;
+          }
+          previousDayStatistics[2]++;
         }
+      }
+      
+      if (habitStartDate <= thisWeekEnd) {
+        const thisWeekResult = isHabitCompletedForPeriod(habit, thisWeekStart, today);
+        console.log(thisWeekResult);
         
-        if (currentDay === day) {
-            if (isSuccess) {
-                dayStatistics[0]++;
-            } else {
-                dayStatistics[1]++;
-            }
+        weekStatistics[0] = thisWeekResult.completedDays[0];
+        weekStatistics[1] = thisWeekResult.completedDays[1];
+        weekStatistics[2] = thisWeekResult.completedDays[2];
+        
+        if (habitStartDate <= lastWeekEnd) {
+          const lastWeekResult = isHabitCompletedForPeriod(habit, lastWeekStart, lastWeekEnd);
+          
+          previousWeekStatistics[0] = lastWeekResult.completedDays[0];
+          previousWeekStatistics[1] = lastWeekResult.completedDays[1];
+          previousWeekStatistics[2] = lastWeekResult.completedDays[2];
         }
+      }
+      
+      if (habitStartDate <= thisMonthEnd) {
+        const thisMonthResult = isHabitCompletedForPeriod(habit, thisMonthStart, today);
+        
+        monthStatistics[0] = thisMonthResult.completedDays[0];
+        monthStatistics[1] = thisMonthResult.completedDays[1];
+        monthStatistics[2] = thisMonthResult.completedDays[2];
+        
+        if (habitStartDate <= lastMonthEnd) {
+          const lastMonthResult = isHabitCompletedForPeriod(habit, lastMonthStart, lastMonthEnd);
+          
+          previousMonthStatistics[0] = lastMonthResult.completedDays[0];
+          previousMonthStatistics[1] = lastMonthResult.completedDays[1];
+          previousMonthStatistics[2] = lastMonthResult.completedDays[2];
         }
-    }
+      }
+      
+      const completedEntries = habit.entries.filter(entry => entry.entry_type === "done").length;
+      const skippedEntries = habit.entries.filter(entry => entry.entry_type === "skipped").length;
+      
+      totalCompletedCount += completedEntries;
+      totalSkippedCount += skippedEntries;
+      
+      const currentStreak = calculateHabitStreak(habit, today);
+      
+      const maxStreak = currentStreak;
+      
+      if (maxStreak > longestStreakHabit.days) {
+        longestStreakHabit = {
+          habitName: habit.habit_names.habit_name || "Ismeretlen",
+          days: maxStreak
+        };
+      }
+      
+      if (currentStreak > currentStreakHabit.days) {
+        currentStreakHabit = {
+          habitName: habit.habit_names.habit_name || "Ismeretlen",
+          days: currentStreak
+        };
+      }
     });
 
     console.log(dayStatistics);
     console.log(weekStatistics);
     console.log(monthStatistics);
 
-    let todayCompletionRate = 0;
-    let weeklyCompletionRate = 0;
-    let monthlyCompletionRate = 0;
+    console.log(previousDayStatistics);
+    console.log(previousWeekStatistics);
+    console.log(previousMonthStatistics);
 
-    todayCompletionRate = dayStatistics[0] / (dayStatistics[0] + dayStatistics[1]);
-    weeklyCompletionRate = weekStatistics[0] / (weekStatistics[0] + weekStatistics[1]);
-    monthlyCompletionRate = monthStatistics[0] / (monthStatistics[0] + monthStatistics[1]);
-
-
-    const longestStreak = 0;
-    const currentStreak = 0;
-    const totalCompletedCount = 0;
-    const totalSkippedCount = 0;
+    const activeDay = dayStatistics[2] - dayStatistics[1]; // Total - skipped
+    const activeWeek = weekStatistics[2] - weekStatistics[1];
+    const activeMonth = monthStatistics[2] - monthStatistics[1];
+    
+    let todayCompletionRate = activeDay > 0 ? dayStatistics[0] / activeDay : 0;
+    let weeklyCompletionRate = activeWeek > 0 ? weekStatistics[0] / activeWeek : 0;
+    let monthlyCompletionRate = activeMonth > 0 ? monthStatistics[0] / activeMonth : 0;
+    
+    let dayCompletionRateChange = 0;
+    let weekCompletionRateChange = 0;
+    let monthCompletionRateChange = 0;
+    
+    const activePrevDay = previousDayStatistics[2] - previousDayStatistics[1];
+    const activePrevWeek = previousWeekStatistics[2] - previousWeekStatistics[1];
+    const activePrevMonth = previousMonthStatistics[2] - previousMonthStatistics[1];
+    
+    if (activePrevDay > 0) {
+      const prevDayRate = previousDayStatistics[0] / activePrevDay;
+      dayCompletionRateChange = todayCompletionRate - prevDayRate;
+    }
+    
+    if (activePrevWeek > 0) {
+      const prevWeekRate = previousWeekStatistics[0] / activePrevWeek;
+      weekCompletionRateChange = weeklyCompletionRate - prevWeekRate;
+    }
+    
+    if (activePrevMonth > 0) {
+      const prevMonthRate = previousMonthStatistics[0] / activePrevMonth;
+      monthCompletionRateChange = monthlyCompletionRate - prevMonthRate;
+    }
 
     const stats = {
       dailyStats: {
@@ -164,11 +227,14 @@ export async function GET() {
         monthlyCompletionRate,
         dayCompletionRateChange,
         weekCompletionRateChange,
-        monthCompletionRateChange
+        monthCompletionRateChange,
+        skippedDay: dayStatistics[1],
+        skippedWeek: weekStatistics[1],
+        skippedMonth: monthStatistics[1]
       },
       streaks: {
-        longestStreak,
-        currentStreak
+        longestStreak: longestStreakHabit,
+        currentStreak: currentStreakHabit
       },
       overallStats: {
         totalCompletedCount,

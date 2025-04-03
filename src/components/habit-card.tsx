@@ -113,7 +113,7 @@ export function HabitCard({
         },
         body: JSON.stringify({
           habit_id: Number(habit_id),
-          time_of_entry: new Date().toISOString(),
+          time_of_entry: new Date().toISOString().replace('T', ' ').replace('Z', ''),
           entry_type: "done"
         }),
       });
@@ -128,7 +128,7 @@ export function HabitCard({
       console.log("Szokás teljesítve:", responseData);
       setStatus({
         type: "done",
-        time: new Date().toISOString()
+        time: new Date().toISOString().replace('T', ' ').replace('Z', '')
       });
       if (responseData.data && responseData.data[0]) {
         setEntryId(responseData.data[0].entry_id);

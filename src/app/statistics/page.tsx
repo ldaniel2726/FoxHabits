@@ -1,11 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowUp, ArrowDown, BarChart, PieChart, TrendingUp } from "lucide-react";
+import { ArrowUp, ArrowDown, BarChart, PieChart, TrendingUp, SkipForward } from "lucide-react";
 import { cookies } from "next/headers";
 
 async function getStatistics() {
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
   const host = process.env.VERCEL_URL || "localhost:3000";
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   
   const response = await fetch(`${protocol}://${host}/api/statistics`, {
     credentials: "include",
@@ -48,6 +48,25 @@ export default async function Page() {
     { title: "Elvégzett szokások aránya a mai napon", value: "0%", change: "0%", positive: true },
     { title: "Elvégzett szokások aránya ezen a héten", value: "0%", change: "0%", positive: true },
     { title: "Elvégzett szokások aránya ebben a hónapban", value: "0%", change: "0%", positive: true },
+  ];
+
+  const skippedStats = stats ? [
+    { 
+      title: "Kihagyott szokások száma a mai napon", 
+      value: stats.dailyStats.daySkippedCount || 0
+    },
+    { 
+      title: "Kihagyott szokások száma ezen a héten", 
+      value: stats.dailyStats.weekSkippedCount || 0
+    },
+    { 
+      title: "Kihagyott szokások száma ebben a hónapban", 
+      value: stats.dailyStats.monthSkippedCount || 0
+    },
+  ] : [
+    { title: "Kihagyott szokások száma a mai napon", value: 0 },
+    { title: "Kihagyott szokások száma ezen a héten", value: 0 },
+    { title: "Kihagyott szokások száma ebben a hónapban", value: 0 },
   ];
 
   const longestStreak = stats ? {
@@ -121,6 +140,24 @@ export default async function Page() {
                   <span className="text-2xl font-extrabold text-orange-700">{currentStreak.days} nap</span>
                 </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="grid grid-cols-1 gap-8 mb-8">
+        <Card className="transition transform hover:-translate-y-1 hover:shadow-2xl duration-300">
+          <CardContent className="p-6">
+            <h2 className="text-2xl font-extrabold mb-4 flex items-center"><SkipForward className="mr-2" /> Kihagyott Szokások</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {skippedStats.map((item, index) => (
+                <div key={index} className="bg-gray-50 flex flex-col justify-between p-5 rounded-lg border border-gray-200 shadow-md">
+                  <p className="text-lg font-medium text-gray-700 mb-1">{item.title}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-2xl font-extrabold">{item.value}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
