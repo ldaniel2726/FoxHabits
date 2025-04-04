@@ -83,18 +83,18 @@ export default async function Page() {
     { 
       title: "Mindenkori elvégzett teendők és szokások száma", 
       value: `${stats.overallStats.totalCompletedCount}`, 
-      change: "+0.1%", 
-      positive: true 
+      // change: "+0.1%", 
+      // positive: true 
     },
-    { 
-      title: "Mindenkori elhalasztott teendők és szokások száma", 
-      value: `${stats.overallStats.totalSkippedCount}`, 
-      change: "+1.5%", 
-      positive: false 
-    },
+    // { 
+    //   title: "Mindenkori elhalasztott teendők és szokások száma", 
+    //   value: `${stats.overallStats.totalSkippedCount}`, 
+    //   change: "+1.5%", 
+    //   positive: false 
+    // },
   ] : [
     { title: "Mindenkori elvégzett teendők és szokások száma", value: "0", change: "0%", positive: true },
-    { title: "Mindenkori elhalasztott teendők és szokások száma", value: "0", change: "0%", positive: true },
+    // { title: "Mindenkori elhalasztott teendők és szokások száma", value: "0", change: "0%", positive: true },
   ];
 
   return (
@@ -145,24 +145,6 @@ export default async function Page() {
         </Card>
       </div>
       
-      <div className="grid grid-cols-1 gap-8 mb-8">
-        <Card className="transition transform hover:-translate-y-1 hover:shadow-2xl duration-300">
-          <CardContent className="p-6">
-            <h2 className="text-2xl font-extrabold mb-4 flex items-center"><SkipForward className="mr-2" /> Kihagyott Szokások</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {skippedStats.map((item, index) => (
-                <div key={index} className="bg-gray-50 flex flex-col justify-between p-5 rounded-lg border border-gray-200 shadow-md">
-                  <p className="text-lg font-medium text-gray-700 mb-1">{item.title}</p>
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-2xl font-extrabold">{item.value}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
       <Card className="transition transform hover:-translate-y-1 hover:shadow-2xl duration-300">
         <CardContent className="p-6">
           <h2 className="text-2xl font-extrabold mb-4 flex items-center"><TrendingUp className="mr-2" /> Összesített Statisztikák</h2>
@@ -172,10 +154,10 @@ export default async function Page() {
                 <p className="text-lg font-medium text-gray-700 mb-1">{item.title}</p>
                 <div className="flex items-center justify-between mt-3">
                   <span className="text-2xl font-extrabold">{item.value}</span>
-                  <span className={`flex items-center text-base font-semibold ${item.positive ? "text-green-500" : "text-red-500"}`}>
+                  {/* <span className={`flex items-center text-base font-semibold ${item.positive ? "text-green-500" : "text-red-500"}`}>
                     {item.positive ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
                     {item.change}
-                  </span>
+                  </span> */}
                 </div>
               </div>
             ))}

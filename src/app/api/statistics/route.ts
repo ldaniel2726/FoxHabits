@@ -4,8 +4,8 @@ import { ADMIN } from "@/utils/validators/APIConstants";
 import { permissionDeniedReturn } from "@/utils/validators/APIValidators";
 import { ApiErrors, createApiError } from "@/utils/errors/api-errors";
 import { 
-  startOfDay, startOfWeek, startOfMonth, subDays, eachDayOfInterval, 
-  isSameDay, parseISO, max, subWeeks, subMonths, endOfWeek, endOfMonth, addDays 
+  startOfDay, startOfWeek, startOfMonth, startOfYear, subDays, eachDayOfInterval, 
+  isSameDay, parseISO, max, subWeeks, subMonths, subYears, endOfWeek, endOfMonth, endOfYear, addDays 
 } from "date-fns";
 import { 
   isHabitCompletedOnDate, 
@@ -45,6 +45,11 @@ export async function GET() {
     const lastMonthStart = startOfMonth(subMonths(today, 1));
     const lastMonthEnd = endOfMonth(subMonths(today, 1));
 
+    const thisYearStart = startOfYear(today);
+    const thisYearEnd = endOfYear(today);
+    const lastYearStart = startOfYear(subYears(today, 1));
+    const lastYearEnd = endOfYear(subYears(today, 1));
+
     console.log(today);
     console.log(yesterday);
     console.log(thisWeekStart);
@@ -55,7 +60,10 @@ export async function GET() {
     console.log(thisMonthEnd);
     console.log(lastMonthStart);
     console.log(lastMonthEnd);
-
+    console.log(thisYearStart);
+    console.log(thisYearEnd);
+    console.log(lastYearStart);
+    console.log(lastYearEnd);
 
     const thisWeekDays = eachDayOfInterval({ start: thisWeekStart, end: thisWeekEnd });
     const lastWeekDays = eachDayOfInterval({ start: lastWeekStart, end: lastWeekEnd });
@@ -86,10 +94,12 @@ export async function GET() {
     const dayStatistics = [0, 0, 0];
     const weekStatistics = [0, 0, 0];
     const monthStatistics = [0, 0, 0];
+    const yearStatistics = [0, 0, 0];
 
     const previousDayStatistics = [0, 0, 0];
     const previousWeekStatistics = [0, 0, 0];
     const previousMonthStatistics = [0, 0, 0];
+    const previousYearStatistics = [0, 0, 0];
 
     let longestStreakHabit = { habitName: "Nincs adat", days: 0 };
     let currentStreakHabit = { habitName: "Nincs adat", days: 0 };
@@ -156,6 +166,22 @@ export async function GET() {
         }
       }
       
+      if (habitStartDate <= thisYearEnd) {
+        const thisYearResult = isHabitCompletedForPeriod(habit, thisYearStart, today);
+        
+        yearStatistics[0] = thisYearResult.completedDays[0];
+        yearStatistics[1] = thisYearResult.completedDays[1];
+        yearStatistics[2] = thisYearResult.completedDays[2];
+        
+        if (habitStartDate <= lastYearEnd) {
+          const lastYearResult = isHabitCompletedForPeriod(habit, lastYearStart, lastYearEnd);
+          
+          previousYearStatistics[0] = lastYearResult.completedDays[0];
+          previousYearStatistics[1] = lastYearResult.completedDays[1];
+          previousYearStatistics[2] = lastYearResult.completedDays[2];
+        }
+      }
+      
       const completedEntries = habit.entries.filter(entry => entry.entry_type === "done").length;
       const skippedEntries = habit.entries.filter(entry => entry.entry_type === "skipped").length;
       
@@ -188,26 +214,32 @@ export async function GET() {
     console.log(dayStatistics);
     console.log(weekStatistics);
     console.log(monthStatistics);
+    console.log(yearStatistics);
 
     console.log(previousDayStatistics);
     console.log(previousWeekStatistics);
     console.log(previousMonthStatistics);
+    console.log(previousYearStatistics);
 
     const activeDay = dayStatistics[2] - dayStatistics[1]; // Total - skipped
     const activeWeek = weekStatistics[2] - weekStatistics[1];
     const activeMonth = monthStatistics[2] - monthStatistics[1];
+    const activeYear = yearStatistics[2] - yearStatistics[1];
     
     const todayCompletionRate = activeDay > 0 ? dayStatistics[0] / activeDay : 0;
     const weeklyCompletionRate = activeWeek > 0 ? weekStatistics[0] / activeWeek : 0;
     const monthlyCompletionRate = activeMonth > 0 ? monthStatistics[0] / activeMonth : 0;
+    const yearlyCompletionRate = activeYear > 0 ? yearStatistics[0] / activeYear : 0;
     
     let dayCompletionRateChange = 0;
     let weekCompletionRateChange = 0;
     let monthCompletionRateChange = 0;
+    let yearCompletionRateChange = 0;
     
     const activePrevDay = previousDayStatistics[2] - previousDayStatistics[1];
     const activePrevWeek = previousWeekStatistics[2] - previousWeekStatistics[1];
     const activePrevMonth = previousMonthStatistics[2] - previousMonthStatistics[1];
+    const activePrevYear = previousYearStatistics[2] - previousYearStatistics[1];
     
     if (activePrevDay > 0) {
       const prevDayRate = previousDayStatistics[0] / activePrevDay;
@@ -223,18 +255,26 @@ export async function GET() {
       const prevMonthRate = previousMonthStatistics[0] / activePrevMonth;
       monthCompletionRateChange = monthlyCompletionRate - prevMonthRate;
     }
+    
+    if (activePrevYear > 0) {
+      const prevYearRate = previousYearStatistics[0] / activePrevYear;
+      yearCompletionRateChange = yearlyCompletionRate - prevYearRate;
+    }
 
     const stats = {
       dailyStats: {
         todayCompletionRate,
         weeklyCompletionRate,
         monthlyCompletionRate,
+        yearlyCompletionRate,
         dayCompletionRateChange,
         weekCompletionRateChange,
         monthCompletionRateChange,
+        yearCompletionRateChange,
         skippedDay: dayStatistics[1],
         skippedWeek: weekStatistics[1],
-        skippedMonth: monthStatistics[1]
+        skippedMonth: monthStatistics[1],
+        skippedYear: yearStatistics[1]
       },
       streaks: {
         longestStreak: longestStreakHabit,
