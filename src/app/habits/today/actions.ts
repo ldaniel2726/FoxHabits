@@ -1,72 +1,79 @@
 import { createClient } from '@/utils/supabase/server'
 
-export async function getTodayHabits() {
+export async function getTodayHabits(dateParam: string) {
   const supabase = await createClient()
-  
-  const today = new Date().toISOString().split('T')[0]
 
-  const dayOfWeek = new Date().getDay()
+  const targetDate = new Date(dateParam)
+  if (isNaN(targetDate.getTime())) {
+    targetDate.setTime(new Date().getTime())
+  }
+
+  const dayOfWeek = targetDate.getDay()
 
   const { data, error } = await supabase
     .from('habits')
-    .select('*')
+    .select('*, habit_names( habit_name )')
     .eq('is_active', true)
 
-    const habits = []
+  const habits = []
 
-    // todo: better handling for hourly habits
+  if (data) {
+    for (const habit of data) {
+      if (!habit.start_date) continue
 
+      const habitDate = new Date(habit.start_date)
+      if (targetDate < habitDate) continue
 
-    if (data) {
-      for (const habit of data) {
-        if (habit.is_active && habit.habit_interval_type === "hours") { habits.push(habit); }
-        if (habit.is_active && habit.habit_interval_type === "days" && habit.interval === 1) { habits.push(habit); }
-        if (habit.is_active && habit.habit_interval_type === "days" && habit.interval > 1) {
-          if (habit.start_date) {
-            const startDate = new Date(habit.start_date);
-            const daysOfInterval = habit.interval;
-            const dayOfIntervalIndex = startDate.getDate();
+      switch (habit.habit_interval_type) {
+        case "hours":
+          habit.habit_name_id = habit.habit_names?.habit_name || habit.habit_name_id;
+          habits.push(habit)
+          break
 
-            if (dayOfIntervalIndex === dayOfWeek) {
-              habits.push(habit);
-            }
+        case "days": {
+          const diffMillis = targetDate.getTime() - habitDate.getTime()
+          const diffDays = Math.floor(diffMillis / (1000 * 60 * 60 * 24))
+          if (diffDays % habit.interval === 0) {
+            habit.habit_name_id = habit.habit_names?.habit_name || habit.habit_name_id;
+            habits.push(habit)
           }
+          break
         }
-        if (habit.is_active && habit.habit_interval_type === "weeks") {
-          if (habit.start_date) {
-            const startDate = new Date(habit.start_date);
-            const daysOfWeek = habit.interval;
-            const dayOfWeekIndex = startDate.getDay();
-
-            if (dayOfWeekIndex === dayOfWeek) {
-              habits.push(habit);
-            }
+        case "weeks": {
+          const diffMillis = targetDate.getTime() - habitDate.getTime()
+          const diffDays = Math.floor(diffMillis / (1000 * 60 * 60 * 24))
+          const diffWeeks = Math.floor(diffDays / 7)
+          if (targetDate.getDay() === habitDate.getDay() && diffWeeks % habit.interval === 0) {
+            habit.habit_name_id = habit.habit_names?.habit_name || habit.habit_name_id;
+            habits.push(habit)
           }
+          break
         }
-        if (habit.is_active && habit.habit_interval_type === "months") {
-          if (habit.start_date) {
-            const startDate = new Date(habit.start_date);
-            const daysOfMonth = habit.interval;
-            const dayOfMonthIndex = startDate.getDate();
-
-            if (dayOfMonthIndex === dayOfWeek) {
-              habits.push(habit);
-            }
+        case "months": {
+          const diffMonths = (targetDate.getFullYear() - habitDate.getFullYear()) * 12 + (targetDate.getMonth() - habitDate.getMonth())
+          if (targetDate.getDate() === habitDate.getDate() && diffMonths % habit.interval === 0) {
+            habit.habit_name_id = habit.habit_names?.habit_name || habit.habit_name_id;
+            habits.push(habit)
           }
+          break
         }
-        if (habit.is_active && habit.habit_interval_type === "years") {
-          if (habit.start_date) {
-            const startDate = new Date(habit.start_date);
-            const daysOfYear = habit.interval;
-            const dayOfYearIndex = startDate.getDate();
-
-            if (dayOfYearIndex === dayOfWeek) {
-              habits.push(habit);
-            }
+        case "years": {
+          const diffYears = targetDate.getFullYear() - habitDate.getFullYear()
+          if (
+            targetDate.getMonth() === habitDate.getMonth() &&
+            targetDate.getDate() === habitDate.getDate() &&
+            diffYears % habit.interval === 0
+          ) {
+            habit.habit_name_id = habit.habit_names?.habit_name || habit.habit_name_id;
+            habits.push(habit)
           }
+          break
         }
+        default:
+          break
       }
     }
+  }
 
   if (error) {
     console.error('Error fetching habits:', error)
@@ -74,4 +81,4 @@ export async function getTodayHabits() {
   }
 
   return { success: true, habits, dayOfWeek }
-} 
+}
