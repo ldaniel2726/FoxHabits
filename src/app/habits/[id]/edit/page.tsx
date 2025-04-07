@@ -9,18 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-
-interface HabitData {
-  habit_id: string;
-  habit_type: string;
-  interval: number;
-  habit_interval_type: string;
-  start_date: string;
-  is_active: boolean;
-  habit_names: {
-    habit_name: string;
-  };
-}
+import { HabitData } from "@/types/HabitData";
 
 export default function EditHabitPage() {
   const router = useRouter();
@@ -232,4 +221,4 @@ export default function EditHabitPage() {
       </Card>
     </div>
   );
-} 
+}

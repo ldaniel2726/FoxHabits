@@ -2,17 +2,9 @@ import { z } from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { cookies } from "next/headers";
 import HabitEditFormComponent from "@/components/habit-edit-form";
+import { habitFormSchema } from "@/types/HabitFormSchema";
 
-const formSchema = z.object({
-  habit_names: z.object({"habit_name": z.string().min(1).max(255)}),
-  habit_type: z.enum(["normal_habit", "bad_habit"]),
-  interval: z.number().positive(),
-  habit_interval_type: z.enum(["hours", "days", "weeks", "months", "years"]),
-  start_date: z.string().datetime(),
-  is_active: z.boolean(),
-});
-
-type FormSchema = z.infer<typeof formSchema>;
+type FormSchema = z.infer<typeof habitFormSchema>;
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -62,7 +54,7 @@ export default async function HabitEditPage({ params }: PageProps) {
           <CardDescription>Szerkeszd a szokásod részleteit alább.</CardDescription>
         </CardHeader>
         <CardContent>
-          <HabitEditFormComponent habit={habit} id={id} />
+          <HabitEditFormComponent habit={{ ...habit, is_active: habit.is_active ?? false }} id={id} />
         </CardContent>
       </Card>
     </div>

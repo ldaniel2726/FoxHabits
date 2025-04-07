@@ -2,6 +2,7 @@ import { HabitCard } from "@/components/habit-card";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
+import { Habit } from "@/types/Habit";
 
 export default async function Page() {
   const supabase = await createClient();
@@ -17,19 +18,6 @@ export default async function Page() {
     },
   });
   const result = await response.json();
-
-  interface Habit {
-    habit_id: string;
-    habit_type: string;
-    interval: number;
-    habit_interval_type: string;
-    start_date: string;
-    is_active: boolean;
-    created_date: string;
-    habit_names: {
-      habit_name: string;
-    };
-  }
 
   if (result.message) {
     return (

@@ -10,17 +10,9 @@ import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/u
 import { Checkbox } from "@/components/ui/checkbox";
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
+import { habitFormSchema } from "@/types/HabitFormSchema";
 
-const formSchema = z.object({
-  habit_names: z.object({"habit_name": z.string().min(1).max(255)}),
-  habit_type: z.enum(["normal_habit", "bad_habit"]),
-  interval: z.number().positive(),
-  habit_interval_type: z.enum(["hours", "days", "weeks", "months", "years"]),
-  start_date: z.string().datetime(),
-  is_active: z.boolean(),
-});
-
-type FormSchema = z.infer<typeof formSchema>;
+type FormSchema = z.infer<typeof habitFormSchema>;
 
 interface HabitEditFormComponentProps {
   habit: FormSchema;
@@ -32,7 +24,7 @@ export default function HabitEditFormComponent({ habit, id }: HabitEditFormCompo
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { register, handleSubmit, formState: { errors } } = useForm<FormSchema>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(habitFormSchema),
     defaultValues: {
       ...habit,
       start_date: habit.start_date ? new Date(habit.start_date).toISOString().slice(0, 16) : undefined,
@@ -130,7 +122,7 @@ export default function HabitEditFormComponent({ habit, id }: HabitEditFormCompo
         <Checkbox
           id="is_active"
           {...register("is_active")}
-          defaultChecked={habit.is_active}
+          defaultChecked={habit.is_active ?? false}
         />
         <Label htmlFor="is_active">Aktív</Label>
       </div>

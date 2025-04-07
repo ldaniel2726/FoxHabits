@@ -15,16 +15,9 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { habitFormSchema } from "@/types/HabitFormSchema";
 
-const formSchema = z.object({
-  habit_name: z.string().min(1).max(255),
-  habit_type: z.enum(["normal_habit", "bad_habit"]),
-  interval: z.number().positive(),
-  habit_interval_type: z.enum(["days", "weeks", "months", "years"]),
-  start_date: z.string(),
-});
-
-type FormSchema = z.infer<typeof formSchema>;
+type FormSchema = z.infer<typeof habitFormSchema>;
 
 export default function HabitCreateFormComponent() {
   const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +39,7 @@ export default function HabitCreateFormComponent() {
     setValue,
     formState: { errors },
   } = useForm<FormSchema>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(habitFormSchema),
     defaultValues: {
       habit_type: "normal_habit",
       interval: 1,
@@ -83,9 +76,9 @@ export default function HabitCreateFormComponent() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
         <Label htmlFor="habit_name">Szokás neve</Label>
-        <Input id="habit_name" {...register("habit_name")} />
-        {errors.habit_name && (
-          <p className="text-red-500">{errors.habit_name.message}</p>
+        <Input id="habit_name" {...register("habit_names")} />
+        {errors.habit_names && (
+          <p className="text-red-500">{errors.habit_names.message}</p>
         )}
       </div>
 
