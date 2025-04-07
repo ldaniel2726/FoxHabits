@@ -28,7 +28,7 @@ export default function ProfileEditSheet({ userData }: { userData: UserData }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="hover:text-orange-700 hover:border-orange-700 hover:border hover:shadow-xl p-2">
           <UserRoundPen />
         </Button>
       </SheetTrigger>
