@@ -213,11 +213,11 @@ export function HabitCard({
 
   return (
     <div>
-      <Card className={`${cardStyle()} cursor-pointer`} onClick={handleCardClick}>
+      <Card className={`${cardStyle()} cursor-pointer p-4 md:p-6`} onClick={handleCardClick}>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between capitalize text-xl">
-            <div className="truncate mr-2">{habit_name_id}</div>
-            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+          <CardTitle className="flex flex-col md:flex-row items-start md:items-center justify-between capitalize text-lg md:text-xl">
+            <div className="truncate mr-0 md:mr-2">{habit_name_id}</div>
+            <div className="flex items-center gap-1 mt-2 md:mt-0" onClick={(e) => e.stopPropagation()}>
               <EditHabitButton habitId={habit_id} />
               <DeleteHabitButton 
                 habitId={habit_id} 
@@ -238,15 +238,15 @@ export function HabitCard({
               : habit_type}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex items-center space-x-2">
+        <CardContent className="space-y-1 md:space-y-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
             <Repeat className="h-4 w-4 text-muted-foreground" />
             <span>
               Minden {interval !== 1 && `${interval + "."} `}{" "}
               {translations[habit_interval_type] || habit_interval_type}
             </span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
             <span>
               Elkezdve: {format(new Date(start_date), "yyyy MMMM d.")}
@@ -261,8 +261,8 @@ export function HabitCard({
             </div>
           )}
         </CardContent>
-        <CardFooter className="text-sm text-muted-foreground flex justify-between">
-          <div className="flex items-center space-x-2">
+        <CardFooter className="text-sm text-muted-foreground flex flex-col md:flex-row justify-between items-start md:items-center">
+          <div className="flex items-center space-x-2 mb-2 md:mb-0">
             <CalendarDays className="h-4 w-4" />
             <span>
               Létrehozva: {format(new Date(created_date), "yyyy MMMM d.")}

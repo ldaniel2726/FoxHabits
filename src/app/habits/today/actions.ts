@@ -10,10 +10,17 @@ export async function getTodayHabits(dateParam: string) {
 
   const dayOfWeek = targetDate.getDay()
 
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (!session) return { success: false, error: 'No session found' }
+  
+  const userId = (await supabase.auth.getUser()).data.user?.id;
+
   const { data, error } = await supabase
     .from('habits')
     .select('*, habit_names( habit_name )')
     .eq('is_active', true)
+    .eq('related_user_id', userId)
 
   const habits = []
 
