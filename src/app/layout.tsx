@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { lazy, Suspense } from 'react';
 import LoadingFallback from '@/components/loading-fallback';
 import { createClient } from "@/utils/supabase/server";
+import { ThemeProvider } from "next-themes";
 
 const fontSans = GeistSans;
 const fontMono = GeistMono;
@@ -30,13 +31,15 @@ export default async function RootLayout({
   return (
     <html lang="en" className={fontSans.className}>
       <body className={`${fontSans.variable} ${fontMono.variable} antialiased m-auto`}>
-        <Suspense fallback={<LoadingFallback />}>
-          <div className="m-auto">
-            <Header data={data} />
-            {children}
-          </div>
-        </Suspense>
-        <Toaster />
+        <ThemeProvider attribute="class" defaultTheme="system">
+          <Suspense fallback={<LoadingFallback />}>
+            <div className="m-auto">
+              <Header data={data} />
+              {children}
+            </div>
+          </Suspense>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
