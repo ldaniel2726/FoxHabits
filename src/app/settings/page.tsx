@@ -4,21 +4,16 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
 import { updateSettings, exportData, getSettings } from './actions'
 import { Skeleton } from "@/components/ui/skeleton"
+import { Settings } from "@/types/Settings"
 
 export default function SettingsPage() {
   const [isPending, setIsPending] = useState(false)
-  interface Settings {
-    dark_mode: string;
-    localization: string;
-    email_notifications: boolean;
-  }
 
   const [settings, setSettings] = useState<Settings | null>(null)
   const router = useRouter()
@@ -125,18 +120,6 @@ export default function SettingsPage() {
                   <SelectItem value="light">Világos</SelectItem>
                   <SelectItem value="dark">Sötét</SelectItem>
                   <SelectItem value="system">Rendszer</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label htmlFor="language">Nyelv</Label>
-              <Select name="language" defaultValue={settings.localization || "hu"}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Válassz egy nyelvet" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hu">Magyar</SelectItem>
-                  <SelectItem value="en">Angol</SelectItem>
                 </SelectContent>
               </Select>
             </div>
