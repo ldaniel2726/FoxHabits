@@ -45,12 +45,8 @@ export default function SettingsPage() {
   }
 
   const handleExportData = async () => {
-    const result = await exportData()
-    if (result.success) {
-      toast.success(result.message)
-    } else {
-      toast.error("Valami hiba történt. Ellenőrizd az internet kapcsolatodat.")
-    }
+    toast.message("Adatok exportálása folyamatban...");
+    window.location.href = "/api/export";
   }
   
   
