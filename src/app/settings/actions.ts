@@ -10,8 +10,6 @@ export async function updateSettings(formData: FormData) {
   const localization = formData.get('language')
   const email_notifications = formData.get('emailNotifications') === 'on'
 
-  console.log('new settings:', { dark_mode, localization, email_notifications })
-
   const { error } = await supabase.from('settings').upsert({
     dark_mode,
     localization,

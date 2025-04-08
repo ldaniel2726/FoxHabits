@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import "./globals.css";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 import { lazy, Suspense } from 'react';
 import LoadingFallback from '@/components/loading-fallback';
 import { createClient } from "@/utils/supabase/server";
@@ -24,14 +24,21 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const supabase = await createClient()
+  const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.getUser()
+  const { data } = await supabase.auth.getUser();
+  const { user } = data;
+
+  const { data: settings } = await supabase
+    .from("settings")
+    .select("*")
+    .eq("user_id", user?.id)
+    .single();
 
   return (
-    <html lang="en" className={fontSans.className}>
+    <html lang="en" className={fontSans.className} suppressHydrationWarning>
       <body className={`${fontSans.variable} ${fontMono.variable} antialiased m-auto`}>
-        <ThemeProvider attribute="class" defaultTheme="system">
+        <ThemeProvider attribute="class" defaultTheme="light" forcedTheme={settings?.dark_mode}>
           <Suspense fallback={<LoadingFallback />}>
             <div className="m-auto">
               <Header data={data} />
