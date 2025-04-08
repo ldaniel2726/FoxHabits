@@ -92,7 +92,7 @@ export default function Page() {
   if (isLoading) {
     return (
       <div className="w-full flex absolute top-0 left-0 mt-20 h-[calc(100vh-5rem)] overflow-hidden">
-        <aside className="bg-gray-50 p-4 flex flex-col justify-center">
+        <aside className="bg-gray-50 dark:bg-zinc-950 p-4 flex flex-col justify-center">
           <div className="space-y-4">
             {relativeDays.map((_, index) => (
               <div key={index} className="w-12 h-12 rounded-full bg-gray-300 animate-pulse"/>
@@ -100,7 +100,7 @@ export default function Page() {
           </div>
         </aside>
 
-        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 grid gap-6">
+        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-zinc-950 grid gap-6">
           {relativeDays.map((_, index) => (
             <div key={index} className="min-h-screen snap-start space-y-4">
               <div className="w-1/2 h-8 bg-gray-300 animate-pulse" />
@@ -121,7 +121,7 @@ export default function Page() {
 
   return (
     <div className="w-full flex absolute top-0 left-0 mt-20 h-[calc(100vh-5rem)] overflow-hidden">
-      <aside className="bg-gray-50 p-4 flex flex-col justify-center">
+      <aside className="bg-gray-50 dark:bg-zinc-950 p-4 flex flex-col justify-center">
         <div className="space-y-4">
           {relativeDays.map((day, index) => (
             <button
@@ -137,7 +137,7 @@ export default function Page() {
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-6 bg-gray-50 snap-y snap-mandatory"
+        className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-zinc-950 snap-y snap-mandatory"
       >
         {relativeDays.map((day, index) => {
           const habits = habitsData[day.offset] || [];

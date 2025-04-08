@@ -31,9 +31,9 @@ export default async function Page() {
       : user_metadata.picture || user_metadata.avatar_url;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 py-10 px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto max-w-screen-lg">
-        <Card className="bg-white dark:bg-gray-800 shadow-2xl border border-gray-200 dark:border-gray-700">
+        <Card className="bg-white dark:bg-zinc-950 shadow-2xl border border-gray-200 dark:border-gray-700">
           <CardHeader className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 p-6 border-b border-gray-100 dark:border-gray-700">
             <div className="flex gap-4 items-center">
               <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
@@ -75,25 +75,25 @@ export default async function Page() {
           <CardContent className="p-6">
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
               <Link href="/habits">
-                <Button variant="secondary" className="flex flex-col items-center gap-1 p-6 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-300 font-bold w-full h-full border hover:shadow-xl hover:text-orange-700">
+                <Button variant="secondary" className="flex flex-col items-center gap-1 p-6 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-zinc-700 transition duration-300 font-bold w-full h-full border hover:shadow-xl hover:text-orange-700">
                   <Activity className="h-24 w-24" />
                   <span className="text-base">Habits</span>
                 </Button>
               </Link>
               <Link href="/lists">
-                <Button variant="secondary" className="flex flex-col items-center gap-1 p-6 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-300 font-bold w-full h-full border hover:shadow-xl hover:text-orange-700">
+                <Button variant="secondary" className="flex flex-col items-center gap-1 p-6 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-zinc-700 transition duration-300 font-bold w-full h-full border hover:shadow-xl hover:text-orange-700">
                   <ListIcon className="h-24 w-24" />
                   <span className="text-base">Lists</span>
                 </Button>
               </Link>
               <Link href="/habits/today">
-                <Button variant="secondary" className="flex flex-col items-center gap-1 p-6 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-300 font-bold w-full h-full border hover:shadow-xl hover:text-orange-700">
+                <Button variant="secondary" className="flex flex-col items-center gap-1 p-6 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-zinc-700 transition duration-300 font-bold w-full h-full border hover:shadow-xl hover:text-orange-700">
                   <CalendarDays className="h-24 w-24" />
                   <span className="text-base">Napi nézet</span>
                 </Button>
               </Link>
               <Link href="/statistics">
-                <Button variant="secondary" className="flex flex-col items-center gap-1 p-6 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-300 font-bold w-full h-full border hover:shadow-xl hover:text-orange-700">
+                <Button variant="secondary" className="flex flex-col items-center gap-1 p-6 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-zinc-700 transition duration-300 font-bold w-full h-full border hover:shadow-xl hover:text-orange-700">
                   <BarChart2 className="h-24 w-24" />
                   <span className="text-base">Statisztika</span>
                 </Button>
