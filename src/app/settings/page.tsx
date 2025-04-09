@@ -1,22 +1,19 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { updateSettings, exportData, getSettings } from './actions'
+import { updateSettings, getSettings } from './actions'
 import { Skeleton } from "@/components/ui/skeleton"
 import { Settings } from "@/types/Settings"
 
 export default function SettingsPage() {
   const [isPending, setIsPending] = useState(false)
-
   const [settings, setSettings] = useState<Settings | null>(null)
-  const router = useRouter()
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -46,9 +43,22 @@ export default function SettingsPage() {
 
   const handleExportData = async () => {
     toast.message("Adatok exportálása folyamatban...");
-    window.location.href = "/api/export";
+    const response = await fetch("/api/export", { method: "GET",  headers: {"Content-Type": "application/json"} })
+
+    if (response.ok) {
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `FoxHabits_export_${new Date().toISOString().slice(0, 10)}.csv`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      toast.success("Adatok exportálva.")
+    } else {
+      toast.error("Valami hiba történt az adatok exportálása során.")
+    }
   }
-  
   
   if (!settings) {
     return (

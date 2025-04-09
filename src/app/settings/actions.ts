@@ -38,9 +38,3 @@ export async function getSettings() {
 
   return { success: true, message: 'Beállítások betöltve.', data }
 }
-
-export async function exportData() {
-  console.log('Exporting user data...')
-
-  return { success: true, message: 'Az adatok exportálva lettek.' }
-}
