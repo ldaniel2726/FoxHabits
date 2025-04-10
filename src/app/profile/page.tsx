@@ -77,13 +77,13 @@ export default async function Page() {
               <Link href="/habits">
                 <Button variant="secondary" className="flex flex-col items-center gap-1 p-6 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-zinc-700 transition duration-300 font-bold w-full h-full border hover:shadow-xl hover:text-orange-700">
                   <Activity className="h-24 w-24" />
-                  <span className="text-base">Habits</span>
+                  <span className="text-base">Szokások</span>
                 </Button>
               </Link>
               <Link href="/lists">
                 <Button variant="secondary" className="flex flex-col items-center gap-1 p-6 rounded-lg shadow hover:bg-gray-100 dark:hover:bg-zinc-700 transition duration-300 font-bold w-full h-full border hover:shadow-xl hover:text-orange-700">
                   <ListIcon className="h-24 w-24" />
-                  <span className="text-base">Lists</span>
+                  <span className="text-base">Listák</span>
                 </Button>
               </Link>
               <Link href="/habits/today">
