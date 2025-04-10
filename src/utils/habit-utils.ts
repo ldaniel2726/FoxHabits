@@ -41,44 +41,46 @@ export function isHabitCompletedOnDate(habit: Habit, date: Date = new Date()): {
   
   let periodStart: Date;
   let periodEnd: Date;
-  let periodNumber: number;
   
   switch (habit.habit_interval_type) {
     case 'days':
-      periodNumber = Math.floor(differenceInDays(checkDate, habitStartDate) / habit.interval);
-      periodStart = addDays(habitStartDate, periodNumber * habit.interval);
-      periodEnd = endOfDay(addDays(periodStart, habit.interval - 1));
+      periodStart = checkDate;
+      periodEnd = endOfDay(checkDate);
       break;
       
     case 'weeks':
-      periodNumber = Math.floor(differenceInWeeks(checkDate, habitStartDate) / habit.interval);
+      const daysSinceStart = differenceInDays(checkDate, habitStartDate);
+      const weeksSinceStart = Math.floor(daysSinceStart / 7);
+      const periodNumber = Math.floor(weeksSinceStart / habit.interval);
       periodStart = addWeeks(habitStartDate, periodNumber * habit.interval);
       periodEnd = endOfDay(addDays(periodStart, 7 * habit.interval - 1));
+      console.log('periodStart', periodStart);
+      console.log('periodEnd', periodEnd);
       break;
       
     case 'months':
-      periodNumber = Math.floor(differenceInMonths(checkDate, habitStartDate) / habit.interval);
-      periodStart = addMonths(habitStartDate, periodNumber * habit.interval);
+      const monthPeriodNumber = Math.floor(differenceInMonths(checkDate, habitStartDate) / habit.interval);
+      periodStart = addMonths(habitStartDate, monthPeriodNumber * habit.interval);
       periodEnd = endOfDay(addDays(addMonths(periodStart, habit.interval), -1));
       break;
       
     case 'years':
-      periodNumber = Math.floor(differenceInYears(checkDate, habitStartDate) / habit.interval);
-      periodStart = addYears(habitStartDate, periodNumber * habit.interval);
+      const yearPeriodNumber = Math.floor(differenceInYears(checkDate, habitStartDate) / habit.interval);
+      periodStart = addYears(habitStartDate, yearPeriodNumber * habit.interval);
       periodEnd = endOfDay(addDays(addYears(periodStart, habit.interval), -1));
       break;
       
     default:
       throw new Error(`Unknown habit interval type: ${habit.habit_interval_type}`);
   }
-  
-
+  console.log(habit.entries);
   const requiredCompletions = habit.interval;
   
   const entriesInPeriod = habit.entries.filter(entry => {
     const entryDate = new Date(entry.datetime);
     return entryDate >= periodStart && entryDate <= periodEnd && entry.entry_type === 'done';
   });
+  console.log('entriesInPeriod', entriesInPeriod);
 
   const skippedEntriesInPeriod = habit.entries.filter(entry => {
     const entryDate = new Date(entry.datetime);
@@ -87,11 +89,14 @@ export function isHabitCompletedOnDate(habit: Habit, date: Date = new Date()): {
   
   const actualCompletions = entriesInPeriod.length;
   const isSkipped = skippedEntriesInPeriod.length > 0;
+  console.log('actualCompletions', actualCompletions);
   
   const isCompleted = !isSkipped && (habit.habit_type === 'normal_habit' 
-    ? actualCompletions >= requiredCompletions
+    ? actualCompletions > 0
     : actualCompletions === 0);
   
+    console.log('isCompleted', isCompleted);
+
   return {
     isCompleted,
     isSkipped,
