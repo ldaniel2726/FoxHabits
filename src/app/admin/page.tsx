@@ -7,8 +7,11 @@ import { HabitsTable } from "@/components/admin/HabitsTable";
 import { UsersTable } from "@/components/admin/UsersTable";
 import { AnalyticsPanel } from "@/components/admin/AnalyticsPanel";
 import { AdminHeader } from "@/components/admin/AdminHeader";
+import { requireAdmin } from "@/utils/auth-checks";
 
 export default async function AdminPage() {
+  await requireAdmin();
+  
   const habits = await fetchHabits();
   const users = await fetchUsers();
   const stats = await fetchAdminStats(habits, users);
