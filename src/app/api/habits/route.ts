@@ -70,6 +70,7 @@ export async function POST(request: Request) {
 
     const result = habitSchema.safeParse(await request.json());
 
+
     if (!result.success) {
       console.log(result.error);
       return NextResponse.json(
@@ -79,6 +80,12 @@ export async function POST(request: Request) {
     }
 
     const validatedData = result.data;
+
+    if (validatedData.habit_type === "bad_habit") {
+      validatedData.interval = 1;
+      validatedData.habit_interval_type = "days";
+    }
+
     const supabase = await createClient();
 
     const {

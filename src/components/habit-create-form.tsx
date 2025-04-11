@@ -21,6 +21,7 @@ type FormSchema = z.infer<typeof habitFormSchema>;
 
 export default function HabitCreateFormComponent() {
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedHabitType, setSelectedHabitType] = useState<"normal_habit" | "bad_habit">("normal_habit");
   const router = useRouter();
 
   const getCurrentDateTime = () => {
@@ -44,7 +45,7 @@ export default function HabitCreateFormComponent() {
       habit_type: "normal_habit",
       interval: 1,
       habit_interval_type: "days",
-      start_date: getCurrentDateTime(),
+      start_date: new Date().toISOString().split('T')[0],
     },
   });
 
@@ -86,9 +87,10 @@ export default function HabitCreateFormComponent() {
         <Label htmlFor="habit_type">Szokás típusa</Label>
         <Select
           defaultValue="normal_habit"
-          onValueChange={(value: "normal_habit" | "bad_habit") =>
-            setValue("habit_type", value)
-          }
+          onValueChange={(value: "normal_habit" | "bad_habit") => {
+            setValue("habit_type", value);
+            setSelectedHabitType(value);
+          }}
         >
           <SelectTrigger>
             <SelectValue placeholder="Válassz típust" />
@@ -103,48 +105,50 @@ export default function HabitCreateFormComponent() {
         )}
       </div>
 
-      <div className="flex space-x-4">
-        <div className="flex-1">
-          <Label htmlFor="interval">Intervallum</Label>
-          <Input
-            id="interval"
-            type="number"
-            {...register("interval", { valueAsNumber: true })}
-          />
-          {errors.interval && (
-            <p className="text-red-500">{errors.interval.message}</p>
-          )}
-        </div>
+      {selectedHabitType === "normal_habit" && (
+        <div className="flex space-x-4">
+          <div className="flex-1">
+            <Label htmlFor="interval">Intervallum</Label>
+            <Input
+              id="interval"
+              type="number"
+              {...register("interval", { valueAsNumber: true })}
+            />
+            {errors.interval && (
+              <p className="text-red-500">{errors.interval.message}</p>
+            )}
+          </div>
 
-        <div className="flex-1">
-          <Label htmlFor="habit_interval_type">Intervallum típusa</Label>
-          <Select
-            defaultValue="days"
-            onValueChange={(value: "days" | "weeks" | "months" | "years") =>
-              setValue("habit_interval_type", value)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="days">naponta</SelectItem>
-              <SelectItem value="weeks">hetente</SelectItem>
-              <SelectItem value="months">havonta</SelectItem>
-              <SelectItem value="years">évente</SelectItem>
-            </SelectContent>
-          </Select>
-          {errors.habit_interval_type && (
-            <p className="text-red-500">{errors.habit_interval_type.message}</p>
-          )}
+          <div className="flex-1">
+            <Label htmlFor="habit_interval_type">Intervallum típusa</Label>
+            <Select
+              defaultValue="days"
+              onValueChange={(value: "days" | "weeks" | "months" | "years") =>
+                setValue("habit_interval_type", value)
+              }
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="days">naponta</SelectItem>
+                <SelectItem value="weeks">hetente</SelectItem>
+                <SelectItem value="months">havonta</SelectItem>
+                <SelectItem value="years">évente</SelectItem>
+              </SelectContent>
+            </Select>
+            {errors.habit_interval_type && (
+              <p className="text-red-500">{errors.habit_interval_type.message}</p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       <div>
         <Label htmlFor="start_date">Kezdő dátum</Label>
         <Input
           id="start_date"
-          type="datetime-local"
+          type="date"
           {...register("start_date")}
         />
         {errors.start_date && (
