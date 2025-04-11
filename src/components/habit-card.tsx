@@ -125,6 +125,7 @@ export function HabitCard({
         }),
       });
 
+
       const responseData = await response.json();
       
       if (!response.ok) {
@@ -133,6 +134,12 @@ export function HabitCard({
       }
 
       console.log("Szokás teljesítve:", responseData);
+      if (habit_type === "bad_habit") {
+        const timeFromLastLogElement = document.getElementById("time-from-last-log");
+        if (timeFromLastLogElement) {
+          timeFromLastLogElement.style.display = "none";
+        }
+      }
       setStatus({
         type: "done",
         time: new Date().toISOString()
@@ -161,6 +168,13 @@ export function HabitCard({
       if (!response.ok) {
         console.error("Error response:", responseData);
         throw new Error(responseData.error || "Network response was not ok");
+      }
+
+      if (habit_type === "bad_habit") {
+        const timeFromLastLogElement = document.getElementById("time-from-last-log");
+        if (timeFromLastLogElement) {
+          timeFromLastLogElement.style.display = "flex";
+        }
       }
 
       console.log("Szokás visszavonva:", responseData);
@@ -264,7 +278,7 @@ export function HabitCard({
             </span>
           </div>
           {habit_type === "bad_habit" && (
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2" id="time-from-last-log">
               <ClockIcon className="h-4 w-4 text-muted-foreground" />
               <span>
                 A szokás megtartva {timeFromLastLog ? Math.floor(timeFromLastLog / (1000 * 60 * 60 * 24)) : 0}{" "}
