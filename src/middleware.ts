@@ -12,6 +12,18 @@ export const config = {
     '/signup',
     '/forgot-password',
     '/auth/reset-password',
-    '/admin'
+    '/admin',
+    '/habits',
+    '/habits/*',
+    '/habits/today',
+    '/habits/today/*',
+    '/habits/create',
+    '/habits/create/*',
+    '/habits/edit',
+    '/habits/edit/*',
+    '/habits/add',
+    '/habits/add/*',
+    '/settings',
+    '/statistics'
   ],
 }
