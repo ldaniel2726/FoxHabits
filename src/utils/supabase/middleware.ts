@@ -35,22 +35,40 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (user && request.nextUrl.pathname.startsWith('/login')) {
+  if (user && (
+    request.nextUrl.pathname.startsWith('/login') ||
+    request.nextUrl.pathname.startsWith('/signup') ||
+    request.nextUrl.pathname.startsWith('/forgot-password')
+  )) {
     const url = request.nextUrl.clone()
     url.pathname = '/profile'
     return NextResponse.redirect(url)
   }
 
-  if (user && request.nextUrl.pathname.startsWith('/signup')) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/profile'
-    return NextResponse.redirect(url)
-  }
+  const protectedRoutes = [
+    '/profile',
+    '/habits',
+    '/habits/today',
+    '/habits/create',
+    '/habits/edit',
+    '/habits/add',
+    '/settings',
+    '/statistics'
+  ]
 
-  if (!user && request.nextUrl.pathname.startsWith('/profile')) {
+  if (!user && protectedRoutes.some(route => request.nextUrl.pathname.startsWith(route))) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
+    url.searchParams.set('returnUrl', request.nextUrl.pathname)
     return NextResponse.redirect(url)
+  }
+
+  if (user && request.nextUrl.pathname.startsWith('/admin')) {
+    if (user.user_metadata?.role !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
   }
 
 
