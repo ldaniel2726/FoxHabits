@@ -130,6 +130,7 @@ export default async function HabitPage({
         <HabitEntries 
           habitId={parseInt((await params).id)} 
           entries={habit.entries || []} 
+          habitType={habit.habit_type}
         />
       </div>
     </div>

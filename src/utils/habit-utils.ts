@@ -77,13 +77,13 @@ export function isHabitCompletedOnDate(habit: Habit, date: Date = new Date()): {
   const requiredCompletions = habit.interval;
   
   const entriesInPeriod = habit.entries.filter(entry => {
-    const entryDate = new Date(entry.datetime);
+    const entryDate = new Date(entry.datetime.replace(' ', 'T') + 'Z');
     return entryDate >= periodStart && entryDate <= periodEnd && entry.entry_type === 'done';
   });
   console.log('entriesInPeriod', entriesInPeriod);
 
   const skippedEntriesInPeriod = habit.entries.filter(entry => {
-    const entryDate = new Date(entry.datetime);
+    const entryDate = new Date(entry.datetime.replace(' ', 'T') + 'Z');
     return entryDate >= periodStart && entryDate <= periodEnd && entry.entry_type === 'skipped';
   });
   
