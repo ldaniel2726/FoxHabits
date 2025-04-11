@@ -26,10 +26,11 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DeleteHabitButton } from "./DeleteHabitButton";
 import { EditHabitButton } from "./EditHabitButton";
 import { HabitCardProps } from "@/types/HabitCardProps";
+import { isHabitCompletedOnDate } from "@/utils/habit-utils";
 
 export function HabitCard({
   habit_id,
@@ -48,6 +49,40 @@ export function HabitCard({
   });
   const [entryId, setEntryId] = useState<string | null>(null);
   
+  useEffect(() => {
+    const habit = {
+      habit_id: Number(habit_id),
+      habit_type: habit_type as 'normal_habit' | 'bad_habit',
+      habit_interval_type: habit_interval_type as 'days' | 'weeks' | 'months' | 'years',
+      interval,
+      start_date,
+      is_active,
+      entries
+    };
+    
+    const completionInfo = isHabitCompletedOnDate(habit);
+    
+    if (completionInfo.isCompleted) {
+      const lastEntry = entries.findLast(entry => entry.entry_type === 'done');
+      if (lastEntry) {
+        setStatus({
+          type: 'done',
+          time: lastEntry.datetime
+        });
+        setEntryId(lastEntry.entry_id.toString());
+      }
+    } else if (completionInfo.isSkipped) {
+      const lastEntry = entries.find(entry => entry.entry_type === 'skipped');
+      if (lastEntry) {
+        setStatus({
+          type: 'skipped',
+          time: lastEntry.datetime
+        });
+        setEntryId(lastEntry.entry_id.toString());
+      }
+    }
+  }, [habit_id, habit_type, habit_interval_type, interval, start_date, is_active, entries]);
+
   const translations: { [key: string]: string } = {
     hours: "órában",
     days: "nap",
