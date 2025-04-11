@@ -90,7 +90,7 @@ export function UsersTable({ users }: UsersTableProps) {
                   <TableCell className="px-4 py-3">{user.email}</TableCell>
                   <TableCell className="px-4 py-3">
                     <Badge variant="outline" className="font-medium">
-                      {user.role || "Felhasználó"}
+                      {user.user_metadata?.role || "Felhasználó"}
                     </Badge>
                   </TableCell>
                   <TableCell>
