@@ -8,8 +8,18 @@ import { User } from "@supabase/supabase-js";
 export async function fetchHabits() {
   const { data: habits, error } = await supabaseAdmin
     .from("habits")
-    .select("*")
+    .select(`
+      *,
+      habit_names!inner (
+        habit_name_id,
+        habit_name,
+        habit_name_status
+      )
+    `)
+    .in("habit_names.habit_name_status", ["new", "approved"])
     .order("created_date");
+
+  console.log("Fetched habits:", habits);
 
   if (error) {
     console.error("Error fetching habits:", error);

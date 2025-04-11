@@ -92,7 +92,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                   className="hover:bg-muted/50 transition-colors"
                 >
                   <TableCell className="font-medium px-4 py-3">
-                    {habit.habit_id}
+                    {habit.habit_names?.habit_name || `ID: ${habit.habit_id}`}
                   </TableCell>
                   <TableCell>
                     <Badge
@@ -136,7 +136,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
             <ClipboardX className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium">Nincsenek szokások</h3>
             <p className="text-muted-foreground mt-2 mb-4">
-              Még nem hozott létre egyetlen szokást sem.
+              Még senki nem hozott létre egyetlen szokást sem.
             </p>
             <Link href="/habits/add">
               <Button>
