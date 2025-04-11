@@ -107,13 +107,11 @@ export async function GET() {
     let totalSkippedCount = 0;
     
     allHabits.forEach(habit => {
-      console.log("TESZT");
-      console.log(habit);
-      console.log(isHabitCompletedOnDate(habit, today));
       const habitStartDate = new Date(habit.start_date);
       
+      // Today's statistics
       if (habitStartDate <= today) {
-        const todayResult = isHabitCompletedExactDay(habit, today);
+        const todayResult = isHabitCompletedOnDate(habit, today);
         
         if (todayResult.isCompleted) {
           dayStatistics[0]++;
@@ -122,8 +120,9 @@ export async function GET() {
         }
         dayStatistics[2]++;
         
+        // Yesterday's statistics
         if (habitStartDate <= yesterday) {
-          const yesterdayResult = isHabitCompletedExactDay(habit, yesterday);
+          const yesterdayResult = isHabitCompletedOnDate(habit, yesterday);
           if (yesterdayResult.isCompleted) {
             previousDayStatistics[0]++;
           } else if (yesterdayResult.isSkipped) {
@@ -133,52 +132,149 @@ export async function GET() {
         }
       }
       
+      // Weekly statistics
       if (habitStartDate <= thisWeekEnd) {
-        const thisWeekResult = isHabitCompletedForPeriod(habit, thisWeekStart, today);
-        console.log(thisWeekResult);
+        let thisWeekCompleted = 0;
+        let thisWeekSkipped = 0;
+        let thisWeekTotal = 0;
         
-        weekStatistics[0] = thisWeekResult.completedDays[0];
-        weekStatistics[1] = thisWeekResult.completedDays[1];
-        weekStatistics[2] = thisWeekResult.completedDays[2];
+        thisWeekDays.forEach(day => {
+          if (habitStartDate <= day) {
+            const dayResult = isHabitCompletedOnDate(habit, day);
+            if (dayResult.isCompleted) {
+              thisWeekCompleted++;
+            } else if (dayResult.isSkipped) {
+              thisWeekSkipped++;
+            }
+            thisWeekTotal++;
+          }
+        });
         
+        weekStatistics[0] += thisWeekCompleted;
+        weekStatistics[1] += thisWeekSkipped;
+        weekStatistics[2] += thisWeekTotal;
+        
+        // Last week statistics
         if (habitStartDate <= lastWeekEnd) {
-          const lastWeekResult = isHabitCompletedForPeriod(habit, lastWeekStart, lastWeekEnd);
+          let lastWeekCompleted = 0;
+          let lastWeekSkipped = 0;
+          let lastWeekTotal = 0;
           
-          previousWeekStatistics[0] = lastWeekResult.completedDays[0];
-          previousWeekStatistics[1] = lastWeekResult.completedDays[1];
-          previousWeekStatistics[2] = lastWeekResult.completedDays[2];
+          lastWeekDays.forEach(day => {
+            if (habitStartDate <= day) {
+              const dayResult = isHabitCompletedOnDate(habit, day);
+              if (dayResult.isCompleted) {
+                lastWeekCompleted++;
+              } else if (dayResult.isSkipped) {
+                lastWeekSkipped++;
+              }
+              lastWeekTotal++;
+            }
+          });
+          
+          previousWeekStatistics[0] += lastWeekCompleted;
+          previousWeekStatistics[1] += lastWeekSkipped;
+          previousWeekStatistics[2] += lastWeekTotal;
         }
       }
       
+      // Monthly statistics
       if (habitStartDate <= thisMonthEnd) {
-        const thisMonthResult = isHabitCompletedForPeriod(habit, thisMonthStart, today);
+        let thisMonthCompleted = 0;
+        let thisMonthSkipped = 0;
+        let thisMonthTotal = 0;
         
-        monthStatistics[0] = thisMonthResult.completedDays[0];
-        monthStatistics[1] = thisMonthResult.completedDays[1];
-        monthStatistics[2] = thisMonthResult.completedDays[2];
+        thisMonthDays.forEach(day => {
+          if (habitStartDate <= day) {
+            const dayResult = isHabitCompletedOnDate(habit, day);
+            if (dayResult.isCompleted) {
+              thisMonthCompleted++;
+            } else if (dayResult.isSkipped) {
+              thisMonthSkipped++;
+            }
+            thisMonthTotal++;
+          }
+        });
         
+        monthStatistics[0] += thisMonthCompleted;
+        monthStatistics[1] += thisMonthSkipped;
+        monthStatistics[2] += thisMonthTotal;
+        
+        // Last month statistics
         if (habitStartDate <= lastMonthEnd) {
-          const lastMonthResult = isHabitCompletedForPeriod(habit, lastMonthStart, lastMonthEnd);
+          let lastMonthCompleted = 0;
+          let lastMonthSkipped = 0;
+          let lastMonthTotal = 0;
           
-          previousMonthStatistics[0] = lastMonthResult.completedDays[0];
-          previousMonthStatistics[1] = lastMonthResult.completedDays[1];
-          previousMonthStatistics[2] = lastMonthResult.completedDays[2];
+          lastMonthDays.forEach(day => {
+            if (habitStartDate <= day) {
+              const dayResult = isHabitCompletedOnDate(habit, day);
+              if (dayResult.isCompleted) {
+                lastMonthCompleted++;
+              } else if (dayResult.isSkipped) {
+                lastMonthSkipped++;
+              }
+              lastMonthTotal++;
+            }
+          });
+          
+          previousMonthStatistics[0] += lastMonthCompleted;
+          previousMonthStatistics[1] += lastMonthSkipped;
+          previousMonthStatistics[2] += lastMonthTotal;
         }
       }
       
+      // Yearly statistics
       if (habitStartDate <= thisYearEnd) {
-        const thisYearResult = isHabitCompletedForPeriod(habit, thisYearStart, today);
+        let thisYearCompleted = 0;
+        let thisYearSkipped = 0;
+        let thisYearTotal = 0;
         
-        yearStatistics[0] = thisYearResult.completedDays[0];
-        yearStatistics[1] = thisYearResult.completedDays[1];
-        yearStatistics[2] = thisYearResult.completedDays[2];
-        
-        if (habitStartDate <= lastYearEnd) {
-          const lastYearResult = isHabitCompletedForPeriod(habit, lastYearStart, lastYearEnd);
+        // Calculate for each month in the year
+        for (let month = 0; month < 12; month++) {
+          const monthStart = new Date(thisYearStart.getFullYear(), month, 1);
+          const monthEnd = new Date(thisYearStart.getFullYear(), month + 1, 0);
           
-          previousYearStatistics[0] = lastYearResult.completedDays[0];
-          previousYearStatistics[1] = lastYearResult.completedDays[1];
-          previousYearStatistics[2] = lastYearResult.completedDays[2];
+          if (habitStartDate <= monthEnd) {
+            const monthResult = isHabitCompletedOnDate(habit, monthEnd);
+            if (monthResult.isCompleted) {
+              thisYearCompleted++;
+            } else if (monthResult.isSkipped) {
+              thisYearSkipped++;
+            }
+            thisYearTotal++;
+          }
+        }
+        
+        yearStatistics[0] += thisYearCompleted;
+        yearStatistics[1] += thisYearSkipped;
+        yearStatistics[2] += thisYearTotal;
+        
+        // Last year statistics
+        if (habitStartDate <= lastYearEnd) {
+          let lastYearCompleted = 0;
+          let lastYearSkipped = 0;
+          let lastYearTotal = 0;
+          
+          // Calculate for each month in the last year
+          for (let month = 0; month < 12; month++) {
+            const monthStart = new Date(lastYearStart.getFullYear(), month, 1);
+            const monthEnd = new Date(lastYearStart.getFullYear(), month + 1, 0);
+            
+            if (habitStartDate <= monthEnd) {
+              const monthResult = isHabitCompletedOnDate(habit, monthEnd);
+              if (monthResult.isCompleted) {
+                lastYearCompleted++;
+              } else if (monthResult.isSkipped) {
+                lastYearSkipped++;
+              }
+              lastYearTotal++;
+            }
+          }
+          
+          previousYearStatistics[0] += lastYearCompleted;
+          previousYearStatistics[1] += lastYearSkipped;
+          previousYearStatistics[2] += lastYearTotal;
         }
       }
       
@@ -190,14 +286,12 @@ export async function GET() {
       
       const currentStreak = calculateHabitStreak(habit, today);
       
-      const maxStreak = currentStreak;
-      
-      if (maxStreak > longestStreakHabit.days) {
+      if (currentStreak > longestStreakHabit.days) {
         longestStreakHabit = {
           habitName: Array.isArray(habit.habit_names) 
             ? (habit.habit_names[0] as { habit_name?: string })?.habit_name || "Ismeretlen"
             : (habit.habit_names as { habit_name?: string })?.habit_name || "Ismeretlen",
-          days: maxStreak
+          days: currentStreak
         };
       }
       
