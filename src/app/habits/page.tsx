@@ -73,6 +73,7 @@ export default async function Page() {
             is_active={habit.is_active}
             created_date={habit.created_date}
             habit_name_id={habit.habit_names.habit_name}
+            entries={habit.entries || []}
           />
         ))}
       </div>
