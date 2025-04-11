@@ -23,13 +23,15 @@ export default function HabitEditFormComponent({ habit, id }: HabitEditFormCompo
   console.log(habit);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors } } = useForm<FormSchema>({
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<FormSchema>({
     resolver: zodResolver(habitFormSchema),
     defaultValues: {
       ...habit,
       start_date: habit.start_date ? new Date(habit.start_date).toISOString().slice(0, 16) : undefined,
     },
   });
+
+  const selectedHabitType = watch("habit_type");
 
   const onSubmit = async (data: FormSchema) => {
     setIsLoading(true);
@@ -69,7 +71,12 @@ export default function HabitEditFormComponent({ habit, id }: HabitEditFormCompo
 
       <div>
         <Label htmlFor="habit_type">Szokás típusa</Label>
-        <Select defaultValue={habit.habit_type} {...register("habit_type")}>
+        <Select 
+          defaultValue={habit.habit_type} 
+          onValueChange={(value) => {
+            register("habit_type").onChange({ target: { value } });
+          }}
+        >
           <SelectTrigger>
             <SelectContent>
                 <SelectItem key="normal_habit" value="normal_habit">Normál szokás</SelectItem>
@@ -80,32 +87,36 @@ export default function HabitEditFormComponent({ habit, id }: HabitEditFormCompo
         {errors.habit_type && <p className="text-red-500">{errors.habit_type.message}</p>}
       </div>
 
-      <div>
-        <Label htmlFor="interval">Intervallum</Label>
-        <Input
-          id="interval"
-          type="number"
-          {...register("interval", { valueAsNumber: true })}
-          defaultValue={habit.interval}
-        />
-        {errors.interval && <p className="text-red-500">{errors.interval.message}</p>}
-      </div>
+      {selectedHabitType === "normal_habit" && (
+        <>
+          <div>
+            <Label htmlFor="interval">Intervallum</Label>
+            <Input
+              id="interval"
+              type="number"
+              {...register("interval", { valueAsNumber: true })}
+              defaultValue={habit.interval}
+            />
+            {errors.interval && <p className="text-red-500">{errors.interval.message}</p>}
+          </div>
 
-      <div>
-        <Label htmlFor="habit_interval_type">Intervallum típusa</Label>
-        <Select defaultValue={habit.habit_interval_type} {...register("habit_interval_type")}>
-          <SelectTrigger>
-            <SelectContent>
-              <SelectItem key="hours" value="hours">Óra</SelectItem>
-              <SelectItem key="days" value="days">Nap</SelectItem>
-              <SelectItem key="weeks" value="weeks">Hét</SelectItem>
-              <SelectItem key="months" value="months">Hónap</SelectItem>
-              <SelectItem key="years" value="years">Év</SelectItem>
-            </SelectContent>
-          </SelectTrigger>
-        </Select>
-        {errors.habit_interval_type && <p className="text-red-500">{errors.habit_interval_type.message}</p>}
-      </div>
+          <div>
+            <Label htmlFor="habit_interval_type">Intervallum típusa</Label>
+            <Select defaultValue={habit.habit_interval_type} {...register("habit_interval_type")}>
+              <SelectTrigger>
+                <SelectContent>
+                  <SelectItem key="hours" value="hours">Óra</SelectItem>
+                  <SelectItem key="days" value="days">Nap</SelectItem>
+                  <SelectItem key="weeks" value="weeks">Hét</SelectItem>
+                  <SelectItem key="months" value="months">Hónap</SelectItem>
+                  <SelectItem key="years" value="years">Év</SelectItem>
+                </SelectContent>
+              </SelectTrigger>
+            </Select>
+            {errors.habit_interval_type && <p className="text-red-500">{errors.habit_interval_type.message}</p>}
+          </div>
+        </>
+      )}
 
       <div>
         <Label htmlFor="start_date">Kezdő dátum</Label>

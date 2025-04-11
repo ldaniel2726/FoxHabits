@@ -162,38 +162,40 @@ export default function EditHabitPage() {
               </Select>
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="interval">Gyakoriság</Label>
-                <Input
-                  id="interval"
-                  type="number"
-                  min="1"
-                  value={interval}
-                  onChange={(e) => setInterval(parseInt(e.target.value))}
-                  required
-                />
+            {habitType === "normal_habit" && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="interval">Gyakoriság</Label>
+                  <Input
+                    id="interval"
+                    type="number"
+                    min="1"
+                    value={interval}
+                    onChange={(e) => setInterval(parseInt(e.target.value))}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="interval-type">Időegység</Label>
+                  <Select
+                    value={intervalType}
+                    onValueChange={setIntervalType}
+                  >
+                    <SelectTrigger id="interval-type">
+                      <SelectValue placeholder="Válassz időegységet" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hours">Óra</SelectItem>
+                      <SelectItem value="days">Nap</SelectItem>
+                      <SelectItem value="weeks">Hét</SelectItem>
+                      <SelectItem value="months">Hónap</SelectItem>
+                      <SelectItem value="years">Év</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="interval-type">Időegység</Label>
-                <Select
-                  value={intervalType}
-                  onValueChange={setIntervalType}
-                >
-                  <SelectTrigger id="interval-type">
-                    <SelectValue placeholder="Válassz időegységet" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="hours">Óra</SelectItem>
-                    <SelectItem value="days">Nap</SelectItem>
-                    <SelectItem value="weeks">Hét</SelectItem>
-                    <SelectItem value="months">Hónap</SelectItem>
-                    <SelectItem value="years">Év</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+            )}
             
             <div className="flex items-center space-x-2">
               <Switch
