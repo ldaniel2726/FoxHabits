@@ -1,4 +1,4 @@
-import { Settings, Activity, List as ListIcon, CalendarDays, BarChart2 } from "lucide-react";
+import { Settings, Activity, List as ListIcon, CalendarDays, BarChart2, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Mail } from "react-feather";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
+import { ADMIN } from "@/utils/validators/APIConstants";
 
 export default async function Page() {
   const supabase = await createClient();
@@ -25,10 +26,10 @@ export default async function Page() {
 
   const user = data.user;
   const { user_metadata } = user;
-  const imgSrc =
-    (!user_metadata.picture && !user_metadata.avatar_url)
-      ? "https://github.com/shadcn.png"
-      : user_metadata.picture || user_metadata.avatar_url;
+  const isAdmin = user_metadata.role === ADMIN;
+  const imgSrc = (!user_metadata.picture && !user_metadata.avatar_url)
+    ? "https://github.com/shadcn.png"
+    : user_metadata.picture || user_metadata.avatar_url;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 py-10 px-4 sm:px-6 lg:px-8">
@@ -55,6 +56,22 @@ export default async function Page() {
               </div>
             </div>
             <div className="flex gap-2 flex-wrap">
+              {isAdmin && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/admin">
+                        <Button variant="outline" className="hover:text-orange-700 hover:border-orange-700 hover:border hover:shadow-xl p-2">
+                          <Shield className="h-5 w-5" />
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">Admin vezérlőpult</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
               {await ProfileEditSheetServer()}
               <TooltipProvider>
                 <Tooltip>
