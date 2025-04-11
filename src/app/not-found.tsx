@@ -2,8 +2,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/footer";
 import { FrownIcon, Home, ArrowRight } from "lucide-react";
+import { createClient } from "@/utils/supabase/server";
 
-export default function NotFound() {
+const supabase = await createClient();
+const { data: { user } } = await supabase.auth.getUser();
+
+export default async function NotFound() {
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow">
@@ -23,12 +27,21 @@ export default function NotFound() {
                   Vissza a főoldalra
                 </Button>
               </Link>
-              <Link href="/habits">
-                <Button variant="outline" size="lg">
-                  Szokásaim
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+              {user ? (
+                <Link href="/habits">
+                  <Button variant="outline" size="lg">
+                    Szokásaim
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/login">
+                  <Button variant="outline" size="lg">
+                    Bejelentkezés
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </section>
