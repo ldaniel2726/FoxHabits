@@ -4,10 +4,10 @@ import Footer from "@/components/footer";
 import { FrownIcon, Home, ArrowRight } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 
-const supabase = await createClient();
-const { data: { user } } = await supabase.auth.getUser();
-
 export default async function NotFound() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow">
