@@ -7,4 +7,10 @@ export type HabitCardProps = {
     is_active: boolean;
     created_date: string;
     habit_name_id: string;
+    entries: Array<{
+        entry_id: number;
+        time_of_entry: string;
+        entry_type: "done" | "skipped";
+        datetime: string;
+    }>;
 }

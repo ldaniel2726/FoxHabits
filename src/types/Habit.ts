@@ -9,4 +9,10 @@ export type Habit = {
     habit_names: {
       habit_name: string;
     };
+    entries: Array<{
+      entry_id: number;
+      time_of_entry: string;
+      entry_type: "done" | "skipped";
+      datetime: string;
+    }>;
 }

@@ -38,11 +38,12 @@ export async function GET(request: Request) {
         start_date, 
         is_active, 
         habit_names!inner(habit_name),
-        created_date
+        created_date,
+        entries(entry_id, time_of_entry, entry_type, datetime)
       `
       )
       .eq("related_user_id", user.id);
-
+    
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }

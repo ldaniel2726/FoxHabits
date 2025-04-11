@@ -13,6 +13,7 @@ import {
   BanIcon,
   Undo2,
   MoreVertical,
+  ClockIcon,
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -39,6 +40,7 @@ export function HabitCard({
   is_active,
   created_date,
   habit_name_id,
+  entries = [],
 }: HabitCardProps & { habit_id: string }) {
   const [status, setStatus] = useState<{ type: null | "done" | "skipped", time: string | null }>({
     type: null,
@@ -53,6 +55,19 @@ export function HabitCard({
     months: "hónapban",
     years: "évben",
   };
+
+  let timeFromLastLog;
+
+  if (entries.length > 0) {
+    const lastEntry = entries[entries.length - 1];
+    const lastEntryDate = new Date(lastEntry.datetime.replace(' ', 'T') + 'Z');
+    timeFromLastLog = Math.abs(new Date().getTime() - lastEntryDate.getTime());
+  } else {
+    timeFromLastLog = Math.abs(new Date().getTime() - new Date(start_date).getTime());
+  }
+  console.log(new Date());
+  
+  
 
   const handleSkip = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -83,6 +98,8 @@ export function HabitCard({
         type: "skipped",
         time: new Date().toISOString()
       });
+
+      
       if (responseData.data && responseData.data[0]) {
         setEntryId(responseData.data[0].entry_id);
       }
@@ -234,7 +251,7 @@ export function HabitCard({
             {habit_type === "normal_habit"
               ? "Szokás"
               : habit_type === "bad_habit"
-              ? "Káros szokás"
+              ? "Ártó szokás"
               : habit_type}
           </CardDescription>
         </CardHeader>
@@ -246,12 +263,25 @@ export function HabitCard({
               {translations[habit_interval_type] || habit_interval_type}
             </span>
           </div>
-          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>
-              Elkezdve: {format(new Date(start_date), "yyyy MMMM d.")}
-            </span>
-          </div>
+          {habit_type === "bad_habit" && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+              <ClockIcon className="h-4 w-4 text-muted-foreground" />
+              <span>
+                A szokás megtartva {timeFromLastLog ? Math.floor(timeFromLastLog / (1000 * 60 * 60 * 24)) : 0}{" "}
+                {translations[habit_interval_type] || habit_interval_type}{" "} és {" "}
+                 {timeFromLastLog ? Math.floor((timeFromLastLog % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) : 0} óra óta.
+              </span>
+            </div>
+          )}
+          {habit_type === "normal_habit" && (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span>
+                Elkezdve: {format(new Date(start_date), "yyyy MMMM d.")}
+              </span>
+            </div>
+          )}
+          
           {status.type && status.time && (
             <div className="flex items-center space-x-2 mt-2 font-medium">
               <StatusIcon />
