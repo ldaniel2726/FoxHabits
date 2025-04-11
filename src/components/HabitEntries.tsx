@@ -18,9 +18,10 @@ interface Entry {
 interface HabitEntriesProps {
   habitId: number;
   entries: Entry[];
+  habitType: "normal_habit" | "bad_habit";
 }
 
-export function HabitEntries({ habitId, entries: initialEntries }: HabitEntriesProps) {
+export function HabitEntries({ habitId, entries: initialEntries, habitType }: HabitEntriesProps) {
   const [entries, setEntries] = useState<Entry[]>(initialEntries);
 
   const handleEntryDeleted = (deletedEntryId: number) => {
@@ -51,7 +52,8 @@ export function HabitEntries({ habitId, entries: initialEntries }: HabitEntriesP
             </TableHeader>
             <TableBody>
               {sortedEntries.map((entry) => {
-                const entryDate = new Date(entry.datetime);
+                const entryDate = new Date(entry.datetime.replace(' ', 'T') + 'Z');
+                
                 return (
                   <TableRow key={entry.entry_id}>
                     <TableCell>
@@ -63,8 +65,17 @@ export function HabitEntries({ habitId, entries: initialEntries }: HabitEntriesP
                     <TableCell>
                       {entry.entry_type === "done" ? (
                         <div className="flex items-center">
-                          <Check className="h-5 w-5 text-green-500 mr-2" />
-                          <span>Elvégezve</span>
+                          {habitType === "bad_habit" ? (
+                            <>
+                              <X className="h-5 w-5 text-red-500 mr-2" />
+                              <span className="">Megszakítva</span>
+                            </>
+                          ) : (
+                            <>
+                              <Check className="h-5 w-5 text-green-500 mr-2" />
+                              <span>Elvégezve</span>
+                            </>
+                          )}
                         </div>
                       ) : (
                         <div className="flex items-center">
