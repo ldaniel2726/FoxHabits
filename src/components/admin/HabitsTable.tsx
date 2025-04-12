@@ -20,6 +20,7 @@ import {
   Search,
   Trash,
   ChevronDown,
+  BookOpenCheck
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -43,6 +44,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { updateHabitStatus } from "@/actions/habit-actions";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const translateIntervalType = (type: string): string => {
   const translations: Record<string, string> = {
@@ -64,6 +68,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedHabit, setExpandedHabit] = useState<string | null>(null);
+  const router = useRouter();
 
   const filteredHabits = habits?.filter((habit) => {
     const nameMatch = habit.habit_names?.habit_name?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -78,11 +83,36 @@ export function HabitsTable({ habits }: HabitsTableProps) {
     return nameMatch && statusMatch;
   });
 
-  const toggleExpand = (habitId: string) => {
+  const toggleCollapsible = (habitId: string) => {
     if (expandedHabit === habitId) {
       setExpandedHabit(null);
     } else {
       setExpandedHabit(habitId);
+    }
+  };
+
+  const handleStatusUpdate = async (habitNameId: string, newStatus: "approved" | "private") => {
+    if (!habitNameId) {
+      toast.error("Hiányzó szokás azonosító");
+      return;
+    }
+    
+    try {
+      const result = await updateHabitStatus(habitNameId, newStatus);
+      
+      if (result.success) {
+        toast.success(
+          newStatus === "approved" 
+            ? "A szokás sikeresen publikussá lett téve" 
+            : "A szokás sikeresen priváttá lett téve"
+        );
+        router.refresh();
+      } else {
+        toast.error(`Hiba történt: ${result.error}`);
+      }
+    } catch (error) {
+      toast.error("Váratlan hiba történt a státusz módosítása során");
+      console.error("Error updating habit status:", error);
     }
   };
 
@@ -167,8 +197,18 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                         {habit.created_date.toString().split("T")[0]}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={habit.is_active ? "success" : "secondary"} className="font-medium">
-                          {habit.is_active ? "Aktiv" : "Inaktiv"}
+                        <Badge 
+                          variant={
+                            habit.habit_names?.habit_name_status === "approved" ? "success" :
+                            habit.habit_names?.habit_name_status === "private" ? "secondary" : "default"
+                          } 
+                          className="font-medium"
+                        >
+                          {habit.habit_names?.habit_name_status === "new" ? "Új" :
+                          habit.habit_names?.habit_name_status === "private" ? "Privát" :
+                          habit.habit_names?.habit_name_status === "rejected" ? "Elutasított" :
+                          habit.habit_names?.habit_name_status === "approved" ? "Publikussá" :
+                          "Ismeretlen"}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -179,14 +219,17 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link href={`/habits/${habit.habit_id}/edit`} className="flex items-center">
-                                <Pencil className="mr-2 h-4 w-4" />
-                                <span>Szerkesztés</span>
-                              </Link>
+                            <DropdownMenuItem 
+                              className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
+                              onClick={() => handleStatusUpdate(habit.habit_names?.habit_name_id, "approved")}
+                            >
+                              <BookOpenCheck className="mr-2 h-4 w-4" />
+                              <span>Publikussá alakítás</span>
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive focus:text-destructive flex items-center cursor-pointer">
+                            <DropdownMenuItem 
+                              className="text-destructive focus:text-destructive flex items-center cursor-pointer"
+                              onClick={() => handleStatusUpdate(habit.habit_names?.habit_name_id, "private")}
+                            >
                               <Trash className="mr-2 h-4 w-4" />
                               <span>Priváttá alakítás</span>
                             </DropdownMenuItem>
@@ -205,7 +248,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                   <Collapsible
                     key={habit.habit_id}
                     open={expandedHabit === habit.habit_id}
-                    onOpenChange={() => toggleExpand(habit.habit_id)}
+                    onOpenChange={() => toggleCollapsible(habit.habit_id)}
                     className="px-4 py-3"
                   >
                     <div className="flex items-center justify-between">
@@ -215,7 +258,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                         </h3>
                         <div className="flex items-center gap-2 mt-1">
                           <Badge variant={habit.is_active ? "success" : "secondary"} className="font-medium">
-                            {habit.is_active ? "Aktiv" : "Inaktiv"}
+                            {habit.is_active ? "Aktiv" : "Inaktív"}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
                             {habit.created_date.toString().split("T")[0]}
@@ -235,14 +278,17 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link href={`/habits/${habit.habit_id}/edit`} className="flex items-center">
-                                <Pencil className="mr-2 h-4 w-4" />
-                                <span>Szerkesztés</span>
-                              </Link>
+                            <DropdownMenuItem 
+                              className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
+                              onClick={() => handleStatusUpdate(habit.habit_names?.habit_name_id, "approved")}
+                            >
+                              <BookOpenCheck className="mr-2 h-4 w-4" />
+                              <span>Publikussá alakítás</span>
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem className="text-destructive focus:text-destructive flex items-center cursor-pointer">
+                            <DropdownMenuItem 
+                              className="text-destructive focus:text-destructive flex items-center cursor-pointer"
+                              onClick={() => handleStatusUpdate(habit.habit_names?.habit_name_id, "private")}
+                            >
                               <Trash className="mr-2 h-4 w-4" />
                               <span>Priváttá alakítás</span>
                             </DropdownMenuItem>
