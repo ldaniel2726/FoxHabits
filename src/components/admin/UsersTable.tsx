@@ -1,3 +1,5 @@
+"use client"
+
 import { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,12 +34,31 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 
 interface UsersTableProps {
   users: User[] | null;
 }
 
 export function UsersTable({ users }: UsersTableProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+
+  const filteredUsers = users?.filter((user) => {
+    const nameMatch = (user.user_metadata?.full_name || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const emailMatch = (user.email || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const searchMatch = nameMatch || emailMatch;
+    
+    let roleMatch = true;
+    if (roleFilter === "admin") {
+      roleMatch = user.user_metadata?.role === "admin";
+    } else if (roleFilter === "user") {
+      roleMatch = !user.user_metadata?.role || user.user_metadata?.role === "user";
+    }
+    
+    return searchMatch && roleMatch;
+  });
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="bg-muted/50 py-4">
@@ -53,9 +74,11 @@ export function UsersTable({ users }: UsersTableProps) {
               type="search"
               placeholder="Felhasználó keresése..."
               className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Select>
+          <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Szerep szerint" />
             </SelectTrigger>
@@ -68,7 +91,7 @@ export function UsersTable({ users }: UsersTableProps) {
         </div>
       </div>
       <CardContent className="p-0">
-        {users?.length ? (
+        {filteredUsers?.length ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -79,11 +102,8 @@ export function UsersTable({ users }: UsersTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users?.map((user) => (
-                <TableRow
-                  key={user.id}
-                  className="hover:bg-muted/50 transition-colors"
-                >
+              {filteredUsers?.map((user) => (
+                <TableRow key={user.id} className="hover:bg-muted/50 transition-colors">
                   <TableCell className="font-medium px-4 py-3">
                     {user.user_metadata?.full_name || "—"}
                   </TableCell>
@@ -105,11 +125,15 @@ export function UsersTable({ users }: UsersTableProps) {
                           <Pencil className="mr-2 h-4 w-4" />
                           <span>Szerkesztés</span>
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:text-destructive flex items-center cursor-pointer">
-                          <Trash className="mr-2 h-4 w-4" />
-                          <span>Deaktiválás</span>
-                        </DropdownMenuItem>
+                        {(!user.user_metadata?.role || user.user_metadata?.role !== "admin") && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive focus:text-destructive flex items-center cursor-pointer">
+                              <Trash className="mr-2 h-4 w-4" />
+                              <span>Deaktiválás</span>
+                            </DropdownMenuItem>
+                          </>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -122,7 +146,9 @@ export function UsersTable({ users }: UsersTableProps) {
             <Users className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium">Nincsenek felhasználók</h3>
             <p className="text-muted-foreground mt-2 mb-4">
-              Még nincsenek regisztrált felhasználók a rendszerben.
+              {searchQuery || roleFilter !== "all"
+                ? "Nincs találat a keresési feltételeknek megfelelően."
+                : "Még nincsenek regisztrált felhasználók a rendszerben."}
             </p>
           </div>
         )}

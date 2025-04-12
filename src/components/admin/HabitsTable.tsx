@@ -1,3 +1,5 @@
+"use client"
+
 import { Habit } from "@/types/Habit";
 import { Button } from "@/components/ui/button";
 import {
@@ -34,12 +36,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
 
 interface HabitsTableProps {
   habits: Habit[] | null;
 }
 
 export function HabitsTable({ habits }: HabitsTableProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const filteredHabits = habits?.filter((habit) => {
+    const nameMatch = habit.habit_names?.habit_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    let statusMatch = true;
+    if (statusFilter === "active") {
+      statusMatch = habit.is_active === true;
+    } else if (statusFilter === "pending") {
+      statusMatch = habit.is_active === false;
+    }
+    
+    return nameMatch && statusMatch;
+  });
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="bg-muted/50 py-4">
@@ -61,9 +80,11 @@ export function HabitsTable({ habits }: HabitsTableProps) {
               type="search"
               placeholder="Szokás keresése..."
               className="pl-8"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <Select>
+          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Státusz szerint" />
             </SelectTrigger>
@@ -76,7 +97,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
         </div>
       </div>
       <CardContent className="p-0">
-        {habits?.length ? (
+        {filteredHabits?.length ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -86,19 +107,13 @@ export function HabitsTable({ habits }: HabitsTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {habits?.map((habit: Habit) => (
-                <TableRow
-                  key={habit.habit_id}
-                  className="hover:bg-muted/50 transition-colors"
-                >
+              {filteredHabits?.map((habit: Habit) => (
+                <TableRow key={habit.habit_id} className="hover:bg-muted/50 transition-colors">
                   <TableCell className="font-medium px-4 py-3">
                     {habit.habit_names?.habit_name || `ID: ${habit.habit_id}`}
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant={habit.is_active ? "success" : "secondary"}
-                      className="font-medium"
-                    >
+                    <Badge variant={habit.is_active ? "success" : "secondary"} className="font-medium">
                       {habit.is_active ? "Teljesítve" : "Folyamatban"}
                     </Badge>
                   </TableCell>
@@ -111,10 +126,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link
-                            href={`/habits/${habit.habit_id}/edit`}
-                            className="flex items-center"
-                          >
+                          <Link href={`/habits/${habit.habit_id}/edit`} className="flex items-center">
                             <Pencil className="mr-2 h-4 w-4" />
                             <span>Szerkesztés</span>
                           </Link>
@@ -136,14 +148,18 @@ export function HabitsTable({ habits }: HabitsTableProps) {
             <ClipboardX className="h-12 w-12 text-muted-foreground mb-4" />
             <h3 className="text-lg font-medium">Nincsenek szokások</h3>
             <p className="text-muted-foreground mt-2 mb-4">
-              Még senki nem hozott létre egyetlen szokást sem.
+              {searchQuery || statusFilter !== "all"
+                ? "Nincs találat a keresési feltételeknek megfelelően."
+                : "Még nem hozott létre egyetlen szokást sem."}
             </p>
-            <Link href="/habits/add">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Új szokás létrehozása
-              </Button>
-            </Link>
+            {!searchQuery && statusFilter === "all" && (
+              <Link href="/habits/add">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Új szokás létrehozása
+                </Button>
+              </Link>
+            )}
           </div>
         )}
       </CardContent>
