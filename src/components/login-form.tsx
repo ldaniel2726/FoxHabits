@@ -14,11 +14,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { login } from "@/app/login/actions";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ShieldAlert } from "lucide-react";
 import { GoogleButton } from "@/components/auth/google-button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
+  const [isBanned, setIsBanned] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
@@ -28,6 +30,7 @@ export function LoginForm() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setIsBanned(false);
 
     const formData = new FormData(event.currentTarget);
 
@@ -35,7 +38,12 @@ export function LoginForm() {
 
     if (response.error) {
       setError(response.error);
-      toast.error(response.error);
+
+      if (response.error.toLowerCase().includes("tiltva")) {
+        setIsBanned(true);
+      } else {
+        toast.error(response.error);
+      }
     } else {
       toast.success("Sikeres bejelentkezés!");
     }
@@ -45,9 +53,23 @@ export function LoginForm() {
     <Card>
       <CardHeader>
         <CardTitle className="text-2xl">Bejelentkezés</CardTitle>
-        <CardDescription>Jelentkezz be egyszerűen az email címeddel</CardDescription>
+        <CardDescription>
+          Jelentkezz be egyszerűen az email címeddel
+        </CardDescription>
       </CardHeader>
       <CardContent>
+        {isBanned && (
+          <Alert variant="destructive" className="mb-4">
+            <ShieldAlert className="h-4 w-4" />
+            <AlertTitle>Fiók tiltva</AlertTitle>
+            <AlertDescription>
+              A fiókod jelenleg tiltva van. Ha úgy gondolod, hogy ez tévedés,
+              kérjük, vedd fel a kapcsolatot az adminisztrátorral a
+              info@foxhabits.com címen.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <form onSubmit={handleSubmit}>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -63,8 +85,8 @@ export function LoginForm() {
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Jelszó</Label>
-                <Link 
-                  href="/forgot-password" 
+                <Link
+                  href="/forgot-password"
                   className="ml-auto inline-block text-sm underline"
                 >
                   Elfelejtetted a jelszavad?
@@ -90,7 +112,9 @@ export function LoginForm() {
                 </button>
               </div>
             </div>
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && !isBanned && (
+              <p className="text-red-500 text-sm">{error}</p>
+            )}
             <Button type="submit" className="w-full">
               Bejelentkezés
             </Button>
