@@ -17,7 +17,7 @@ export default async function AdminPage() {
   const stats = await fetchAdminStats(habits, users);
 
   return (
-    <div className="flex min-h-screen flex-col px-12 py-6">
+    <div className="flex min-h-screen flex-col px-2 md:px-12 py-6">
       <AdminHeader />
 
       <main className="flex-1 py-8">

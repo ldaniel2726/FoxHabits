@@ -19,6 +19,7 @@ import {
   Plus,
   Search,
   Trash,
+  ChevronDown,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -37,6 +38,23 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+
+const translateIntervalType = (type: string): string => {
+  const translations: Record<string, string> = {
+    hours: "óra",
+    days: "nap",
+    weeks: "hét",
+    months: "hónap",
+    years: "év"
+  };
+  
+  return translations[type] || type;
+};
 
 interface HabitsTableProps {
   habits: Habit[] | null;
@@ -45,6 +63,7 @@ interface HabitsTableProps {
 export function HabitsTable({ habits }: HabitsTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [expandedHabit, setExpandedHabit] = useState<string | null>(null);
 
   const filteredHabits = habits?.filter((habit) => {
     const nameMatch = habit.habit_names?.habit_name?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -52,18 +71,26 @@ export function HabitsTable({ habits }: HabitsTableProps) {
     let statusMatch = true;
     if (statusFilter === "active") {
       statusMatch = habit.is_active === true;
-    } else if (statusFilter === "pending") {
+    } else if (statusFilter === "inactive") {
       statusMatch = habit.is_active === false;
     }
     
     return nameMatch && statusMatch;
   });
 
+  const toggleExpand = (habitId: string) => {
+    if (expandedHabit === habitId) {
+      setExpandedHabit(null);
+    } else {
+      setExpandedHabit(habitId);
+    }
+  };
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="bg-muted/50 py-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Szokások kezelése</CardTitle>
+          <CardTitle className="text-lg">Publikus szokások kezelése</CardTitle>
           <Link href="/habits/add">
             <Button size="sm" className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
@@ -73,76 +100,182 @@ export function HabitsTable({ habits }: HabitsTableProps) {
         </div>
       </CardHeader>
       <div className="px-4 py-3 border-b">
-        <div className="flex items-center gap-4">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div className="relative flex-1 w-full">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Szokás keresése..."
-              className="pl-8"
+              className="pl-8 w-full"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value)}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="Státusz szerint" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Összes</SelectItem>
-              <SelectItem value="active">Teljesítve</SelectItem>
-              <SelectItem value="pending">Folyamatban</SelectItem>
+              <SelectItem value="active">Aktív</SelectItem>
+              <SelectItem value="inactive">Inaktív</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
       <CardContent className="p-0">
         {filteredHabits?.length ? (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="px-4 py-3">Név</TableHead>
-                <TableHead className="px-4 py-3">Státusz</TableHead>
-                <TableHead className="w-[100px] px-4 py-3">Műveletek</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredHabits?.map((habit: Habit) => (
-                <TableRow key={habit.habit_id} className="hover:bg-muted/50 transition-colors">
-                  <TableCell className="font-medium px-4 py-3">
-                    {habit.habit_names?.habit_name || `ID: ${habit.habit_id}`}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={habit.is_active ? "success" : "secondary"} className="font-medium">
-                      {habit.is_active ? "Teljesítve" : "Folyamatban"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem asChild>
-                          <Link href={`/habits/${habit.habit_id}/edit`} className="flex items-center">
-                            <Pencil className="mr-2 h-4 w-4" />
-                            <span>Szerkesztés</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:text-destructive flex items-center cursor-pointer">
-                          <Trash className="mr-2 h-4 w-4" />
-                          <span>Törlés</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <>
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="px-4 py-3">Név</TableHead>
+                    <TableHead className="px-4 py-3">Intervallum</TableHead>
+                    <TableHead className="px-4 py-3">Felhasználó</TableHead>
+                    <TableHead className="px-4 py-3">Létrehozva</TableHead>
+                    <TableHead className="px-4 py-3">Státusz</TableHead>
+                    <TableHead className="w-[100px] px-4 py-3">Műveletek</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredHabits?.map((habit: Habit) => (
+                    <TableRow key={habit.habit_id} className="hover:bg-muted/50 transition-colors">
+                      <TableCell className="font-medium px-4 py-3">
+                        {habit.habit_names?.habit_name || `ID: ${habit.habit_id}`}
+                      </TableCell>
+                      <TableCell className="px-4 py-3">
+                        {`${habit.interval} ${translateIntervalType(habit.habit_interval_type)}`}
+                      </TableCell>
+                      <TableCell className="px-4 py-3">
+                        {habit.user ? (
+                          <div className="flex flex-col">
+                            <span className="font-medium">
+                              {habit.user.user_metadata?.full_name || "-"}
+                            </span>
+                            {habit.user.email && (
+                              <span className="text-xs text-muted-foreground">
+                                {habit.user.email}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-4 py-3">
+                        {habit.created_date.toString().split("T")[0]}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={habit.is_active ? "success" : "secondary"} className="font-medium">
+                          {habit.is_active ? "Aktiv" : "Inaktiv"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/habits/${habit.habit_id}/edit`} className="flex items-center">
+                                <Pencil className="mr-2 h-4 w-4" />
+                                <span>Szerkesztés</span>
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive focus:text-destructive flex items-center cursor-pointer">
+                              <Trash className="mr-2 h-4 w-4" />
+                              <span>Priváttá alakítás</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            <div className="md:hidden">
+              <div className="divide-y">
+                {filteredHabits?.map((habit: Habit) => (
+                  <Collapsible
+                    key={habit.habit_id}
+                    open={expandedHabit === habit.habit_id}
+                    onOpenChange={() => toggleExpand(habit.habit_id)}
+                    className="px-4 py-3"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <h3 className="font-medium">
+                          {habit.habit_names?.habit_name || `ID: ${habit.habit_id}`}
+                        </h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant={habit.is_active ? "success" : "secondary"} className="font-medium">
+                            {habit.is_active ? "Aktiv" : "Inaktiv"}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {habit.created_date.toString().split("T")[0]}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <ChevronDown className={`h-4 w-4 transition-transform ${expandedHabit === habit.habit_id ? "transform rotate-180" : ""}`} />
+                          </Button>
+                        </CollapsibleTrigger>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem asChild>
+                              <Link href={`/habits/${habit.habit_id}/edit`} className="flex items-center">
+                                <Pencil className="mr-2 h-4 w-4" />
+                                <span>Szerkesztés</span>
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive focus:text-destructive flex items-center cursor-pointer">
+                              <Trash className="mr-2 h-4 w-4" />
+                              <span>Priváttá alakítás</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                    <CollapsibleContent className="mt-2 space-y-2">
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Intervallum:</p>
+                          <p>{habit.interval} {translateIntervalType(habit.habit_interval_type)}</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Felhasználó:</p>
+                          {habit.user ? (
+                            <div>
+                              <p>{habit.user.user_metadata?.full_name || "-"}</p>
+                              {habit.user.email && (
+                                <p className="text-xs text-muted-foreground">{habit.user.email}</p>
+                              )}
+                            </div>
+                          ) : (
+                            <p>—</p>
+                          )}
+                        </div>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                ))}
+              </div>
+            </div>
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center py-12 text-center">
             <ClipboardX className="h-12 w-12 text-muted-foreground mb-4" />

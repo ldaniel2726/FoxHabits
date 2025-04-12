@@ -19,11 +19,32 @@ export async function fetchHabits() {
     .in("habit_names.habit_name_status", ["new", "approved"])
     .order("created_date");
 
-  console.log("Fetched habits:", habits);
-
   if (error) {
     console.error("Error fetching habits:", error);
     return null;
+  }
+
+  if (habits && habits.length > 0) {
+    const userIds = [...new Set(habits.map(habit => habit.related_user_id).filter(Boolean))];
+    
+    if (userIds.length > 0) {
+      const { data: users, error: userError } = await supabaseAdmin.auth.admin.listUsers();
+      
+      if (userError) {
+        console.error("Error fetching users for habits:", userError);
+      } else if (users) {
+        const userMap = new Map();
+        users.users.forEach(user => {
+          userMap.set(user.id, user);
+        });
+        
+        habits.forEach(habit => {
+          if (habit.related_user_id && userMap.has(habit.related_user_id)) {
+            habit.user = userMap.get(habit.related_user_id);
+          }
+        });
+      }
+    }
   }
 
   return habits as Habit[];
