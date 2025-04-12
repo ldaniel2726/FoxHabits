@@ -44,3 +44,29 @@ export async function unbanUser(userId: string) {
     return { success: false, error: "An unexpected error occurred" };
   }
 }
+
+export async function updateUserRole(userId: string, role: 'user' | 'moderator' | 'admin') {
+  try {
+    const { data, error } = await supabaseAdmin.auth.admin.updateUserById(
+      userId,
+      {
+        user_metadata: {
+          role: role
+        }
+      }
+    );
+
+    if (error) {
+      console.error("Error updating user role:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { 
+      success: true, 
+      user: data.user as ExtendedUser 
+    };
+  } catch (error) {
+    console.error("Error in updateUserRole:", error);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}

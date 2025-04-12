@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { User } from "@supabase/supabase-js";
 import { ExtendedUser } from "@/types/ExtendedUser";
@@ -21,6 +21,7 @@ import {
   ChevronDown,
   ShieldAlert,
   ShieldCheck,
+  Shield,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -45,11 +46,12 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ConfirmationModal } from "./ConfirmationModal";
+import { RoleEditDialog } from "./RoleEditDialog";
 import { banUser, unbanUser } from "@/actions/user-actions";
 import { useRouter } from "next/navigation";
 
 interface UsersTableProps {
-  users: (User | ExtendedUser)[] | null;
+  users: User[] | null;
 }
 
 export function UsersTable({ users }: UsersTableProps) {
@@ -68,11 +70,18 @@ export function UsersTable({ users }: UsersTableProps) {
     isBanning: true,
     userName: "",
   });
+  const [roleEditState, setRoleEditState] = useState<{
+    isOpen: boolean;
+    user: User | null;
+  }>({
+    isOpen: false,
+    user: null,
+  });
 
   const isUserBanned = (user: User): boolean => {
     const extendedUser = user as ExtendedUser;
     if (!extendedUser.banned_until) return false;
-    
+
     try {
       const banDate = new Date(extendedUser.banned_until);
       return banDate > new Date();
@@ -83,19 +92,27 @@ export function UsersTable({ users }: UsersTableProps) {
   };
 
   const filteredUsers = users?.filter((user) => {
-    const nameMatch = (user.user_metadata?.full_name || "").toLowerCase().includes(searchQuery.toLowerCase());
-    const emailMatch = (user.email || "").toLowerCase().includes(searchQuery.toLowerCase());
+    const nameMatch = (user.user_metadata?.full_name || "")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const emailMatch = (user.email || "")
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
     const searchMatch = nameMatch || emailMatch;
-    
+
     let roleMatch = true;
     if (roleFilter === "admin") {
       roleMatch = user.user_metadata?.role === "admin";
+    } else if (roleFilter === "moderator") {
+      roleMatch = user.user_metadata?.role === "moderator";
     } else if (roleFilter === "user") {
-      roleMatch = (!user.user_metadata?.role || user.user_metadata?.role === "user") && !isUserBanned(user);
+      roleMatch =
+        (!user.user_metadata?.role || user.user_metadata?.role === "user") &&
+        !isUserBanned(user);
     } else if (roleFilter === "banned") {
       roleMatch = isUserBanned(user);
     }
-    
+
     return searchMatch && roleMatch;
   });
 
@@ -125,6 +142,20 @@ export function UsersTable({ users }: UsersTableProps) {
     });
   };
 
+  const openRoleEditDialog = (user: User) => {
+    setRoleEditState({
+      isOpen: true,
+      user,
+    });
+  };
+
+  const closeRoleEditDialog = () => {
+    setRoleEditState({
+      isOpen: false,
+      user: null,
+    });
+  };
+
   const closeModal = () => {
     setModalState((prev) => ({ ...prev, isOpen: false }));
   };
@@ -144,7 +175,7 @@ export function UsersTable({ users }: UsersTableProps) {
     }
   };
 
-  const getUserRoleBadge = (user: User | ExtendedUser) => {
+  const getUserRoleBadge = (user: User) => {
     if (isUserBanned(user)) {
       return (
         <Badge variant="destructive" className="font-medium">
@@ -159,6 +190,13 @@ export function UsersTable({ users }: UsersTableProps) {
           Admin
         </Badge>
       );
+    } else if (user.user_metadata?.role === "moderator") {
+      return (
+        <Badge variant="default" className="font-medium bg-green-500">
+          <Shield className="h-3 w-3 mr-1" />
+          Moderátor
+        </Badge>
+      );
     } else {
       return (
         <Badge variant="outline" className="font-medium">
@@ -168,7 +206,6 @@ export function UsersTable({ users }: UsersTableProps) {
     }
   };
 
-  // Helper function to safely format ban date
   const formatBanDate = (user: User | ExtendedUser): string => {
     try {
       const extendedUser = user as ExtendedUser;
@@ -202,13 +239,17 @@ export function UsersTable({ users }: UsersTableProps) {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value)}>
+            <Select
+              value={roleFilter}
+              onValueChange={(value) => setRoleFilter(value)}
+            >
               <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Szerep szerint" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Összes</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="moderator">Moderátor</SelectItem>
                 <SelectItem value="user">Felhasználó</SelectItem>
                 <SelectItem value="banned">Tiltott</SelectItem>
               </SelectContent>
@@ -225,46 +266,71 @@ export function UsersTable({ users }: UsersTableProps) {
                       <TableHead className="px-4 py-3">Név</TableHead>
                       <TableHead className="px-4 py-3">Email</TableHead>
                       <TableHead className="px-4 py-3">Szerep</TableHead>
-                      <TableHead className="w-[100px] px-4 py-3">Műveletek</TableHead>
+                      <TableHead className="w-[100px] px-4 py-3">
+                        Műveletek
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredUsers?.map((user) => (
-                      <TableRow key={user.id} className="hover:bg-muted/50 transition-colors">
+                      <TableRow
+                        key={user.id}
+                        className="hover:bg-muted/50 transition-colors"
+                      >
                         <TableCell className="font-medium px-4 py-3">
                           {user.user_metadata?.full_name || "—"}
                         </TableCell>
-                        <TableCell className="px-4 py-3">{user.email}</TableCell>
+                        <TableCell className="px-4 py-3">
+                          {user.email}
+                        </TableCell>
                         <TableCell className="px-4 py-3">
                           {getUserRoleBadge(user)}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem className="flex items-center cursor-pointer">
+                              <DropdownMenuItem 
+                                className="flex items-center cursor-pointer"
+                                onClick={() => openRoleEditDialog(user)}
+                              >
                                 <Pencil className="mr-2 h-4 w-4" />
-                                <span>Szerkesztés</span>
+                                <span>Szerepkör módosítása</span>
                               </DropdownMenuItem>
-                              {(!user.user_metadata?.role || user.user_metadata?.role !== "admin") && (
+                              {(!user.user_metadata?.role ||
+                                user.user_metadata?.role !== "admin") && (
                                 <>
                                   <DropdownMenuSeparator />
                                   {isUserBanned(user) ? (
-                                    <DropdownMenuItem 
+                                    <DropdownMenuItem
                                       className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
-                                      onClick={() => openUnbanModal(user.id, user.email || "felhasználó")}
+                                      onClick={() =>
+                                        openUnbanModal(
+                                          user.id,
+                                          user.email || "felhasználó"
+                                        )
+                                      }
                                     >
                                       <ShieldCheck className="mr-2 h-4 w-4" />
                                       <span>Tiltás feloldása</span>
                                     </DropdownMenuItem>
                                   ) : (
-                                    <DropdownMenuItem 
+                                    <DropdownMenuItem
                                       className="text-destructive focus:text-destructive flex items-center cursor-pointer"
-                                      onClick={() => openBanModal(user.id, user.email || "felhasználó")}
+                                      onClick={() =>
+                                        openBanModal(
+                                          user.id,
+                                          user.email || "felhasználó"
+                                        )
+                                      }
                                     >
                                       <ShieldAlert className="mr-2 h-4 w-4" />
                                       <span>Tiltás</span>
@@ -292,45 +358,71 @@ export function UsersTable({ users }: UsersTableProps) {
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
-                          <h3 className="font-medium">
-                            {user.email || "—"}
-                          </h3>
+                          <h3 className="font-medium">{user.email || "—"}</h3>
                           <div className="flex items-center gap-2 mt-1">
                             {getUserRoleBadge(user)}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <CollapsibleTrigger asChild>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                              <ChevronDown className={`h-4 w-4 transition-transform ${expandedUser === user.id ? "transform rotate-180" : ""}`} />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0"
+                            >
+                              <ChevronDown
+                                className={`h-4 w-4 transition-transform ${
+                                  expandedUser === user.id
+                                    ? "transform rotate-180"
+                                    : ""
+                                }`}
+                              />
                             </Button>
                           </CollapsibleTrigger>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem className="flex items-center cursor-pointer">
+                              <DropdownMenuItem 
+                                className="flex items-center cursor-pointer"
+                                onClick={() => openRoleEditDialog(user)}
+                              >
                                 <Pencil className="mr-2 h-4 w-4" />
-                                <span>Szerkesztés</span>
+                                <span>Szerepkör módosítása</span>
                               </DropdownMenuItem>
-                              {(!user.user_metadata?.role || user.user_metadata?.role !== "admin") && (
+                              <DropdownMenuSeparator />
+                              {(!user.user_metadata?.role ||
+                                user.user_metadata?.role !== "admin") && (
                                 <>
-                                  <DropdownMenuSeparator />
                                   {isUserBanned(user) ? (
-                                    <DropdownMenuItem 
+                                    <DropdownMenuItem
                                       className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
-                                      onClick={() => openUnbanModal(user.id, user.email || "felhasználó")}
+                                      onClick={() =>
+                                        openUnbanModal(
+                                          user.id,
+                                          user.email || "felhasználó"
+                                        )
+                                      }
                                     >
                                       <ShieldCheck className="mr-2 h-4 w-4" />
                                       <span>Tiltás feloldása</span>
                                     </DropdownMenuItem>
                                   ) : (
-                                    <DropdownMenuItem 
+                                    <DropdownMenuItem
                                       className="text-destructive focus:text-destructive flex items-center cursor-pointer"
-                                      onClick={() => openBanModal(user.id, user.email || "felhasználó")}
+                                      onClick={() =>
+                                        openBanModal(
+                                          user.id,
+                                          user.email || "felhasználó"
+                                        )
+                                      }
                                     >
                                       <ShieldAlert className="mr-2 h-4 w-4" />
                                       <span>Tiltás</span>
@@ -350,8 +442,18 @@ export function UsersTable({ users }: UsersTableProps) {
                           </div>
                           <div>
                             <p className="text-muted-foreground">Létrehozva:</p>
-                            <p>{new Date(user.created_at).toLocaleDateString("hu-HU")}</p>
+                            <p>
+                              {new Date(user.created_at).toLocaleDateString(
+                                "hu-HU"
+                              )}
+                            </p>
                           </div>
+                          {isUserBanned(user) && (
+                            <div>
+                              <p className="text-muted-foreground">Tiltás lejárata:</p>
+                              <p>{formatBanDate(user)}</p>
+                            </div>
+                          )}
                         </div>
                       </CollapsibleContent>
                     </Collapsible>
@@ -377,7 +479,9 @@ export function UsersTable({ users }: UsersTableProps) {
         isOpen={modalState.isOpen}
         onClose={closeModal}
         onConfirm={handleConfirmAction}
-        title={modalState.isBanning ? "Felhasználó tiltása" : "Tiltás feloldása"}
+        title={
+          modalState.isBanning ? "Felhasználó tiltása" : "Tiltás feloldása"
+        }
         description={
           modalState.isBanning
             ? `Biztosan le szeretné tiltani a következő felhasználót: ${modalState.userName}? A felhasználó nem fog tudni bejelentkezni a fiókjába.`
@@ -386,6 +490,15 @@ export function UsersTable({ users }: UsersTableProps) {
         confirmText={modalState.isBanning ? "Tiltás" : "Feloldás"}
         cancelText="Mégsem"
         variant={modalState.isBanning ? "destructive" : "default"}
+      />
+
+      <RoleEditDialog
+        isOpen={roleEditState.isOpen}
+        onClose={closeRoleEditDialog}
+        user={roleEditState.user}
+        onSuccess={() => {
+          router.refresh();
+        }}
       />
     </>
   );
