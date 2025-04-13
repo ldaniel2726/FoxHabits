@@ -12,8 +12,8 @@ const fontSans = GeistSans;
 const fontMono = GeistMono;
 
 export const metadata: Metadata = {
-  title: "Fox Habits",
-  description: "A Fox Habits egy webalkalmazás, amely segít a felhasználóknak megfigyelni a szokásaikat és teendőiket.",
+  title: "FoxHabits",
+  description: "A FoxHabits egy webalkalmazás, amely segít a felhasználóknak megfigyelni a szokásaikat és teendőiket.",
 };
 
 const Header = lazy(() => import('@/components/header'));

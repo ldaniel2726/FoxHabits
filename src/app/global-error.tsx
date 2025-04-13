@@ -24,7 +24,7 @@ export default function GlobalError({error, reset}: {
               Kritikus hiba!
             </h1>
             <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-              Úgy tűnik, a Fox Habits alkalmazás most épp szundikál. Lehet, hogy rókák nem dolgoznak éjszaka?
+              Úgy tűnik, a FoxHabits alkalmazás most épp szundikál. Lehet, hogy rókák nem dolgoznak éjszaka?
               Vagy talán csak túl sok kávét ivott, és most túlterhelt.
             </p>
             <div className="mt-8 flex justify-center">

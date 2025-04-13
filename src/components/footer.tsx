@@ -7,8 +7,8 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center md:text-left">
-            <h2 className="text-2xl font-bold text-orange-700 mb-6">Fox Habits</h2>
-            <p className="text-gray-600 dark:text-gray-200">A <span className='text-orange-700 font-bold'>Fox Habits</span> egy webalkalmazás, amely segít a felhasználóknak
+            <h2 className="text-2xl font-bold text-orange-700 mb-6">FoxHabits</h2>
+            <p className="text-gray-600 dark:text-gray-200">A <span className='text-orange-700 font-bold'>FoxHabits</span> egy webalkalmazás, amely segít a felhasználóknak
             megfigyelni a szokásaikat és teendőiket.</p>
           </div>
           <nav className="text-center md:text-left">
@@ -48,7 +48,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-gray-200 text-center">
-          <p className="text-sm text-gray-500">{new Date().getFullYear()} - Fox Habits</p>
+          <p className="text-sm text-gray-500">{new Date().getFullYear()} - FoxHabits</p>
         </div>
       </div>
     </footer>
