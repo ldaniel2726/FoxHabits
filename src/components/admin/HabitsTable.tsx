@@ -207,7 +207,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                           {habit.habit_names?.habit_name_status === "new" ? "Új" :
                           habit.habit_names?.habit_name_status === "private" ? "Privát" :
                           habit.habit_names?.habit_name_status === "rejected" ? "Elutasított" :
-                          habit.habit_names?.habit_name_status === "approved" ? "Publikussá" :
+                          habit.habit_names?.habit_name_status === "approved" ? "Publikus" :
                           "Ismeretlen"}
                         </Badge>
                       </TableCell>
