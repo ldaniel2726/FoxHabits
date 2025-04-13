@@ -17,7 +17,7 @@ export default function Header({ data }: { data: { user: User | null } }) {
     !data.user?.user_metadata.picture &&
     !data.user?.user_metadata.avatar_url
   ) {
-    imgSrc = "https://github.com/shadcn.png";
+    imgSrc = "";
   } else {
     imgSrc =
       data.user?.user_metadata.picture || data.user?.user_metadata.avatar_url;
@@ -271,18 +271,18 @@ function LogoIcon() {
           y1="43"
           x2="169"
           y2="43"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="12"
           strokeLinecap="round"
         />
         <path
           d="M106.694 217C120.855 216.783 126.187 214.017 129.694 203"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="12"
         />
         <path
           d="M107.694 217C93.5318 216.783 88.2006 214.017 84.6936 203"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="12"
         />
         <line
@@ -290,30 +290,30 @@ function LogoIcon() {
           y1="40.9412"
           x2="204.515"
           y2="7.04284"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="12"
           strokeLinecap="round"
         />
         <path
           d="M7 7L43 43"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="12"
           strokeLinecap="round"
         />
-        <line x1="7" y1="7" x2="7" y2="127" stroke="#130C0C" strokeWidth="12" />
+        <line x1="7" y1="7" x2="7" y2="127" stroke="#ca3500" strokeWidth="12" />
         <path
           d="M7.04716 125.646C7.04716 156 74.6936 174 84.8289 203.428"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="12"
         />
         <path
           d="M129.741 205.829C129.741 175.475 197.387 157.475 207.523 128.047"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="12"
         />
         <path
           d="M207 7V127"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="12"
           strokeLinecap="round"
         />
@@ -322,7 +322,7 @@ function LogoIcon() {
           y1="201.455"
           x2="128.821"
           y2="205.455"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="12"
         />
         <line
@@ -330,7 +330,7 @@ function LogoIcon() {
           y1="105.804"
           x2="76.4545"
           y2="112.304"
-          stroke="#252525"
+          stroke="#a25201"
           strokeWidth="12"
           strokeLinecap="round"
         />
@@ -340,7 +340,7 @@ function LogoIcon() {
           x2="19"
           y2="-6"
           transform="matrix(-0.866025 0.5 0.5 0.866025 151.589 108)"
-          stroke="#252525"
+          stroke="#a25201"
           strokeWidth="12"
           strokeLinecap="round"
         />
@@ -349,12 +349,12 @@ function LogoIcon() {
           y1="222"
           x2="107"
           y2="187"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="8"
         />
         <path
           d="M97.5 189.5H117.5"
-          stroke="#130C0C"
+          stroke="#ca3500"
           strokeWidth="8"
           strokeLinecap="round"
         />

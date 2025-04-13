@@ -28,7 +28,7 @@ export default async function Page() {
   const { user_metadata } = user;
   const isAdmin = user_metadata.role === ADMIN;
   const imgSrc = (!user_metadata.picture && !user_metadata.avatar_url)
-    ? "https://github.com/shadcn.png"
+    ? ""
     : user_metadata.picture || user_metadata.avatar_url;
 
   return (
