@@ -181,7 +181,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                         {habit.user ? (
                           <div className="flex flex-col">
                             <span className="font-medium">
-                              {habit.user.user_metadata?.full_name || "-"}
+                              {habit.user.user_metadata?.name || "-"}
                             </span>
                             {habit.user.email && (
                               <span className="text-xs text-muted-foreground">
@@ -306,7 +306,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                           <p className="text-muted-foreground">Felhasználó:</p>
                           {habit.user ? (
                             <div>
-                              <p>{habit.user.user_metadata?.full_name || "-"}</p>
+                              <p>{habit.user.user_metadata?.name || "-"}</p>
                               {habit.user.email && (
                                 <p className="text-xs text-muted-foreground">{habit.user.email}</p>
                               )}
