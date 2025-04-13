@@ -188,52 +188,56 @@ export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date(
   if (sortedEntries.length === 0) return 0;
 
   const today = startOfDay(currentDate);
-  const mostRecentEntry = sortedEntries[0];
-
-  const currentPeriodInfo = isHabitCompletedOnDate(habit, today);
-
-  if (mostRecentEntry < currentPeriodInfo.periodStart) {
-    return 0;
+  const mostRecentEntry = startOfDay(sortedEntries[0]);
+  
+  if (habit.habit_interval_type === 'days' && habit.interval === 1) {
+    const daysSinceLastEntry = differenceInDays(today, mostRecentEntry);
+    if (daysSinceLastEntry > 1) {
+      return 0; 
+    }
+  } else {
+    const currentPeriodInfo = isHabitCompletedOnDate(habit, today);
+    if (mostRecentEntry < currentPeriodInfo.periodStart) {
+      return 0;
+    }
   }
   
-  let streak = 1;
-  let previousPeriodEnd = currentPeriodInfo.periodStart;
-
+  let streak = 0;
+  
+  let dateToCheck = today;
+  const currentPeriodInfo = isHabitCompletedOnDate(habit, today);
+  
+  const completionsToday = sortedEntries.filter(
+    date => startOfDay(date).getTime() === today.getTime()
+  );
+  
+  const isTodayCompleted = completionsToday.length > 0;
+  const isTodaySkipped = habit.entries.some(entry => {
+    const entryDate = startOfDay(new Date(entry.datetime));
+    return entryDate.getTime() === today.getTime() && entry.entry_type === 'skipped';
+  });
+  
+  if (!isTodayCompleted && !isTodaySkipped && today.getTime() !== mostRecentEntry.getTime()) {
+    const streakStartDate = mostRecentEntry;
+    dateToCheck = streakStartDate;
+  }
+  
   while (true) {
-    let previousPeriodStart: Date;
-
-    switch (habit.habit_interval_type) {
-      case 'days':
-        previousPeriodStart = addDays(previousPeriodEnd, -habit.interval);
-        break;
-      case 'weeks':
-        previousPeriodStart = addWeeks(previousPeriodEnd, -habit.interval);
-        break;
-      case 'months':
-        previousPeriodStart = addMonths(previousPeriodEnd, -habit.interval);
-        break;
-      case 'years':
-        previousPeriodStart = addYears(previousPeriodEnd, -habit.interval);
-        break;
-      default:
-        throw new Error(`Unknown habit interval type: ${habit.habit_interval_type}`);
-    }
-
-    if (previousPeriodStart < new Date(habit.start_date)) {
-      break;
-    }
-
+    const periodInfo = isHabitCompletedOnDate(habit, dateToCheck);
+    const periodStart = periodInfo.periodStart;
+    const periodEnd = addInterval(periodStart, habit.habit_interval_type, habit.interval);
+    
     const completionsInPeriod = sortedEntries.filter(
-      date => date >= previousPeriodStart && date < previousPeriodEnd
+      date => date >= periodStart && date < periodEnd
     );
 
     const skippedInPeriod = habit.entries.some(entry => {
       const entryDate = new Date(entry.datetime);
-      return entryDate >= previousPeriodStart && 
-             entryDate < previousPeriodEnd && 
+      return entryDate >= periodStart && 
+             entryDate < periodEnd && 
              entry.entry_type === 'skipped';
     });
-
+    
     if (skippedInPeriod || 
         (habit.habit_type === 'normal_habit' && completionsInPeriod.length === 0) ||
         (habit.habit_type === 'bad_habit' && completionsInPeriod.length > 0)) {
@@ -241,8 +245,30 @@ export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date(
     }
 
     streak++;
-    previousPeriodEnd = previousPeriodStart;
+    
+    dateToCheck = addInterval(periodStart, habit.habit_interval_type, -habit.interval);
+    
+    if (dateToCheck < new Date(habit.start_date)) {
+      break;
+    }
   }
 
   return streak;
 }
+
+function addInterval(date: Date, intervalType: string, intervalValue: number): Date {
+  switch (intervalType) {
+    case 'days':
+      return addDays(date, intervalValue);
+    case 'weeks':
+      return addWeeks(date, intervalValue);
+    case 'months':
+      return addMonths(date, intervalValue);
+    case 'years':
+      return addYears(date, intervalValue);
+    default:
+      throw new Error(`Unknown habit interval type: ${intervalType}`);
+  }
+}
+
+
