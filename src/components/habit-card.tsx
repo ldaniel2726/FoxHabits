@@ -14,6 +14,7 @@ import {
   Undo2,
   MoreVertical,
   ClockIcon,
+  FlameIcon,
 } from "lucide-react";
 import { format, differenceInHours } from "date-fns";
 import {
@@ -98,6 +99,8 @@ export function HabitCard({
   };
 
   let timeFromLastLog;
+
+  let streak = 10;
 
   if (entries.length > 0) {
     const lastEntry = entries[entries.length - 1];
@@ -303,6 +306,10 @@ export function HabitCard({
               <Badge className="ml-1.5" variant={is_active ? "default" : "secondary"}>
                 {is_active ? "Aktív" : "Inaktív"}
               </Badge>
+              <Badge className="ml-1.5 border-orange-700 text-orange-700 font-bold" variant="outline">
+                <FlameIcon className="h-4 w-4" />
+                {streak}
+              </Badge>
             </div>
           </CardTitle>
           <CardDescription className={habit_type === "bad_habit" ? "text-orange-700 font-medium" : ""}>
@@ -327,7 +334,7 @@ export function HabitCard({
               id="time-from-last-log"
               style={{ display: status.type === "done" && isWithin24Hours ? "none" : "flex" }}
             >
-              <ClockIcon className="h-4 w-4 text-muted-foreground" />
+              <FlameIcon className="h-4 w-4 text-muted-foreground" />
               <span>
                 A szokás megtartva {timeFromLastLog ? Math.floor(timeFromLastLog / (1000 * 60 * 60 * 24)) : 0}{" "}
                 {translations[habit_interval_type] || habit_interval_type}{" "} és {" "}
