@@ -48,7 +48,9 @@ import { updateHabitStatus } from "@/actions/habit-actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-const translateHabitType = (type: string): string => {
+const translateHabitType = (type: string | undefined): string => {
+  if (!type) return "Ismeretlen";
+  
   const translations: Record<string, string> = {
     normal_habit: "Normál szokás",
     bad_habit: "Ártó szokás"
@@ -69,8 +71,11 @@ interface GroupedHabit extends Habit {
       name?: string;
       role?: string;
     };
+    habit_type?: string;
+    habit_types?: string[];
   }>;
   originalHabits: Habit[];
+  all_habit_types: string[];
 }
 
 export function HabitsTable({ habits }: HabitsTableProps) {
@@ -99,14 +104,38 @@ export function HabitsTable({ habits }: HabitsTableProps) {
     if (!acc[habitName]) {
       acc[habitName] = {
         ...habit,
-        users: habit.user ? [habit.user] : [],
-        originalHabits: [habit]
+        users: habit.user ? [{
+          ...habit.user,
+          habit_type: habit.habit_type
+        }] : [],
+        originalHabits: [habit],
+        all_habit_types: habit.habit_type ? [habit.habit_type] : []
       };
     } else {
-      if (habit.user && !acc[habitName].users.some((u: {id: string}) => u.id === habit.user?.id)) {
-        acc[habitName].users.push(habit.user);
+      if (habit.user) {
+        const existingUserIndex = acc[habitName].users.findIndex((u: {id: string}) => u.id === habit.user?.id);
+        
+        if (existingUserIndex === -1) {
+          acc[habitName].users.push({
+            ...habit.user,
+            habit_type: habit.habit_type
+          });
+        } else {
+          const existingUser = acc[habitName].users[existingUserIndex];
+          if (existingUser.habit_type !== habit.habit_type) {
+            existingUser.habit_types = existingUser.habit_types || [existingUser.habit_type as string];
+            if (habit.habit_type && (!existingUser.habit_types.includes(habit.habit_type))) {
+              existingUser.habit_types.push(habit.habit_type);
+            }
+          }
+        }
       }
+      
       acc[habitName].originalHabits.push(habit);
+      
+      if (habit.habit_type && !acc[habitName].all_habit_types.includes(habit.habit_type)) {
+        acc[habitName].all_habit_types.push(habit.habit_type);
+      }
     }
     
     return acc;
@@ -162,12 +191,6 @@ export function HabitsTable({ habits }: HabitsTableProps) {
       <CardHeader className="bg-muted/50 py-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Publikus szokások kezelése</CardTitle>
-          <Link href="/habits/add">
-            <Button size="sm" className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Új szokás
-            </Button>
-          </Link>
         </div>
       </CardHeader>
       <div className="px-4 py-3 border-b">
@@ -216,12 +239,26 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                         {habit.habit_names?.habit_name || `ID: ${habit.habit_id}`}  
                       </TableCell>
                       <TableCell className="px-4 py-3">
-                        <Badge
-                          variant={habit.habit_type === "bad_habit" ? "destructive" : "outline"}
-                          className={`font-medium text-black ${habit.habit_type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
-                        >
-                          {translateHabitType(habit.habit_type)}
-                        </Badge>
+                        {habit.all_habit_types.length > 1 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {habit.all_habit_types.map((type, idx) => (
+                              <Badge
+                                key={idx}
+                                variant={type === "bad_habit" ? "destructive" : "outline"}
+                                  className={`font-medium text-black ${type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
+                                >
+                                  {translateHabitType(type)}
+                                </Badge>
+                              ))}
+                            </div>
+                        ) : (
+                          <Badge
+                            variant={habit.habit_type === "bad_habit" ? "destructive" : "outline"}
+                            className={`font-medium text-black ${habit.habit_type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
+                          >
+                            {translateHabitType(habit.habit_type)}
+                          </Badge>
+                        )}
                       </TableCell>
                       <TableCell className="px-4 py-3">
                         {habit.users && habit.users.length > 0 ? (
@@ -235,6 +272,40 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                               <span className="text-xs text-muted-foreground">
                                 {habit.users[0].email}
                               </span>
+                            )}
+                            {habit.users.length > 1 && (
+                              <details className="text-xs mt-1">
+                                <summary className="cursor-pointer text-blue-600 hover:text-blue-800">Felhasználók listája</summary>
+                                <ul className="mt-1 pl-2">
+                                  {habit.users.map((user, idx) => (
+                                    <li key={idx} className="mb-1">
+                                      <span className="font-medium">{user.user_metadata?.name || user.email || user.id}</span>
+                                      {user.habit_types ? (
+                                        <div className="flex flex-wrap gap-1 mt-1">
+                                          {user.habit_types.map((type, typeIdx) => (
+                                            <Badge
+                                              key={typeIdx}
+                                              variant={type === "bad_habit" ? "destructive" : "outline"}
+                                              className={`text-xs font-medium text-black ${type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
+                                            >
+                                              {translateHabitType(type)}
+                                            </Badge>
+                                          ))}
+                                        </div>
+                                      ) : user.habit_type ? (
+                                        <div className="mt-1">
+                                          <Badge
+                                            variant={user.habit_type === "bad_habit" ? "destructive" : "outline"}
+                                            className={`text-xs font-medium text-black ${user.habit_type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
+                                          >
+                                            {translateHabitType(user.habit_type)}
+                                          </Badge>
+                                        </div>
+                                      ) : null}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </details>
                             )}
                           </div>
                         ) : (
@@ -349,12 +420,29 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
                           <p className="text-muted-foreground">Típus:</p>
-                          <Badge 
-                            variant={habit.habit_type === "bad_habit" ? "destructive" : "outline"}
-                            className={`font-medium text-black ${habit.habit_type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
-                          >
-                            {translateHabitType(habit.habit_type)}
-                          </Badge>
+                          {habit.all_habit_types.length > 1 ? (
+                            <div className="flex flex-col gap-1">
+                              <span className="text-xs text-muted-foreground">Többféle típus</span>
+                              <div className="flex flex-wrap gap-1">
+                                {habit.all_habit_types.map((type, idx) => (
+                                  <Badge
+                                    key={idx}
+                                    variant={type === "bad_habit" ? "destructive" : "outline"}
+                                    className={`font-medium text-black ${type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
+                                  >
+                                    {translateHabitType(type)}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          ) : (
+                            <Badge 
+                              variant={habit.habit_type === "bad_habit" ? "destructive" : "outline"}
+                              className={`font-medium text-black ${habit.habit_type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
+                            >
+                              {translateHabitType(habit.habit_type)}
+                            </Badge>
+                          )}
                         </div>
                         <div>
                           <p className="text-muted-foreground">Felhasználó:</p>
@@ -373,8 +461,32 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                                   <details className="text-xs">
                                     <summary className="cursor-pointer text-blue-600 hover:text-blue-800">Felhasználók listája</summary>
                                     <ul className="mt-1 pl-2">
-                                      {habit.users.map((user: {id: string, email: string, user_metadata?: {name?: string}}, idx: number) => (
-                                        <li key={idx}>{user.user_metadata?.name || user.email || user.id}</li>
+                                      {habit.users.map((user: {id: string, email: string, user_metadata?: {name?: string}, habit_type?: string, habit_types?: string[]}, idx: number) => (
+                                        <li key={idx} className="mb-1">
+                                          <span className="font-medium">{user.user_metadata?.name || user.email || user.id}</span>
+                                          {user.habit_types ? (
+                                            <div className="flex flex-wrap gap-1 mt-1">
+                                              {user.habit_types.map((type, typeIdx) => (
+                                                <Badge
+                                                  key={typeIdx}
+                                                  variant={type === "bad_habit" ? "destructive" : "outline"}
+                                                  className={`text-xs font-medium text-black ${type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
+                                                >
+                                                  {translateHabitType(type)}
+                                                </Badge>
+                                              ))}
+                                            </div>
+                                          ) : user.habit_type ? (
+                                            <div className="mt-1">
+                                              <Badge
+                                                variant={user.habit_type === "bad_habit" ? "destructive" : "outline"}
+                                                className={`text-xs font-medium text-black ${user.habit_type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
+                                              >
+                                                {translateHabitType(user.habit_type)}
+                                              </Badge>
+                                            </div>
+                                          ) : null}
+                                        </li>
                                       ))}
                                     </ul>
                                   </details>
