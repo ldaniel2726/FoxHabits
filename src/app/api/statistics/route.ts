@@ -1,18 +1,11 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
-import { ADMIN } from "@/utils/validators/APIConstants";
-import { permissionDeniedReturn } from "@/utils/validators/APIValidators";
-import { ApiErrors, createApiError } from "@/utils/errors/api-errors";
+import { createApiError } from "@/utils/errors/api-errors";
 import { 
-  startOfDay, startOfWeek, startOfMonth, startOfYear, subDays, eachDayOfInterval, 
-  isSameDay, parseISO, max, subWeeks, subMonths, subYears, endOfWeek, endOfMonth, endOfYear, addDays 
+  startOfWeek, startOfMonth, startOfYear, subDays, eachDayOfInterval, 
+  subWeeks, subMonths, subYears, endOfWeek, endOfMonth, endOfYear, addDays 
 } from "date-fns";
-import { 
-  isHabitCompletedOnDate, 
-  isHabitCompletedExactDay, 
-  isHabitCompletedForPeriod,
-  calculateHabitStreak 
-} from "@/utils/habit-utils";
+import { isHabitCompletedOnDate, calculateHabitStreak } from "@/utils/habit-utils";
 
 // GET /api/statistics ~ Statisztikák lekérdezése
 export async function GET() {
@@ -352,4 +345,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-} 
+}
