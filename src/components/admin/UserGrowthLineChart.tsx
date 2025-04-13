@@ -21,7 +21,7 @@ import { UserGrowthLineChartProps } from "@/types/UserGrowthLineChartProps";
 const chartConfig = {
   users: {
     label: "Felhasználók",
-    color: "hsl(var(--chart-1))",
+    color: "oklch(55.3% 0.195 38.402)",
   },
 } satisfies ChartConfig;
 
@@ -106,9 +106,9 @@ export function UserGrowthLineChart({ users }: UserGrowthLineChartProps) {
             <Area
               dataKey="users"
               type="monotone"
-              fill="var(--color-users)"
+              fill="oklch(55.3% 0.195 38.402)"
               fillOpacity={0.4}
-              stroke="var(--color-users)"
+              stroke="oklch(55.3% 0.195 38.402)"
             />
           </AreaChart>
         </ChartContainer>

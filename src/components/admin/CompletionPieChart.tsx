@@ -21,11 +21,11 @@ import { CompletionPieChartProps } from "@/types/CompletionPieChartProps";
 const chartConfig = {
   completion: {
     label: "Teljesítve",
-    color: "hsl(var(--chart-1))",
+    color: "oklch(55.3% 0.195 38.402)",
   },
   pending: {
     label: "Függőben",
-    color: "hsl(var(--chart-2))",
+    color: "oklch(87.1% 0.006 286.286)",
   },
 } satisfies ChartConfig;
 
@@ -34,8 +34,8 @@ export function CompletionPieChart({ completionRate, activeHabits }: CompletionP
   const pending = activeHabits - completed;
 
   const chartData = [
-    { status: "Teljesítve", value: completed, fill: "var(--color-completion)" },
-    { status: "Függőben", value: pending, fill: "var(--color-pending)" },
+    { status: "Teljesítve", value: completed, fill: "oklch(55.3% 0.195 38.402)" },
+    { status: "Függőben", value: pending, fill: "oklch(87.1% 0.006 286.286)" },
   ];
 
   return (
