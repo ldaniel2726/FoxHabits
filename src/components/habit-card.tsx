@@ -254,9 +254,9 @@ export function HabitCard({
     if (!status.type) return null;
     
     if (habit_type === "bad_habit" && status.type === "done") {
-      return <XCircleIcon className="h-4 w-4 text-muted-foreground" />;
+      return <XCircleIcon className="h-4 w-4 text-red-800" />;
     } else {
-      return <CheckCircle className="h-4 w-4 text-muted-foreground" />;
+      return <CheckCircle className="h-4 w-4 text-muted-foreground text-green-800" />;
     }
   };
 
@@ -332,7 +332,7 @@ export function HabitCard({
           )}
           
           {status.type && status.time && (
-            <div className="flex items-center space-x-2 mt-2 font-medium">
+            <div className={`flex items-center space-x-2 mt-2 font-medium ${habit_type === "bad_habit" && status.type === "done" ? "text-red-600" : status.type === "done" ? "text-green-600" : "text-muted-foreground"}`}>
               <StatusIcon />
               <span>
                 {getStatusText()}: {format(new Date(status.time), "yyyy MMMM d. HH:mm")}
