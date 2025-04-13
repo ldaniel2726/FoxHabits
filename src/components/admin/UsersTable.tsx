@@ -448,12 +448,6 @@ export function UsersTable({ users }: UsersTableProps) {
                               )}
                             </p>
                           </div>
-                          {isUserBanned(user) && (
-                            <div>
-                              <p className="text-muted-foreground">Tiltás lejárata:</p>
-                              <p>{formatBanDate(user)}</p>
-                            </div>
-                          )}
                         </div>
                       </CollapsibleContent>
                     </Collapsible>
