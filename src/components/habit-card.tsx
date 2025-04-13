@@ -64,9 +64,9 @@ export function HabitCard({
     };
 
     const completionInfo = isHabitCompletedOnDate(habit);
-    const currentStreak = calculateHabitStreak(habit); // Calculate streak
+    const currentStreak = calculateHabitStreak(habit); 
 
-    setStreak(currentStreak); // Update streak state
+    setStreak(currentStreak); 
 
     if (completionInfo.isCompleted) {
     const lastEntry = entries.findLast(entry => entry.entry_type === 'done');
@@ -310,7 +310,8 @@ export function HabitCard({
               </Badge>
               <Badge className="ml-1.5 border-orange-700 text-orange-700 font-bold" variant="outline">
                 <FlameIcon className="h-4 w-4" />
-                {streak}
+                {habit_type === "normal_habit" ? streak : timeFromLastLog ? Math.floor(timeFromLastLog / (1000 * 60 * 60 * 24)) : 0}{" "}
+
               </Badge>
             </div>
           </CardTitle>
