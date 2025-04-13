@@ -27,3 +27,18 @@ export type Habit = {
       datetime: string;
     }>;
 }
+
+export interface GroupedHabit extends Habit {
+  users: Array<{
+    id: string;
+    email: string;
+    user_metadata?: {
+      name?: string;
+      role?: string;
+    };
+    habit_type?: string;
+    habit_types?: string[];
+  }>;
+  originalHabits: Habit[];
+  all_habit_types: string[];
+}

@@ -1,6 +1,6 @@
 "use client"
 
-import { Habit } from "@/types/Habit";
+import { Habit, GroupedHabit } from "@/types/Habit";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -15,7 +15,6 @@ import Link from "next/link";
 import {
   ClipboardX,
   MoreHorizontal,
-  Pencil,
   Plus,
   Search,
   Trash,
@@ -26,7 +25,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -39,6 +37,15 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Collapsible,
   CollapsibleContent,
@@ -63,35 +70,22 @@ interface HabitsTableProps {
   habits: Habit[] | null;
 }
 
-interface GroupedHabit extends Habit {
-  users: Array<{
-    id: string;
-    email: string;
-    user_metadata?: {
-      name?: string;
-      role?: string;
-    };
-    habit_type?: string;
-    habit_types?: string[];
-  }>;
-  originalHabits: Habit[];
-  all_habit_types: string[];
-}
-
 export function HabitsTable({ habits }: HabitsTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedHabit, setExpandedHabit] = useState<number | null>(null);
+  const [habitToMakePrivate, setHabitToMakePrivate] = useState<GroupedHabit | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
 
   const initialFilteredHabits = habits?.filter((habit) => {
     const nameMatch = habit.habit_names?.habit_name?.toLowerCase().includes(searchQuery.toLowerCase());
     
     let statusMatch = true;
-    if (statusFilter === "active") {
-      statusMatch = habit.is_active === true;
-    } else if (statusFilter === "inactive") {
-      statusMatch = habit.is_active === false;
+    if (statusFilter === "approved") {
+      statusMatch = habit.habit_names?.habit_name_status === "approved";
+    } else if (statusFilter === "new") {
+      statusMatch = habit.habit_names?.habit_name_status === "new";
     }
     
     return nameMatch && statusMatch;
@@ -151,7 +145,16 @@ export function HabitsTable({ habits }: HabitsTableProps) {
     }
   };
 
+  const handleOpenPrivateDialog = (habit: GroupedHabit) => {
+    setHabitToMakePrivate(habit);
+    setIsDialogOpen(true);
+  };
+
   const handleStatusUpdate = async (habit: Habit | GroupedHabit, newStatus: "approved" | "private") => {
+    if (newStatus === "private" && !habitToMakePrivate) {
+      return;
+    }
+
     const habitsToUpdate = 'originalHabits' in habit ? habit.originalHabits : [habit];
     const habitNameIds = habitsToUpdate.map((h: Habit) => h.habit_names?.habit_name_id).filter(Boolean);
     
@@ -183,11 +186,37 @@ export function HabitsTable({ habits }: HabitsTableProps) {
     } catch (error) {
       toast.error("Váratlan hiba történt a státusz módosítása során");
       console.error("Error updating habit status:", error);
+    } finally {
+      if (newStatus === "private") {
+        setHabitToMakePrivate(null);
+        setIsDialogOpen(false);
+      }
     }
   };
 
   return (
-    <Card className="overflow-hidden">
+    <>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Szokás priváttá alakítása</DialogTitle>
+            <DialogDescription>
+              Biztosan priváttá szeretnéd alakítani ezt a szokást: &ldquo;{habitToMakePrivate?.habit_names?.habit_name}&rdquo;?
+              Ez a művelet eltávolítja a szokást a publikus szokások közül, és <span className="font-bold">csak a létrehozó felhasználó fogja látni.</span>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Mégsem</Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => habitToMakePrivate && handleStatusUpdate(habitToMakePrivate, "private")}
+            >
+              Priváttá alakítás
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Card className="overflow-hidden">
       <CardHeader className="bg-muted/50 py-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">Publikus szokások kezelése</CardTitle>
@@ -211,8 +240,8 @@ export function HabitsTable({ habits }: HabitsTableProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Összes</SelectItem>
-              <SelectItem value="active">Aktív</SelectItem>
-              <SelectItem value="inactive">Inaktív</SelectItem>
+              <SelectItem value="approved">Publikus</SelectItem>
+              <SelectItem value="new">Új</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -339,16 +368,18 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem 
-                              className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
-                              onClick={() => handleStatusUpdate(habit, "approved")}
-                            >
-                              <BookOpenCheck className="mr-2 h-4 w-4" />
-                              <span>Publikussá alakítás</span>
-                            </DropdownMenuItem>
+                            {habit.habit_names?.habit_name_status !== "approved" && (
+                              <DropdownMenuItem 
+                                className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
+                                onClick={() => handleStatusUpdate(habit, "approved")}
+                              >
+                                <BookOpenCheck className="mr-2 h-4 w-4" />
+                                <span>Publikussá alakítás</span>
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem 
                               className="text-destructive focus:text-destructive flex items-center cursor-pointer"
-                              onClick={() => handleStatusUpdate(habit, "private")}
+                              onClick={() => handleOpenPrivateDialog(habit)}
                             >
                               <Trash className="mr-2 h-4 w-4" />
                               <span>Priváttá alakítás</span>
@@ -398,16 +429,18 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem 
-                              className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
-                              onClick={() => handleStatusUpdate(habit, "approved")}
-                            >
-                              <BookOpenCheck className="mr-2 h-4 w-4" />
-                              <span>Publikussá alakítás</span>
-                            </DropdownMenuItem>
+                            {habit.habit_names?.habit_name_status !== "approved" && (
+                              <DropdownMenuItem 
+                                className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
+                                onClick={() => handleStatusUpdate(habit, "approved")}
+                              >
+                                <BookOpenCheck className="mr-2 h-4 w-4" />
+                                <span>Publikussá alakítás</span>
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem 
                               className="text-destructive focus:text-destructive flex items-center cursor-pointer"
-                              onClick={() => handleStatusUpdate(habit, "private")}
+                              onClick={() => handleOpenPrivateDialog(habit)}
                             >
                               <Trash className="mr-2 h-4 w-4" />
                               <span>Priváttá alakítás</span>
@@ -525,5 +558,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
         )}
       </CardContent>
     </Card>
+  );
+    </>
   );
 }
