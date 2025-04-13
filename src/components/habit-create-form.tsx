@@ -24,16 +24,7 @@ export default function HabitCreateFormComponent() {
   const [selectedHabitType, setSelectedHabitType] = useState<"normal_habit" | "bad_habit">("normal_habit");
   const router = useRouter();
 
-  const getCurrentDateTime = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const hours = String(now.getHours()).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
-
+ 
   const {
     register,
     handleSubmit,
@@ -45,7 +36,7 @@ export default function HabitCreateFormComponent() {
       habit_type: "normal_habit",
       interval: 1,
       habit_interval_type: "days",
-      start_date: new Date().toISOString().split('T')[0],
+      start_date: new Date().toLocaleDateString("en-CA"),
     },
   });
 

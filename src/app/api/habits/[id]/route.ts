@@ -96,20 +96,21 @@ export async function PATCH(request: Request) {
   try {
     const habitUpdateSchema = z.object({
       habit_name: z.string().min(1).max(255).optional(),
-      habit_name_status: z
-        .enum(["new", "private", "public", "rejected"])
-        .optional(),
+      habit_name_status: z.enum(["new", "private", "public", "rejected"]).optional(),
       habit_type: z.enum(["normal_habit", "bad_habit"]).optional(),
       interval: z.number().positive().optional(),
-      habit_interval_type: z
-        .enum(["hours", "days", "weeks", "months", "years"])
-        .optional(),
+      habit_interval_type: z.enum(["hours", "days", "weeks", "months", "years"]).optional(),
       start_date: z.string().datetime().optional(),
       is_active: z.boolean().optional(),
       related_user_id: z.string().optional(),
     });
 
-    const result = habitUpdateSchema.safeParse(await request.json());
+    const requestBody = await request.json();
+
+    console.log("Request body:", requestBody);
+    const result = habitUpdateSchema.safeParse(requestBody);
+    console.log("RES:", result);
+
 
     if (!result.success) {
       return NextResponse.json(
@@ -119,10 +120,9 @@ export async function PATCH(request: Request) {
     }
 
     const validatedData = result.data;
-
+    console.log("Validated data:", validatedData);
     const url = new URL(request.url);
-    const splitted_url = url.pathname.split("/");
-    const habit_id = splitted_url[splitted_url.length - 1];
+    const habit_id = url.pathname.split("/").pop();
 
     if (!habit_id || isNaN(Number(habit_id))) {
       return NextResponse.json(
@@ -132,12 +132,7 @@ export async function PATCH(request: Request) {
     }
 
     const supabase = await createClient();
-
-    const {
-      data: { user },
-      error: userError,
-    } = await supabase.auth.getUser();
-
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     console.log("Auth debug:", { user, userError });
 
     if (userError || !user) {
@@ -147,13 +142,11 @@ export async function PATCH(request: Request) {
       );
     }
 
-    let updated_related_user_id = validatedData.related_user_id;
-    if (
-      user.id !== validatedData.related_user_id &&
-      user.user_metadata?.role !== ADMIN
-    ) {
+    let updated_related_user_id = validatedData.related_user_id || user.id;
+    if (user.id !== validatedData.related_user_id && user.user_metadata?.role !== ADMIN) {
       updated_related_user_id = user.id;
     }
+    console.log("IDÁIG MINDEN JÓ");
 
     const { data: habitData, error: habitError } = await supabase
       .from("habits")
@@ -174,101 +167,75 @@ export async function PATCH(request: Request) {
       );
     }
 
-    // Ellenőrizzük a habit_name_status jogosultságot
     if (validatedData.habit_name_status) {
       const validHabitNameStatus = ["new", "private"];
-      if (
-        user.user_metadata?.role === ADMIN ||
-        user.user_metadata?.role === MODERATOR
-      ) {
+      if ([ADMIN, MODERATOR].includes(user.user_metadata?.role)) {
         validHabitNameStatus.push("public", "rejected");
       }
 
       if (!validHabitNameStatus.includes(validatedData.habit_name_status)) {
         return NextResponse.json(
-          {
-            error: `A szokás nevének státusza csak ${validHabitNameStatus.join(
-              ", "
-            )} lehet.`,
-          },
+          { error: `A szokás nevének státusza csak ${validHabitNameStatus.join(", ")} lehet.` },
           { status: 400 }
         );
       }
     }
 
-    type HabitUpdates = {
-      habit_type?: "normal_habit" | "bad_habit";
-      interval?: number;
-      habit_interval_type?: "hours" | "days" | "weeks" | "months" | "years";
-      start_date?: string;
-      is_active?: boolean;
-      related_user_id?: string;
-      habit_name_id?: number;
-    };
-
-    const updates: HabitUpdates = {};
-
+    const updates: Record<string, any> = {};
     let habit_name_id;
 
     if (validatedData.habit_name) {
+      let habit_name_id;
+    
       const { data: habitNameData, error: habitNameError } = await supabase
         .from("habit_names")
         .select("habit_name_id")
         .eq("habit_name", validatedData.habit_name)
         .single();
-
+    
       console.log("Habit name data debug:", { habitNameData, habitNameError });
-
-      if (habitNameError) {
+    
+      if (habitNameError && habitNameError.code !== "PGRST116") {
         return NextResponse.json(
           { error: habitNameError.message },
           { status: 500 }
         );
       }
-
+    
       if (!habitNameData) {
         const habit_name_status_new = validatedData.habit_name_status || "new";
-        const { data: newHabitNameData, error: newHabitNameError } =
-          await supabase
-            .from("habit_names")
-            .insert([
-              {
-                habit_name: validatedData.habit_name,
-                habit_name_status: habit_name_status_new,
-                sender_user_id: user.id,
-              },
-            ])
-            .select("habit_name_id")
-            .single();
-
-        console.log("New habit name data debug:", {
-          newHabitNameData,
-          newHabitNameError,
-        });
-
+        const { data: newHabitNameData, error: newHabitNameError } = await supabase
+          .from("habit_names")
+          .insert([{
+            habit_name: validatedData.habit_name,
+            habit_name_status: habit_name_status_new,
+            sender_user_id: user.id,
+          }])
+          .select("habit_name_id")
+          .single();
+    
+        console.log("New habit name data debug:", { newHabitNameData, newHabitNameError });
+    
         if (newHabitNameError) {
           return NextResponse.json(
             { error: newHabitNameError.message },
             { status: 500 }
           );
         }
-
+    
         habit_name_id = newHabitNameData.habit_name_id;
       } else {
         habit_name_id = habitNameData.habit_name_id;
       }
-
+    
       updates.habit_name_id = habit_name_id;
     }
 
-    // Frissítjük az updates objektumot a validált adatokkal
     if (validatedData.habit_type) updates.habit_type = validatedData.habit_type;
     if (validatedData.interval) updates.interval = validatedData.interval;
-    if (validatedData.habit_interval_type)
-      updates.habit_interval_type = validatedData.habit_interval_type;
+    if (validatedData.habit_interval_type) updates.habit_interval_type = validatedData.habit_interval_type;
     if (validatedData.start_date) updates.start_date = validatedData.start_date;
-    if (validatedData.is_active !== undefined)
-      updates.is_active = validatedData.is_active;
+    if (validatedData.is_active !== undefined) updates.is_active = validatedData.is_active;
     updates.related_user_id = updated_related_user_id;
 
     if (Object.keys(updates).length === 0) {
