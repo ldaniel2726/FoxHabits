@@ -15,18 +15,13 @@ export default function Footer() {
             <h3 className="text-xl font-bold text-gray-800 dark:text-gray-400 mb-6">Hivatkozások</h3>
             <ul className="space-y-2">
               <li>
-                <Link legacyBehavior href="/about">
-                  <a className='text-gray-600 dark:text-gray-200 hover:text-gray-900 transition transform inline-block hover:translate-x-3 py-2 px-4'>Rólunk</a>
+                <Link legacyBehavior href="/login">
+                  <a className='text-gray-600 dark:text-gray-200 hover:text-gray-900 transition transform inline-block hover:translate-x-3 py-2 px-4'>Bejelentkezés</a>
                 </Link>
               </li>
               <li>
-                <Link legacyBehavior href="/plans">
-                  <a className='text-gray-600 dark:text-gray-200 hover:text-gray-900 transition transform inline-block hover:translate-x-3 py-2 px-4'>Csomagok</a>
-                </Link>
-              </li>
-              <li>
-                <Link legacyBehavior href="/profile">
-                  <a className='text-gray-600 dark:text-gray-200 hover:text-gray-900 transition transform inline-block hover:translate-x-3 py-2 px-4'>Fiók</a>
+                <Link legacyBehavior href="/signup">
+                  <a className='text-gray-600 dark:text-gray-200 hover:text-gray-900 transition transform inline-block hover:translate-x-3 py-2 px-4'>Regisztráció</a>
                 </Link>
               </li>
             </ul>
@@ -36,10 +31,6 @@ export default function Footer() {
             <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-200 mb-2 py-2 px-4">
               <Mail className="w-5 h-5" />
               <p>info@foxhabits.com</p>
-            </div>
-            <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-200 py-2 px-4">
-              <Phone className="w-5 h-5" />
-              <p>+36 30 456 7890</p>
             </div>
             <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-200 py-2 px-4">
               <MapPin className="w-5 h-5" />
