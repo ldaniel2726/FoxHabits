@@ -61,13 +61,25 @@ interface HabitsTableProps {
   habits: Habit[] | null;
 }
 
+interface GroupedHabit extends Habit {
+  users: Array<{
+    id: string;
+    email: string;
+    user_metadata?: {
+      name?: string;
+      role?: string;
+    };
+  }>;
+  originalHabits: Habit[];
+}
+
 export function HabitsTable({ habits }: HabitsTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [expandedHabit, setExpandedHabit] = useState<number | null>(null);
   const router = useRouter();
 
-  const filteredHabits = habits?.filter((habit) => {
+  const initialFilteredHabits = habits?.filter((habit) => {
     const nameMatch = habit.habit_names?.habit_name?.toLowerCase().includes(searchQuery.toLowerCase());
     
     let statusMatch = true;
@@ -80,6 +92,28 @@ export function HabitsTable({ habits }: HabitsTableProps) {
     return nameMatch && statusMatch;
   });
 
+  const groupedHabits = initialFilteredHabits?.reduce((acc, habit) => {
+    const habitName = habit.habit_names?.habit_name;
+    if (!habitName) return acc;
+    
+    if (!acc[habitName]) {
+      acc[habitName] = {
+        ...habit,
+        users: habit.user ? [habit.user] : [],
+        originalHabits: [habit]
+      };
+    } else {
+      if (habit.user && !acc[habitName].users.some((u: {id: string}) => u.id === habit.user?.id)) {
+        acc[habitName].users.push(habit.user);
+      }
+      acc[habitName].originalHabits.push(habit);
+    }
+    
+    return acc;
+  }, {} as Record<string, GroupedHabit>) || {};
+
+  const filteredHabits = Object.values(groupedHabits) as GroupedHabit[];
+
   const toggleCollapsible = (habitId: number) => {
     if (expandedHabit === habitId) {
       setExpandedHabit(null);
@@ -88,24 +122,34 @@ export function HabitsTable({ habits }: HabitsTableProps) {
     }
   };
 
-  const handleStatusUpdate = async (habitNameId: string, newStatus: "approved" | "private") => {
-    if (!habitNameId) {
+  const handleStatusUpdate = async (habit: Habit | GroupedHabit, newStatus: "approved" | "private") => {
+    const habitsToUpdate = 'originalHabits' in habit ? habit.originalHabits : [habit];
+    const habitNameIds = habitsToUpdate.map((h: Habit) => h.habit_names?.habit_name_id).filter(Boolean);
+    
+    if (habitNameIds.length === 0) {
       toast.error("Hiányzó szokás azonosító");
       return;
     }
     
     try {
-      const result = await updateHabitStatus(habitNameId, newStatus);
+      const updatePromises = habitNameIds.map((habitNameId: string) => 
+        updateHabitStatus(habitNameId, newStatus)
+      );
       
-      if (result.success) {
+      const results = await Promise.all(updatePromises);
+      
+      const allSuccessful = results.every(result => result.success);
+      
+      if (allSuccessful) {
         toast.success(
           newStatus === "approved" 
-            ? "A szokás sikeresen publikussá lett téve" 
-            : "A szokás sikeresen priváttá lett téve"
+            ? "A szokás(ok) sikeresen publikussá lett(ek) téve" 
+            : "A szokás(ok) sikeresen priváttá lett(ek) téve"
         );
         router.refresh();
       } else {
-        toast.error(`Hiba történt: ${result.error}`);
+        const errorMessage = results.find(r => !r.success)?.error || "Ismeretlen hiba";
+        toast.error(`Hiba történt: ${errorMessage}`);
       }
     } catch (error) {
       toast.error("Váratlan hiba történt a státusz módosítása során");
@@ -166,7 +210,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredHabits?.map((habit: Habit) => (
+                  {filteredHabits?.map((habit: GroupedHabit) => (
                     <TableRow key={habit.habit_id} className="hover:bg-muted/50 transition-colors">
                       <TableCell className="font-medium px-4 py-3">
                         {habit.habit_names?.habit_name || `ID: ${habit.habit_id}`}  
@@ -180,14 +224,16 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                         </Badge>
                       </TableCell>
                       <TableCell className="px-4 py-3">
-                        {habit.user ? (
+                        {habit.users && habit.users.length > 0 ? (
                           <div className="flex flex-col">
                             <span className="font-medium">
-                              {habit.user.user_metadata?.name || "-"}
+                              {habit.users.length > 1 ? 
+                                `${habit.users.length} felhasználó` : 
+                                habit.users[0].user_metadata?.name || "-"}
                             </span>
-                            {habit.user.email && (
+                            {habit.users.length === 1 && habit.users[0].email && (
                               <span className="text-xs text-muted-foreground">
-                                {habit.user.email}
+                                {habit.users[0].email}
                               </span>
                             )}
                           </div>
@@ -224,14 +270,14 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem 
                               className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
-                              onClick={() => handleStatusUpdate(habit.habit_names?.habit_name_id, "approved")}
+                              onClick={() => handleStatusUpdate(habit, "approved")}
                             >
                               <BookOpenCheck className="mr-2 h-4 w-4" />
                               <span>Publikussá alakítás</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               className="text-destructive focus:text-destructive flex items-center cursor-pointer"
-                              onClick={() => handleStatusUpdate(habit.habit_names?.habit_name_id, "private")}
+                              onClick={() => handleStatusUpdate(habit, "private")}
                             >
                               <Trash className="mr-2 h-4 w-4" />
                               <span>Priváttá alakítás</span>
@@ -247,7 +293,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
 
             <div className="md:hidden">
               <div className="divide-y">
-                {filteredHabits?.map((habit: Habit) => (
+                {filteredHabits?.map((habit: GroupedHabit) => (
                   <Collapsible
                     key={habit.habit_id}
                     open={expandedHabit === habit.habit_id}
@@ -283,14 +329,14 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem 
                               className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
-                              onClick={() => handleStatusUpdate(habit.habit_names?.habit_name_id, "approved")}
+                              onClick={() => handleStatusUpdate(habit, "approved")}
                             >
                               <BookOpenCheck className="mr-2 h-4 w-4" />
                               <span>Publikussá alakítás</span>
                             </DropdownMenuItem>
                             <DropdownMenuItem 
                               className="text-destructive focus:text-destructive flex items-center cursor-pointer"
-                              onClick={() => handleStatusUpdate(habit.habit_names?.habit_name_id, "private")}
+                              onClick={() => handleStatusUpdate(habit, "private")}
                             >
                               <Trash className="mr-2 h-4 w-4" />
                               <span>Priváttá alakítás</span>
@@ -312,11 +358,27 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                         </div>
                         <div>
                           <p className="text-muted-foreground">Felhasználó:</p>
-                          {habit.user ? (
+                          {habit.users && habit.users.length > 0 ? (
                             <div>
-                              <p>{habit.user.user_metadata?.name || "-"}</p>
-                              {habit.user.email && (
-                                <p className="text-xs text-muted-foreground">{habit.user.email}</p>
+                              <p>
+                                {habit.users.length > 1 ? 
+                                  `${habit.users.length} felhasználó` : 
+                                  habit.users[0].user_metadata?.name || "-"}
+                              </p>
+                              {habit.users.length === 1 && habit.users[0].email && (
+                                <p className="text-xs text-muted-foreground">{habit.users[0].email}</p>
+                              )}
+                              {habit.users.length > 1 && (
+                                <div className="mt-1">
+                                  <details className="text-xs">
+                                    <summary className="cursor-pointer text-blue-600 hover:text-blue-800">Felhasználók listája</summary>
+                                    <ul className="mt-1 pl-2">
+                                      {habit.users.map((user: {id: string, email: string, user_metadata?: {name?: string}}, idx: number) => (
+                                        <li key={idx}>{user.user_metadata?.name || user.email || user.id}</li>
+                                      ))}
+                                    </ul>
+                                  </details>
+                                </div>
                               )}
                             </div>
                           ) : (
