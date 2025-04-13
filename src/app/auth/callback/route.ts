@@ -6,10 +6,10 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
   const type = searchParams.get('type')
-  const token = searchParams.get('token')
+  const token = searchParams.get('token_hash')
 
   // Handle password reset flow
-  if (type === 'recovery' && token) {
+  if (type === 'email' && token) {
     // Redirect to the password reset page with the token
     return NextResponse.redirect(`${origin}/auth/reset-password?token=${token}&type=${type}`)
   }

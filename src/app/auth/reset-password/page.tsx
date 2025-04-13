@@ -23,10 +23,10 @@ export default function ResetPasswordPage() {
 
   useEffect(() => {
     // Check for the token in the URL
-    const token = searchParams.get('token');
+    const token = searchParams.get('token_hash');
     const type = searchParams.get('type');
     
-    if (type !== 'recovery' || !token) {
+    if (type !== 'email' || !token) {
       toast.error("Érvénytelen vagy lejárt jelszó-visszaállító link");
       router.push('/login');
     }
@@ -54,7 +54,7 @@ export default function ResetPasswordPage() {
 
     try {
       // Get the token from the URL
-      const token = searchParams.get('token');
+      const token = searchParams.get('token_hash');
       
       // Update the user's password using the token
       const { error } = await supabase.auth.updateUser({ 
