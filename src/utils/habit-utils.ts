@@ -54,8 +54,6 @@ export function isHabitCompletedOnDate(habit: Habit, date: Date = new Date()): {
       const periodNumber = Math.floor(weeksSinceStart / habit.interval);
       periodStart = addWeeks(habitStartDate, periodNumber * habit.interval);
       periodEnd = endOfDay(addDays(periodStart, 7 * habit.interval - 1));
-      console.log('periodStart', periodStart);
-      console.log('periodEnd', periodEnd);
       break;
       
     case 'months':
@@ -73,29 +71,25 @@ export function isHabitCompletedOnDate(habit: Habit, date: Date = new Date()): {
     default:
       throw new Error(`Unknown habit interval type: ${habit.habit_interval_type}`);
   }
-  console.log(habit.entries);
+
   const requiredCompletions = habit.interval;
   
-  const entriesInPeriod = habit.entries.filter(entry => {
+  const entriesInPeriod = (habit.entries || []).filter(entry => {
     const entryDate = new Date(entry.datetime.replace(' ', 'T') + 'Z');
     return entryDate >= periodStart && entryDate <= periodEnd && entry.entry_type === 'done';
   });
-  console.log('entriesInPeriod', entriesInPeriod);
 
-  const skippedEntriesInPeriod = habit.entries.filter(entry => {
+  const skippedEntriesInPeriod = (habit.entries || []).filter(entry => {
     const entryDate = new Date(entry.datetime.replace(' ', 'T') + 'Z');
     return entryDate >= periodStart && entryDate <= periodEnd && entry.entry_type === 'skipped';
   });
   
   const actualCompletions = entriesInPeriod.length;
   const isSkipped = skippedEntriesInPeriod.length > 0;
-  console.log('actualCompletions', actualCompletions);
-  
+
   const isCompleted = !isSkipped && (habit.habit_type === 'normal_habit' 
     ? actualCompletions > 0
     : actualCompletions === 0);
-  
-    console.log('isCompleted', isCompleted);
 
   return {
     isCompleted,
@@ -202,7 +196,7 @@ export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date(
     return 0;
   }
   
-  let streak = 1; // Start with current period
+  let streak = 1;
   let previousPeriodEnd = currentPeriodInfo.periodStart;
   
   while (true) {
@@ -251,4 +245,4 @@ export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date(
   }
   
   return streak;
-} 
+}

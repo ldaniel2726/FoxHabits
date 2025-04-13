@@ -4,6 +4,7 @@ import { supabaseAdmin } from "@/utils/supabase/admin";
 import { AdminStats } from "@/types/AdminStats";
 import { Habit } from "@/types/Habit";
 import { User } from "@supabase/supabase-js";
+import { isHabitCompletedOnDate } from "@/utils/habit-utils";
 
 export async function fetchHabits() {
   const { data: habits, error } = await supabaseAdmin
@@ -65,9 +66,23 @@ export async function fetchUsers() {
 }
 
 export async function fetchAdminStats(habits: Habit[] | null, users: User[] | null): Promise<AdminStats> {
+  let completedHabits = 0;
+  let notCompletedHabits = 0;
+
+  habits?.forEach(habit => {
+    const { isCompleted } = isHabitCompletedOnDate(habit);
+    if (isCompleted) {
+      completedHabits++;
+    } else {
+      notCompletedHabits++;
+    }
+  });
+  
+  const completionRate = (completedHabits / (habits?.length || 1)) * 100;
+  
   return {
     totalUsers: users?.length || 0,
     activeHabits: habits?.length || 0,
-    completionRate: habits ? (habits.filter((h) => h.is_active).length / Math.max(habits.length, 1)) * 100 : 0,
+    completionRate
   };
 }

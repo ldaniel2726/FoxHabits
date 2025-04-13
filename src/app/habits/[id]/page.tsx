@@ -17,7 +17,7 @@ import { HabitDetailActions } from "@/components/HabitDetailActions";
 export default async function HabitPage({
   params,
 }: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ id: number }>;
 }) {
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http";
   const host = process.env.VERCEL_URL || "localhost:3000";
@@ -125,10 +125,9 @@ export default async function HabitPage({
         </CardContent>
       </Card>
 
-      {/* Entries list */}
       <div className="max-w-3xl mx-auto">
         <HabitEntries 
-          habitId={parseInt((await params).id)} 
+          habitId={(await params).id} 
           entries={habit.entries || []} 
           habitType={habit.habit_type}
         />

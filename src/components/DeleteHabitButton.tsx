@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 interface DeleteHabitButtonProps {
-  habitId: string;
+  habitId: number;
   onDelete?: () => void;
 }
 
@@ -27,7 +27,7 @@ export function DeleteHabitButton({ habitId, onDelete }: DeleteHabitButtonProps)
     
     try {
       setIsDeleting(true);
-      const response = await fetch(`/api/habits/${habitId}`, {
+      const response = await fetch(`/api/habits/${Number(habitId)}`, {
         method: "DELETE",
       });
 

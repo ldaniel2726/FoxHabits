@@ -42,16 +42,16 @@ export function HabitCard({
   created_date,
   habit_name_id,
   entries = [],
-}: HabitCardProps & { habit_id: string }) {
+}: HabitCardProps & { habit_id: number }) {
   const [status, setStatus] = useState<{ type: null | "done" | "skipped", time: string | null }>({
     type: null,
     time: null
   });
-  const [entryId, setEntryId] = useState<string | null>(null);
+  const [entryId, setEntryId] = useState<number | null>(null);
   
   useEffect(() => {
     const habit = {
-      habit_id: Number(habit_id),
+      habit_id: habit_id,
       habit_type: habit_type as 'normal_habit' | 'bad_habit',
       habit_interval_type: habit_interval_type as 'days' | 'weeks' | 'months' | 'years',
       interval,
@@ -69,7 +69,7 @@ export function HabitCard({
           type: 'done',
           time: lastEntry.datetime
         });
-        setEntryId(lastEntry.entry_id.toString());
+        setEntryId(lastEntry.entry_id);
       }
     } else if (completionInfo.isSkipped) {
       const lastEntry = entries.find(entry => entry.entry_type === 'skipped');
@@ -78,7 +78,7 @@ export function HabitCard({
           type: 'skipped',
           time: lastEntry.datetime
         });
-        setEntryId(lastEntry.entry_id.toString());
+        setEntryId(lastEntry.entry_id);
       }
     }
   }, [habit_id, habit_type, habit_interval_type, interval, start_date, is_active, entries]);
@@ -115,7 +115,7 @@ export function HabitCard({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          habit_id: Number(habit_id),
+          habit_id: habit_id,
           time_of_entry: new Date().toISOString(),
           entry_type: "skipped"
         }),
@@ -154,7 +154,7 @@ export function HabitCard({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          habit_id: Number(habit_id),
+          habit_id: habit_id,
           time_of_entry: new Date().toISOString(),
           entry_type: "done"
         }),

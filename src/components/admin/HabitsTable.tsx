@@ -67,7 +67,7 @@ interface HabitsTableProps {
 export function HabitsTable({ habits }: HabitsTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [expandedHabit, setExpandedHabit] = useState<string | null>(null);
+  const [expandedHabit, setExpandedHabit] = useState<number | null>(null);
   const router = useRouter();
 
   const filteredHabits = habits?.filter((habit) => {
@@ -83,7 +83,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
     return nameMatch && statusMatch;
   });
 
-  const toggleCollapsible = (habitId: string) => {
+  const toggleCollapsible = (habitId: number) => {
     if (expandedHabit === habitId) {
       setExpandedHabit(null);
     } else {

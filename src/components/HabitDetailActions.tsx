@@ -4,7 +4,7 @@ import { DeleteHabitButton } from "./DeleteHabitButton";
 import { EditHabitButton } from "./EditHabitButton";
 
 interface HabitDetailActionsProps {
-  habitId: string;
+  habitId: number;
 }
 
 export function HabitDetailActions({ habitId }: HabitDetailActionsProps) {

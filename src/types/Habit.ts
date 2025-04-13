@@ -1,8 +1,8 @@
 export type Habit = {
-    habit_id: string;
-    habit_type: string;
+    habit_id: number;
+    habit_type: 'normal_habit' | 'bad_habit';
     interval: number;
-    habit_interval_type: string;
+    habit_interval_type: 'days' | 'weeks' | 'months' | 'years';
     start_date: string;
     is_active: boolean;
     created_date: string;

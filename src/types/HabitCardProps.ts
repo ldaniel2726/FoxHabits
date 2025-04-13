@@ -1,5 +1,5 @@
 export type HabitCardProps = {
-    habit_id: string;
+    habit_id: number;
     habit_type: string;
     interval: number;
     habit_interval_type: string;

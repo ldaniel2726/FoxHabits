@@ -5,7 +5,7 @@ import { Edit } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface EditHabitButtonProps {
-  habitId: string;
+  habitId: number;
 }
 
 export function EditHabitButton({ habitId }: EditHabitButtonProps) {
@@ -14,7 +14,7 @@ export function EditHabitButton({ habitId }: EditHabitButtonProps) {
   const handleEdit = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    router.push(`/habits/${habitId}/edit`);
+    router.push(`/habits/${habitId.toString()}/edit`);
   };
 
   return (
