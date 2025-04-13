@@ -1,4 +1,4 @@
-import { Settings, Activity, List as ListIcon, CalendarDays, BarChart2, Shield } from "lucide-react";
+import { Settings, Activity, List as ListIcon, CalendarDays, BarChart2, Shield, ClipboardList } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Mail } from "react-feather";
 import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
-import { ADMIN } from "@/utils/validators/APIConstants";
+import { ADMIN, MODERATOR } from "@/utils/validators/APIConstants";
 
 export default async function Page() {
   const supabase = await createClient();
@@ -27,6 +27,7 @@ export default async function Page() {
   const user = data.user;
   const { user_metadata } = user;
   const isAdmin = user_metadata.role === ADMIN;
+  const isModerator = user_metadata.role === MODERATOR;
   const imgSrc = (!user_metadata.picture && !user_metadata.avatar_url)
     ? ""
     : user_metadata.picture || user_metadata.avatar_url;
@@ -68,6 +69,22 @@ export default async function Page() {
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="text-sm">Admin vezérlőpult</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+              {isModerator && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Link href="/moderator">
+                        <Button variant="outline" className="hover:text-orange-700 hover:border-orange-700 hover:border hover:shadow-xl p-2">
+                          <ClipboardList className="h-5 w-5" />
+                        </Button>
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-sm">Moderátor vezérlőpult</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

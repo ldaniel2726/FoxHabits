@@ -13,6 +13,7 @@ export const config = {
     '/forgot-password',
     '/auth/reset-password',
     '/admin',
+    '/moderator',
     '/habits',
     '/habits/today',
     '/habits/create',
