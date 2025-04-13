@@ -51,6 +51,7 @@ export function HabitCard({
   const [entryId, setEntryId] = useState<string | null>(null);
   const [isWithin24Hours, setIsWithin24Hours] = useState<boolean>(false);
   const [streak, setStreak] = useState<number>(0);
+  let originalStreak = 0;
 
   useEffect(() => {
     const habit = {
@@ -65,6 +66,8 @@ export function HabitCard({
 
     const completionInfo = isHabitCompletedOnDate(habit);
     const currentStreak = calculateHabitStreak(habit); 
+    originalStreak = currentStreak;
+    
 
     setStreak(currentStreak); 
 
@@ -169,7 +172,6 @@ export function HabitCard({
         }),
       });
 
-
       const responseData = await response.json();
 
       if (!response.ok) {
@@ -177,7 +179,30 @@ export function HabitCard({
         throw new Error(responseData.error || "Network response was not ok");
       }
 
-      console.log("Szokás teljesítve:", responseData);
+      const newEntry = responseData.data && responseData.data[0] ? responseData.data[0] : null;
+      const updatedEntries = newEntry 
+        ? [...entries, newEntry] 
+        : entries;
+      
+      const habit = {
+        habit_id,
+        habit_type: habit_type as 'normal_habit' | 'bad_habit',
+        habit_interval_type: habit_interval_type as 'days' | 'weeks' | 'months' | 'years',
+        interval,
+        start_date,
+        is_active,
+        entries: updatedEntries
+      };
+      
+      let newStreak;
+      if (habit_type === "bad_habit") {
+        newStreak = 0;
+      } else {
+        newStreak = calculateHabitStreak(habit);
+      }
+      console.log("New streak after complete:", newStreak);
+      setStreak(newStreak);
+
       if (habit_type === "bad_habit") {
         const timeFromLastLogElement = document.getElementById("time-from-last-log");
         if (timeFromLastLogElement) {
@@ -189,9 +214,16 @@ export function HabitCard({
         type: "done",
         time: new Date().toISOString()
       });
-      if (responseData.data && responseData.data[0]) {
-        setEntryId(responseData.data[0].entry_id);
+      if (newEntry) {
+        setEntryId(newEntry.entry_id.toString());
       }
+      
+      setTimeout(() => {
+        const streakElement = document.querySelector(`[data-habit-id="${habit_id}"] .streak-value`);
+        if (streakElement) {
+          streakElement.textContent = newStreak.toString();
+        }
+      }, 0);
     } catch (error) {
       console.error("Error completing habit:", error);
     }
@@ -215,6 +247,18 @@ export function HabitCard({
         throw new Error(responseData.error || "Network response was not ok");
       }
 
+      const updatedEntries = entries.filter(entry => entry.entry_id.toString() !== entryId);
+      
+      let newStreak;
+      if (habit_type === "normal_habit") {
+        newStreak = Math.max(0, streak - 1);
+      } else {
+        newStreak = entries.length === 0 ? Math.floor((new Date().getTime() - new Date(start_date).getTime()) / (1000 * 60 * 60 * 24)) : entries.filter(entry => entry.entry_type === 'done').length; 
+      }
+      
+      console.log("New streak after undo:", newStreak);
+      setStreak(newStreak);
+
       if (habit_type === "bad_habit") {
         const timeFromLastLogElement = document.getElementById("time-from-last-log");
         if (timeFromLastLogElement) {
@@ -229,6 +273,14 @@ export function HabitCard({
         time: null
       });
       setEntryId(null);
+      
+      // Force a re-render to update the UI
+      setTimeout(() => {
+        const streakElement = document.querySelector(`[data-habit-id="${habit_id}"] .streak-value`);
+        if (streakElement) {
+          streakElement.textContent = newStreak.toString();
+        }
+      }, 0);
     } catch (error) {
       console.error("Error undoing habit entry:", error);
     }
@@ -293,7 +345,7 @@ export function HabitCard({
 
   return (
     <div>
-      <Card className={`${cardStyle()} cursor-pointer p-4 md:p-6`} onClick={handleCardClick}>
+      <Card className={`${cardStyle()} cursor-pointer p-4 md:p-6`} onClick={handleCardClick} data-habit-id={habit_id}>
         <CardHeader>
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between">
             <div className="mr-0 md:mr-2 font-bold text-2xl"><h1>{habit_name_id}</h1></div>
@@ -328,6 +380,7 @@ export function HabitCard({
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
             <Repeat className="h-4 w-4 text-muted-foreground" />
             <span>
+              
               Minden {interval !== 1 && `${interval + "."} `}{" "}
               {translations[habit_interval_type] || habit_interval_type}
             </span>
