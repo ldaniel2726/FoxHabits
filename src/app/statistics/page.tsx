@@ -83,18 +83,15 @@ export default async function Page() {
     { 
       title: "Mindenkori elvégzett teendők és szokások száma", 
       value: `${stats.overallStats.totalCompletedCount}`, 
-      // change: "+0.1%", 
-      // positive: true 
     },
-    // { 
-    //   title: "Mindenkori elhalasztott teendők és szokások száma", 
-    //   value: `${stats.overallStats.totalSkippedCount}`, 
-    //   change: "+1.5%", 
-    //   positive: false 
-    // },
+    { 
+      title: "Összes aktív szokásod", 
+      value: `${stats.overallStats.allHabitsCount}`, 
+    },
   ] : [
-    { title: "Mindenkori elvégzett teendők és szokások száma", value: "0", change: "0%", positive: true },
-    // { title: "Mindenkori elhalasztott teendők és szokások száma", value: "0", change: "0%", positive: true },
+    { title: "Mindenkori elvégzett teendők és szokások száma", value: "N/A" },
+    { title: "Összes aktív szokásod", value: "N/A" },
+
   ];
 
   return (
@@ -154,10 +151,6 @@ export default async function Page() {
                 <p className="text-lg font-medium text-gray-700 mb-1">{item.title}</p>
                 <div className="flex items-center justify-between mt-3">
                   <span className="text-2xl font-extrabold">{item.value}</span>
-                  {/* <span className={`flex items-center text-base font-semibold ${item.positive ? "text-green-500" : "text-red-500"}`}>
-                    {item.positive ? <ArrowUp size={18} /> : <ArrowDown size={18} />}
-                    {item.change}
-                  </span> */}
                 </div>
               </div>
             ))}
