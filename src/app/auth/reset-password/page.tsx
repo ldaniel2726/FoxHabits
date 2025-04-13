@@ -22,9 +22,13 @@ export default function ResetPasswordPage() {
   const supabase = createClient();
 
   useEffect(() => {
+    console.log("All search params:", Object.fromEntries(searchParams.entries()));
     const type = searchParams.get('type');
     const accessToken = searchParams.get('access_token');
-
+    
+    console.log("Type:", type);
+    console.log("Access Token:", accessToken);
+    
     if (type !== 'recovery' || !accessToken) {
       toast.error("Érvénytelen vagy lejárt jelszó-visszaállító link");
       router.push('/login');
