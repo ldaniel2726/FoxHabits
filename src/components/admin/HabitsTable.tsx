@@ -48,13 +48,10 @@ import { updateHabitStatus } from "@/actions/habit-actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
-const translateIntervalType = (type: string): string => {
+const translateHabitType = (type: string): string => {
   const translations: Record<string, string> = {
-    hours: "óra",
-    days: "nap",
-    weeks: "hét",
-    months: "hónap",
-    years: "év"
+    normal_habit: "Normál szokás",
+    bad_habit: "Ártó szokás"
   };
   
   return translations[type] || type;
@@ -161,7 +158,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="px-4 py-3">Név</TableHead>
-                    <TableHead className="px-4 py-3">Intervallum</TableHead>
+                    <TableHead className="px-4 py-3">Típus</TableHead>
                     <TableHead className="px-4 py-3">Felhasználó</TableHead>
                     <TableHead className="px-4 py-3">Létrehozva</TableHead>
                     <TableHead className="px-4 py-3">Státusz</TableHead>
@@ -175,7 +172,12 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                         {habit.habit_names?.habit_name || `ID: ${habit.habit_id}`}  
                       </TableCell>
                       <TableCell className="px-4 py-3">
-                        {`${habit.interval} ${translateIntervalType(habit.habit_interval_type)}`}
+                        <Badge
+                          variant={habit.habit_type === "bad_habit" ? "destructive" : "outline"}
+                          className={`font-medium text-black dark:text-white ${habit.habit_type === "normal_habit" ? "border-green-700" : ""}`}
+                        >
+                          {translateHabitType(habit.habit_type)}
+                        </Badge>
                       </TableCell>
                       <TableCell className="px-4 py-3">
                         {habit.user ? (
@@ -300,8 +302,13 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                     <CollapsibleContent className="mt-2 space-y-2">
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>
-                          <p className="text-muted-foreground">Intervallum:</p>
-                          <p>{habit.interval} {translateIntervalType(habit.habit_interval_type)}</p>
+                          <p className="text-muted-foreground">Típus:</p>
+                          <Badge 
+                            variant={habit.habit_type === "bad_habit" ? "destructive" : "outline"}
+                            className={`font-medium text-black dark:text-white ${habit.habit_type === "normal_habit" ? "border-green-700" : ""}`}
+                          >
+                            {translateHabitType(habit.habit_type)}
+                          </Badge>
                         </div>
                         <div>
                           <p className="text-muted-foreground">Felhasználó:</p>

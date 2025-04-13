@@ -105,7 +105,7 @@ export default async function Page() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {dailyStats.map((item, index) => (
                 <div key={index} className="bg-gray-50 dark:bg-zinc-950 flex flex-col justify-between p-5 rounded-lg border border-gray-200 shadow-md">
-                  <p className="text-lg font-medium text-gray-700 mb-1">{item.title}</p>
+                  <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">{item.title}</p>
                   <div className="flex items-center justify-between mt-3">
                     <span className="text-2xl font-extrabold">{item.value}</span>
                     <span className={`flex items-center text-base font-semibold ${item.positive ? "text-green-500" : "text-red-500"}`}>
@@ -124,14 +124,14 @@ export default async function Page() {
             <h2 className="text-2xl font-extrabold mb-4 flex items-center"><PieChart className="mr-2" /> Leghosszabb Szokások</h2>
             <div className="space-y-5">
               <div>
-                <p className="text-lg font-medium text-gray-700 mb-1">Mindenkori leghosszabban teljesített</p>
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Mindenkori leghosszabban teljesített</p>
                 <div className="flex items-center justify-between mt-3">
                   <span className="text-2xl font-extrabold">{longestStreak.name}</span>
                   <span className="text-2xl font-extrabold text-orange-700">{longestStreak.days} nap</span>
                 </div>
               </div>
               <div>
-                <p className="text-lg font-medium text-gray-700 mb-1">Jelenleg is töretlen</p>
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Jelenleg is töretlen</p>
                 <div className="flex items-center justify-between mt-3">
                   <span className="text-2xl font-extrabold">{currentStreak.name}</span>
                   <span className="text-2xl font-extrabold text-orange-700">{currentStreak.days} nap</span>
@@ -148,7 +148,7 @@ export default async function Page() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {overallStats.map((item, index) => (
               <div key={index} className="bg-gray-50 dark:bg-zinc-950 flex flex-col justify-between p-5 rounded-lg border border-gray-200 shadow-md">
-                <p className="text-lg font-medium text-gray-700 mb-1">{item.title}</p>
+                <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">{item.title}</p>
                 <div className="flex items-center justify-between mt-3">
                   <span className="text-2xl font-extrabold">{item.value}</span>
                 </div>
