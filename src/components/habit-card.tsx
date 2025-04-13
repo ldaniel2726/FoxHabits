@@ -100,7 +100,7 @@ export function HabitCard({
 
   let timeFromLastLog;
 
-  let streak = 10;
+  const streak = 10;
 
   if (entries.length > 0) {
     const lastEntry = entries[entries.length - 1];
