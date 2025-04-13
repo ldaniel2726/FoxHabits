@@ -295,8 +295,8 @@ export function HabitCard({
     <div>
       <Card className={`${cardStyle()} cursor-pointer p-4 md:p-6`} onClick={handleCardClick}>
         <CardHeader>
+          <div className="mr-0 md:mr-2 font-bold text-2xl"><h1>{habit_name_id}</h1></div>
           <CardTitle className="flex flex-col md:flex-row items-start md:items-center justify-between capitalize text-lg md:text-xl">
-            <div className="truncate mr-0 md:mr-2">{habit_name_id}</div>
             <div className="flex items-center gap-1 mt-2 md:mt-0" onClick={(e) => e.stopPropagation()}>
               <EditHabitButton habitId={habit_id} />
               <DeleteHabitButton
@@ -311,7 +311,6 @@ export function HabitCard({
               <Badge className="ml-1.5 border-orange-700 text-orange-700 font-bold" variant="outline">
                 <FlameIcon className="h-4 w-4" />
                 {habit_type === "normal_habit" ? streak : timeFromLastLog ? Math.floor(timeFromLastLog / (1000 * 60 * 60 * 24)) : 0}{" "}
-
               </Badge>
             </div>
           </CardTitle>
