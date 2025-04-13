@@ -104,9 +104,9 @@ export function RoleEditDialog({
           <DialogDescription>
             {user?.email || "Felhasználó"} szerepkörének módosítása.
             {isUserAdmin && (
-              <p className="text-amber-500 mt-2">
+              <span className="text-amber-500 mt-2">
                 Figyelem: Admin felhasználók szerepköre nem módosítható.
-              </p>
+              </span>
             )}
           </DialogDescription>
         </DialogHeader>
