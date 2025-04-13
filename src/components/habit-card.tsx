@@ -332,20 +332,6 @@ export function HabitCard({
               {translations[habit_interval_type] || habit_interval_type}
             </span>
           </div>
-          {habit_type === "bad_habit" && (
-            <div 
-              className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2" 
-              id="time-from-last-log"
-              style={{ display: status.type === "done" && isWithin24Hours ? "none" : "flex" }}
-            >
-              <FlameIcon className="h-4 w-4 text-muted-foreground" />
-              <span>
-                A szokás megtartva {timeFromLastLog ? Math.floor(timeFromLastLog / (1000 * 60 * 60 * 24)) : 0}{" "}
-                {translations[habit_interval_type] || habit_interval_type}{" "} és {" "}
-                {timeFromLastLog ? Math.floor((timeFromLastLog % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) : 0} óra óta.
-              </span>
-            </div>
-          )}
           {habit_type === "normal_habit" && (
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />

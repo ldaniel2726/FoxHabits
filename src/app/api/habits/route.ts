@@ -53,7 +53,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const habitSchema = z.object({
-      habit_name: z.string().min(1).max(255),
+      habit_names: z.string().min(1).max(255),
       habit_name_status: z.string().default("new"),
       habit_type: z.enum(["normal_habit", "bad_habit"]),
       interval: z.number().positive(),
@@ -68,8 +68,11 @@ export async function POST(request: Request) {
       is_active: z.boolean().default(true),
     });
 
-    const result = habitSchema.safeParse(await request.json());
+    const requestBody = await request.json();
+    console.log(requestBody);
 
+    const result = habitSchema.safeParse(await requestBody);
+    console.log(result);
 
     if (!result.success) {
       console.log(result.error);
@@ -120,7 +123,7 @@ export async function POST(request: Request) {
     const { data: habitNameData, error: habitNameError } = await supabase
       .from("habit_names")
       .select("habit_name_id")
-      .eq("habit_name", validatedData.habit_name)
+      .eq("habit_name", validatedData.habit_names)
       .single();
 
     if (habitNameError && habitNameError.code !== "PGRST116") {
@@ -136,7 +139,7 @@ export async function POST(request: Request) {
           .from("habit_names")
           .insert([
             {
-              habit_name: validatedData.habit_name,
+              habit_name: validatedData.habit_names,
               habit_name_status: validatedData.habit_name_status,
               sender_user_id: user.id,
             },

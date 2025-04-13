@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { habitFormSchema } from "@/types/HabitFormSchema";
+import { createHabitFormSchema } from "@/types/HabitFormSchema";
 
-type FormSchema = z.infer<typeof habitFormSchema>;
+type FormSchema = z.infer<typeof createHabitFormSchema>;
 
 export default function HabitCreateFormComponent() {
   const [isLoading, setIsLoading] = useState(false);
@@ -31,12 +31,13 @@ export default function HabitCreateFormComponent() {
     setValue,
     formState: { errors },
   } = useForm<FormSchema>({
-    resolver: zodResolver(habitFormSchema),
+    resolver: zodResolver(createHabitFormSchema),
     defaultValues: {
       habit_type: "normal_habit",
       interval: 1,
       habit_interval_type: "days",
       start_date: new Date().toLocaleDateString("en-CA"),
+      is_active: true
     },
   });
 
@@ -65,7 +66,9 @@ export default function HabitCreateFormComponent() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={(e) => {
+      handleSubmit(onSubmit)(e);
+    }} className="space-y-6">
       <div>
         <Label htmlFor="habit_name">Szokás neve</Label>
         <Input id="habit_name" {...register("habit_names")} />
