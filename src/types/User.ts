@@ -3,7 +3,7 @@ export type User = {
   user_metadata: {
     name?: string;
     email?: string;
-    full_name?: string;
+    name?: string;
   };
   email?: string;
   id: string;

@@ -92,7 +92,7 @@ export function UsersTable({ users }: UsersTableProps) {
   };
 
   const filteredUsers = users?.filter((user) => {
-    const nameMatch = (user.user_metadata?.full_name || "")
+    const nameMatch = (user.user_metadata?.name || "")
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     const emailMatch = (user.email || "")
@@ -278,7 +278,7 @@ export function UsersTable({ users }: UsersTableProps) {
                         className="hover:bg-muted/50 transition-colors"
                       >
                         <TableCell className="font-medium px-4 py-3">
-                          {user.user_metadata?.full_name || "—"}
+                          {user.user_metadata?.name || "—"}
                         </TableCell>
                         <TableCell className="px-4 py-3">
                           {user.email}
@@ -438,7 +438,7 @@ export function UsersTable({ users }: UsersTableProps) {
                         <div className="grid grid-cols-1 gap-2 text-sm">
                           <div>
                             <p className="text-muted-foreground">Név:</p>
-                            <p>{user.user_metadata?.full_name || "—"}</p>
+                            <p>{user.user_metadata?.name || "—"}</p>
                           </div>
                           <div>
                             <p className="text-muted-foreground">Létrehozva:</p>

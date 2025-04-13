@@ -95,7 +95,7 @@ export default function Page() {
         <aside className="bg-gray-50 dark:bg-zinc-950 p-4 flex flex-col justify-center">
           <div className="space-y-4">
             {relativeDays.map((_, index) => (
-              <div key={index} className="w-12 h-12 rounded-full bg-gray-300 animate-pulse"/>
+              <div key={index} className="w-12 h-12 rounded-full bg-gray-300 dark:bg-zinc-700 animate-pulse"/>
             ))}
           </div>
         </aside>
@@ -103,13 +103,13 @@ export default function Page() {
         <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-zinc-950 grid gap-6">
           {relativeDays.map((_, index) => (
             <div key={index} className="min-h-screen snap-start space-y-4">
-              <div className="w-1/2 h-8 bg-gray-300 animate-pulse" />
-              <div className="w-1/3 h-6 bg-gray-300 animate-pulse" />
+              <div className="w-1/2 h-8 bg-gray-300 dark:bg-zinc-700 animate-pulse" />
+              <div className="w-1/3 h-6 bg-gray-300 dark:bg-zinc-700 animate-pulse" />
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {Array(3)
                   .fill(0)
                   .map((_, i) => (
-                    <div key={i} className="w-full h-40 p-32 rounded-2xl bg-gray-300 animate-pulse"/>
+                    <div key={i} className="w-full h-40 p-32 rounded-2xl bg-gray-300 dark:bg-zinc-700 animate-pulse"/>
                   ))}
               </div>
             </div>
