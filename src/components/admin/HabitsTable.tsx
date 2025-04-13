@@ -172,7 +172,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                   {filteredHabits?.map((habit: Habit) => (
                     <TableRow key={habit.habit_id} className="hover:bg-muted/50 transition-colors">
                       <TableCell className="font-medium px-4 py-3">
-                        {habit.habit_names?.habit_name || `ID: ${habit.habit_id}`}
+                        {habit.habit_names?.habit_name || `ID: ${habit.habit_id}`}  
                       </TableCell>
                       <TableCell className="px-4 py-3">
                         {`${habit.interval} ${translateIntervalType(habit.habit_interval_type)}`}

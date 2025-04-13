@@ -272,7 +272,7 @@ export function UsersTable({ users }: UsersTableProps) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredUsers?.map((user) => (
+                    {filteredUsers?.map((user: ExtendedUser) => (
                       <TableRow
                         key={user.id}
                         className="hover:bg-muted/50 transition-colors"
@@ -298,17 +298,21 @@ export function UsersTable({ users }: UsersTableProps) {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem 
-                                className="flex items-center cursor-pointer"
-                                onClick={() => openRoleEditDialog(user)}
-                              >
-                                <Pencil className="mr-2 h-4 w-4" />
-                                <span>Szerepkör módosítása</span>
-                              </DropdownMenuItem>
+                              {!user.banned_until && (
+                                <>
+                                  <DropdownMenuItem
+                                    className="flex items-center cursor-pointer"
+                                    onClick={() => openRoleEditDialog(user)}
+                                  >
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    <span>Szerepkör módosítása</span>
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                </>
+                              )}
                               {(!user.user_metadata?.role ||
                                 user.user_metadata?.role !== "admin") && (
                                 <>
-                                  <DropdownMenuSeparator />
                                   {isUserBanned(user) ? (
                                     <DropdownMenuItem
                                       className="text-green-600 focus:text-green-600 flex items-center cursor-pointer"
@@ -390,7 +394,7 @@ export function UsersTable({ users }: UsersTableProps) {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem 
+                              <DropdownMenuItem
                                 className="flex items-center cursor-pointer"
                                 onClick={() => openRoleEditDialog(user)}
                               >
