@@ -14,8 +14,9 @@ import {
   Undo2,
   MoreVertical,
   ClockIcon,
+  FlameIcon,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInHours } from "date-fns";
 import {
   Card,
   CardContent,
@@ -30,7 +31,7 @@ import { useState, useEffect } from "react";
 import { DeleteHabitButton } from "./DeleteHabitButton";
 import { EditHabitButton } from "./EditHabitButton";
 import { HabitCardProps } from "@/types/HabitCardProps";
-import { isHabitCompletedOnDate } from "@/utils/habit-utils";
+import { calculateHabitStreak, isHabitCompletedOnDate } from "@/utils/habit-utils";
 
 export function HabitCard({
   habit_id,
@@ -47,8 +48,10 @@ export function HabitCard({
     type: null,
     time: null
   });
-  const [entryId, setEntryId] = useState<number | null>(null);
-  
+  const [entryId, setEntryId] = useState<string | null>(null);
+  const [isWithin24Hours, setIsWithin24Hours] = useState<boolean>(false);
+  const [streak, setStreak] = useState<number>(0);
+
   useEffect(() => {
     const habit = {
       habit_id: habit_id,
@@ -59,18 +62,26 @@ export function HabitCard({
       is_active,
       entries
     };
-    
+
     const completionInfo = isHabitCompletedOnDate(habit);
-    
+    const currentStreak = calculateHabitStreak(habit); // Calculate streak
+
+    setStreak(currentStreak); // Update streak state
+
     if (completionInfo.isCompleted) {
-      const lastEntry = entries.findLast(entry => entry.entry_type === 'done');
-      if (lastEntry) {
-        setStatus({
-          type: 'done',
-          time: lastEntry.datetime
-        });
-        setEntryId(lastEntry.entry_id);
-      }
+    const lastEntry = entries.findLast(entry => entry.entry_type === 'done');
+    if (lastEntry) {
+      const entryDate = new Date(lastEntry.datetime.replace(' ', 'T'));
+      const hoursSinceEntry = differenceInHours(new Date(), entryDate);
+      
+      setIsWithin24Hours(hoursSinceEntry < 24);
+      
+      setStatus({
+        type: 'done',
+        time: lastEntry.datetime
+      });
+      setEntryId(lastEntry.entry_id.toString());
+    }
     } else if (completionInfo.isSkipped) {
       const lastEntry = entries.find(entry => entry.entry_type === 'skipped');
       if (lastEntry) {
@@ -78,7 +89,7 @@ export function HabitCard({
           type: 'skipped',
           time: lastEntry.datetime
         });
-        setEntryId(lastEntry.entry_id);
+        setEntryId(lastEntry.entry_id.toString());
       }
     }
   }, [habit_id, habit_type, habit_interval_type, interval, start_date, is_active, entries]);
@@ -101,8 +112,6 @@ export function HabitCard({
     timeFromLastLog = Math.abs(new Date().getTime() - new Date(start_date).getTime());
   }
   console.log(new Date());
-  
-  
 
   const handleSkip = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -122,7 +131,7 @@ export function HabitCard({
       });
 
       const responseData = await response.json();
-      
+
       if (!response.ok) {
         console.error("Error response:", responseData);
         throw new Error(responseData.error || "Network response was not ok");
@@ -134,9 +143,9 @@ export function HabitCard({
         time: new Date().toISOString()
       });
 
-      
+
       if (responseData.data && responseData.data[0]) {
-        setEntryId(responseData.data[0].entry_id);
+        setEntryId(responseData.data[0].entry_id.toString());
       }
     } catch (error) {
       console.error("Error skipping habit:", error);
@@ -162,7 +171,7 @@ export function HabitCard({
 
 
       const responseData = await response.json();
-      
+
       if (!response.ok) {
         console.error("Error response:", responseData);
         throw new Error(responseData.error || "Network response was not ok");
@@ -174,6 +183,7 @@ export function HabitCard({
         if (timeFromLastLogElement) {
           timeFromLastLogElement.style.display = "none";
         }
+        setIsWithin24Hours(true);
       }
       setStatus({
         type: "done",
@@ -191,7 +201,7 @@ export function HabitCard({
     e.preventDefault();
     e.stopPropagation();
     if (!entryId) return;
-    
+
     try {
       console.log("Undoing habit entry:", entryId);
       const response = await fetch(`/api/entries/${entryId}`, {
@@ -199,7 +209,7 @@ export function HabitCard({
       });
 
       const responseData = await response.json();
-      
+
       if (!response.ok) {
         console.error("Error response:", responseData);
         throw new Error(responseData.error || "Network response was not ok");
@@ -210,6 +220,7 @@ export function HabitCard({
         if (timeFromLastLogElement) {
           timeFromLastLogElement.style.display = "flex";
         }
+        setIsWithin24Hours(false);
       }
 
       console.log("Szokás visszavonva:", responseData);
@@ -225,38 +236,40 @@ export function HabitCard({
 
   const cardStyle = () => {
     let baseStyle = "w-full transition-all";
-    
-    if (status.type) {
+
+
+    if (status.type === "done" && (habit_type !== "bad_habit" || isWithin24Hours)) {
+      baseStyle += " opacity-70 order-last";
+    } else if (status.type === "skipped") {
       baseStyle += " opacity-70 order-last";
     } else {
       baseStyle += " hover:shadow-lg";
     }
-    
-    
+
     return baseStyle;
   };
 
   const getStatusText = () => {
     if (!status.type || !status.time) return "";
-    
-    if (habit_type === "bad_habit") {
-      return status.type === "done" 
-        ? "Szokás elbukva" 
-        : "Kihagyva";
+
+    if (habit_type === "bad_habit" && status.type === "done") {
+      return isWithin24Hours && "Szokás elbukva";
     } else {
-      return status.type === "done" 
-        ? "Elvégezve" 
+      return status.type === "done"
+        ? "Elvégezve"
         : "Kihagyva";
     }
   };
 
   const StatusIcon = () => {
     if (!status.type) return null;
-    
-    if (habit_type === "bad_habit" && status.type === "done") {
+
+    if (habit_type === "bad_habit" && status.type === "done" && isWithin24Hours) {
       return <XCircleIcon className="h-4 w-4 text-red-800" />;
-    } else {
+    } else if (status.type === "done") {
       return <CheckCircle className="h-4 w-4 text-muted-foreground text-green-800" />;
+    } else {
+      return <ForwardIcon className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
@@ -268,10 +281,11 @@ export function HabitCard({
     }
   };
 
+
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     const isButton = target.closest('button');
-    
+
     if (!isButton) {
       window.location.href = `/habits/${habit_id}`;
     }
@@ -285,14 +299,18 @@ export function HabitCard({
             <div className="truncate mr-0 md:mr-2">{habit_name_id}</div>
             <div className="flex items-center gap-1 mt-2 md:mt-0" onClick={(e) => e.stopPropagation()}>
               <EditHabitButton habitId={habit_id} />
-              <DeleteHabitButton 
-                habitId={habit_id} 
+              <DeleteHabitButton
+                habitId={habit_id}
                 onDelete={() => {
                   window.location.reload();
-                }} 
+                }}
               />
               <Badge className="ml-1.5" variant={is_active ? "default" : "secondary"}>
                 {is_active ? "Aktív" : "Inaktív"}
+              </Badge>
+              <Badge className="ml-1.5 border-orange-700 text-orange-700 font-bold" variant="outline">
+                <FlameIcon className="h-4 w-4" />
+                {streak}
               </Badge>
             </div>
           </CardTitle>
@@ -300,8 +318,8 @@ export function HabitCard({
             {habit_type === "normal_habit"
               ? "Szokás"
               : habit_type === "bad_habit"
-              ? "Ártó szokás"
-              : habit_type}
+                ? "Ártó szokás"
+                : habit_type}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-1 md:space-y-2">
@@ -313,12 +331,16 @@ export function HabitCard({
             </span>
           </div>
           {habit_type === "bad_habit" && (
-            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2" id="time-from-last-log">
-              <ClockIcon className="h-4 w-4 text-muted-foreground" />
+            <div 
+              className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2" 
+              id="time-from-last-log"
+              style={{ display: status.type === "done" && isWithin24Hours ? "none" : "flex" }}
+            >
+              <FlameIcon className="h-4 w-4 text-muted-foreground" />
               <span>
                 A szokás megtartva {timeFromLastLog ? Math.floor(timeFromLastLog / (1000 * 60 * 60 * 24)) : 0}{" "}
                 {translations[habit_interval_type] || habit_interval_type}{" "} és {" "}
-                 {timeFromLastLog ? Math.floor((timeFromLastLog % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) : 0} óra óta.
+                {timeFromLastLog ? Math.floor((timeFromLastLog % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)) : 0} óra óta.
               </span>
             </div>
           )}
@@ -330,9 +352,15 @@ export function HabitCard({
               </span>
             </div>
           )}
-          
-          {status.type && status.time && (
-            <div className={`flex items-center space-x-2 mt-2 font-medium ${habit_type === "bad_habit" && status.type === "done" ? "text-red-600" : status.type === "done" ? "text-green-600" : "text-muted-foreground"}`}>
+
+          {status.type && status.time && !(habit_type === "bad_habit" && !isWithin24Hours) && (
+            <div className={`flex items-center space-x-2 mt-2 font-medium ${
+              habit_type === "bad_habit" && status.type === "done" && isWithin24Hours 
+                ? "text-red-600" 
+                : status.type === "done" 
+                  ? "text-green-600" 
+                  : "text-muted-foreground"
+            }`}>
               <StatusIcon />
               <span>
                 {getStatusText()}: {format(new Date(status.time), "yyyy MMMM d. HH:mm")}
@@ -348,7 +376,7 @@ export function HabitCard({
             </span>
           </div>
           <div className="flex items-center space-x-2 ml-auto" onClick={(e) => e.stopPropagation()}>
-            {status.type ? (
+            {(status.type && !(habit_type === "bad_habit" && status.type === "done" && !isWithin24Hours)) ? (
               <Button variant="outline" onClick={handleUndo}>
                 <Undo2 className="h-4 w-4" />
               </Button>

@@ -179,29 +179,29 @@ export function isHabitCompletedForPeriod(
 
 export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date()): number {
   if (!habit.entries.length) return 0;
-  
-  const sortedEntries = [...habit.entries]
+
+  const sortedEntries = habit.entries
     .filter(entry => entry.entry_type === 'done')
     .map(entry => new Date(entry.datetime))
     .sort((a, b) => b.getTime() - a.getTime());
-  
+
   if (sortedEntries.length === 0) return 0;
-  
+
   const today = startOfDay(currentDate);
   const mostRecentEntry = sortedEntries[0];
-  
+
   const currentPeriodInfo = isHabitCompletedOnDate(habit, today);
-  
+
   if (mostRecentEntry < currentPeriodInfo.periodStart) {
     return 0;
   }
   
   let streak = 1;
   let previousPeriodEnd = currentPeriodInfo.periodStart;
-  
+
   while (true) {
     let previousPeriodStart: Date;
-    
+
     switch (habit.habit_interval_type) {
       case 'days':
         previousPeriodStart = addDays(previousPeriodEnd, -habit.interval);
@@ -218,31 +218,31 @@ export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date(
       default:
         throw new Error(`Unknown habit interval type: ${habit.habit_interval_type}`);
     }
-    
+
     if (previousPeriodStart < new Date(habit.start_date)) {
       break;
     }
-    
+
     const completionsInPeriod = sortedEntries.filter(
       date => date >= previousPeriodStart && date < previousPeriodEnd
     );
-    
+
     const skippedInPeriod = habit.entries.some(entry => {
       const entryDate = new Date(entry.datetime);
       return entryDate >= previousPeriodStart && 
              entryDate < previousPeriodEnd && 
              entry.entry_type === 'skipped';
     });
-    
+
     if (skippedInPeriod || 
         (habit.habit_type === 'normal_habit' && completionsInPeriod.length === 0) ||
         (habit.habit_type === 'bad_habit' && completionsInPeriod.length > 0)) {
       break;
     }
-    
+
     streak++;
     previousPeriodEnd = previousPeriodStart;
   }
-  
+
   return streak;
 }
