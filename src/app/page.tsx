@@ -15,7 +15,7 @@ export default async function Home() {
       <section className="bg-gradient-to-b from-white to-gray-200 dark:from-black dark:to-zinc-900 py-32 md:py-80">
           <div className="container mx-auto px-6 md:px-12 text-center">
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-              Alakítsd ki az ideális szokásaidat a <span className="text-orange-700">Fox Habits</span> segítségével
+              Alakítsd ki az ideális szokásaidat a <span className="text-orange-700">FoxHabits</span> segítségével
             </h1>
             <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
               Egyszerű és hatékony módszer a jó szokások kialakítására vagy a rossz
@@ -109,7 +109,7 @@ export default async function Home() {
 
         <section className="bg-gradient-to-r from-orange-900 to-orange-500 shadow-2xl text-white py-20 px-6 md:px-12">
           <div className="container mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-12">Miért válaszd a Fox Habits-t?</h2>
+            <h2 className="text-4xl font-bold mb-12">Miért válaszd a FoxHabits-t?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               <Card className="bg-primary/5 text-gray-200 shadow-lg hover:shadow-2xl transition-shadow duration-300 p-6 border-none">
                 <CardHeader>
