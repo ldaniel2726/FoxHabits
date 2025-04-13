@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { HabitDeleteConfirmationModal } from "./HabitDeleteConfirmationModal";
 
 interface DeleteHabitButtonProps {
   habitId: number;
@@ -13,17 +14,21 @@ interface DeleteHabitButtonProps {
 
 export function DeleteHabitButton({ habitId, onDelete }: DeleteHabitButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const router = useRouter();
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const openConfirmModal = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+    setIsConfirmOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setIsConfirmOpen(false);
+  };
+
+  const handleDelete = async () => {
     if (isDeleting) return;
-    
-    if (!confirm("Biztosan törölni szeretnéd ezt a szokást?")) {
-      return;
-    }
     
     try {
       setIsDeleting(true);
@@ -53,16 +58,24 @@ export function DeleteHabitButton({ habitId, onDelete }: DeleteHabitButtonProps)
   };
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
-      onClick={handleDelete}
-      disabled={isDeleting}
-      className="h-8 w-8 p-0 hover:text-destructive hover:bg-destructive/10"
-      title="Szokás törlése"
-    >
-      <Trash2 className="h-4 w-4" />
-      <span className="sr-only">Szokás törlése</span>
-    </Button>
+    <>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={openConfirmModal}
+        disabled={isDeleting}
+        className="h-8 w-8 p-0 hover:text-destructive hover:bg-destructive/10"
+        title="Szokás törlése"
+      >
+        <Trash2 className="h-4 w-4" />
+        <span className="sr-only">Szokás törlése</span>
+      </Button>
+
+      <HabitDeleteConfirmationModal
+        isOpen={isConfirmOpen}
+        onClose={closeConfirmModal}
+        onConfirm={handleDelete}
+      />
+    </>
   );
-} 
+}
