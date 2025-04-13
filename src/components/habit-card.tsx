@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "./ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { DeleteHabitButton } from "./DeleteHabitButton";
 import { EditHabitButton } from "./EditHabitButton";
 import { HabitCardProps } from "@/types/HabitCardProps";
@@ -47,7 +47,7 @@ export function HabitCard({
   const [entryId, setEntryId] = useState<string | null>(null);
   const [isWithin24Hours, setIsWithin24Hours] = useState<boolean>(false);
   const [streak, setStreak] = useState<number>(0);
-  let originalStreak = 0;
+  const originalStreakRef = useRef<number>(0);
 
   useEffect(() => {
     const habit = {
@@ -62,9 +62,8 @@ export function HabitCard({
 
     const completionInfo = isHabitCompletedOnDate(habit);
     const currentStreak = calculateHabitStreak(habit); 
-    originalStreak = currentStreak;
+    originalStreakRef.current = currentStreak;
     
-
     setStreak(currentStreak); 
 
     if (completionInfo.isCompleted) {
