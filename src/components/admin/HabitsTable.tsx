@@ -200,8 +200,9 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                         <Badge 
                           variant={
                             habit.habit_names?.habit_name_status === "approved" ? "success" :
-                            habit.habit_names?.habit_name_status === "private" ? "secondary" : "default"
-                          } 
+                            habit.habit_names?.habit_name_status === "private" ? "secondary" :
+                            habit.habit_names?.habit_name_status === "new" ? "primary" : "default"
+                          }
                           className="font-medium"
                         >
                           {habit.habit_names?.habit_name_status === "new" ? "Új" :
