@@ -14,7 +14,8 @@ export default function Forbidden() {
               403 - A róka nem enged be!
             </h1>
             <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-              Úgy tűnik, nincs jogosultságod ehhez az oldalhoz. A róka őrzi a kerítést, és nem enged be senkit megfelelő belépőjegy nélkül.
+            <em>Régi róka hamis cselt vet.</em> <br/>
+              Úgy tűnik, nincs jogosultságod ehhez az oldalhoz. Ha szerinted ez hiba, vedd fel velünk a kapcsolatot a info@foxhabits.com-on.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <Link href="/">

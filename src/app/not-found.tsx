@@ -18,7 +18,8 @@ export default async function NotFound() {
               404 - A róka eltévedt!
             </h1>
             <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-              Hoppá! Úgy tűnik, hogy egy nem létező oldalt keresel. Talán a róka elrejtette, vagy csak eltévedtél az erdőben?
+              <em>Régi róka hamis cselt vet.</em> <br />
+              Az oldal nem található!
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <Link href="/">

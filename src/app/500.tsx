@@ -14,7 +14,9 @@ export default function ServerError() {
               500 - A szerver rókaüregbe esett!
             </h1>
             <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-              A szerver úgy döntött, hogy egy kis szünetet tart. Valószínűleg épp rókakölykökkel játszik, vagy csak elment egy kis harapnivalóért.
+              <em>Alvó róka nem fog csirkét.</em> <br/>
+              A szerver úgy döntött, hogy egy kis szünetet tart. <br/>
+              Ha a hiba továbbra is fennáll kérjük jelezd nekünk az info@foxhabits.com e-mail címen.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <Link href="/">

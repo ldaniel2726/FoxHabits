@@ -23,8 +23,9 @@ export default function Error({error, reset}: {
           Hiba történt!
         </h1>
         <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-          A róka elbotlott valamin... Valószínűleg egy teknősön, aki épp aludt az úton.
-          Lehet, hogy a teknős programozni tanul, és ez egy bug.
+          <em>Kevés róka kerüli el a csávát.</em> <br />
+          Valami hiba történt az oldal betöltésekor. <br />
+
         </p>
         <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
           <Button
