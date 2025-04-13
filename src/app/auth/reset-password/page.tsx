@@ -22,14 +22,11 @@ export default function ResetPasswordPage() {
   const supabase = createClient();
 
   useEffect(() => {
-    console.log("All search params:", Object.fromEntries(searchParams.entries()));
+    // Check for the token in the URL
+    const token = searchParams.get('token');
     const type = searchParams.get('type');
-    const accessToken = searchParams.get('access_token');
     
-    console.log("Type:", type);
-    console.log("Access Token:", accessToken);
-    
-    if (type !== 'recovery' || !accessToken) {
+    if (type !== 'recovery' || !token) {
       toast.error("Érvénytelen vagy lejárt jelszó-visszaállító link");
       router.push('/login');
     }
@@ -55,17 +52,31 @@ export default function ResetPasswordPage() {
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({ password });
+    try {
+      // Get the token from the URL
+      const token = searchParams.get('token');
+      
+      // Update the user's password using the token
+      const { error } = await supabase.auth.updateUser({ 
+        password: password,
+      }, {
+        // Pass the token to authenticate the password reset
+        emailRedirectTo: window.location.origin
+      });
 
-    if (error) {
-      console.log(error)
-      toast.error("Hiba történt a jelszó módosítása során");
-    } else {
-      toast.success("Jelszó sikeresen módosítva!");
-      router.push("/login");
+      if (error) {
+        console.error("Password reset error:", error);
+        toast.error("Hiba történt a jelszó módosítása során: " + error.message);
+      } else {
+        toast.success("Jelszó sikeresen módosítva!");
+        router.push("/login");
+      }
+    } catch (error) {
+      console.error("Unexpected error during password reset:", error);
+      toast.error("Váratlan hiba történt a jelszó módosítása során");
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   }
 
   return (

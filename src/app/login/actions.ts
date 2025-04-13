@@ -81,11 +81,13 @@ export async function resetPassword(formData: FormData) {
     return { error: "Email cím megadása kötelező." };
   }
 
+  // Update the redirectTo to point to our callback route which will handle the token
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: "https://foxhabits.com/auth/reset-password",
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
   });
 
   if (error) {
+    console.error("Password reset email error:", error);
     return {
       error:
         "Hiba történt a jelszó visszaállítása során. Kérjük próbálja újra.",
