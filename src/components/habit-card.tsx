@@ -48,6 +48,7 @@ export function HabitCard({
   const [isWithin24Hours, setIsWithin24Hours] = useState<boolean>(false);
   const [streak, setStreak] = useState<number>(0);
   const originalStreakRef = useRef<number>(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false); 
 
   useEffect(() => {
     const habit = {
@@ -67,19 +68,19 @@ export function HabitCard({
     setStreak(currentStreak); 
 
     if (completionInfo.isCompleted) {
-    const lastEntry = entries.findLast(entry => entry.entry_type === 'done');
-    if (lastEntry) {
-      const entryDate = new Date(lastEntry.datetime.replace(' ', 'T'));
-      const hoursSinceEntry = differenceInHours(new Date(), entryDate);
-      
-      setIsWithin24Hours(hoursSinceEntry < 24);
-      
-      setStatus({
-        type: 'done',
-        time: lastEntry.datetime
-      });
-      setEntryId(lastEntry.entry_id.toString());
-    }
+      const lastEntry = entries.findLast(entry => entry.entry_type === 'done');
+      if (lastEntry) {
+        const entryDate = new Date(lastEntry.datetime.replace(' ', 'T'));
+        const hoursSinceEntry = differenceInHours(new Date(), entryDate);
+        
+        setIsWithin24Hours(hoursSinceEntry < 24);
+        
+        setStatus({
+          type: 'done',
+          time: lastEntry.datetime
+        });
+        setEntryId(lastEntry.entry_id.toString());
+      }
     } else if (completionInfo.isSkipped) {
       const lastEntry = entries.find(entry => entry.entry_type === 'skipped');
       if (lastEntry) {
@@ -114,6 +115,7 @@ export function HabitCard({
   const handleSkip = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsLoading(true);
     try {
       console.log("Skipping habit:", habit_id);
       const response = await fetch(`/api/entries/habit/${habit_id}`, {
@@ -141,18 +143,20 @@ export function HabitCard({
         time: new Date().toISOString()
       });
 
-
       if (responseData.data && responseData.data[0]) {
         setEntryId(responseData.data[0].entry_id.toString());
       }
     } catch (error) {
       console.error("Error skipping habit:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleComplete = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsLoading(true); 
     try {
       console.log("Completing habit:", habit_id);
       const response = await fetch(`/api/entries/habit/${habit_id}`, {
@@ -221,6 +225,8 @@ export function HabitCard({
       }, 0);
     } catch (error) {
       console.error("Error completing habit:", error);
+    } finally {
+      setIsLoading(false); 
     }
   };
 
@@ -228,6 +234,7 @@ export function HabitCard({
     e.preventDefault();
     e.stopPropagation();
     if (!entryId) return;
+    setIsLoading(true);
 
     try {
       console.log("Undoing habit entry:", entryId);
@@ -269,7 +276,7 @@ export function HabitCard({
       });
       setEntryId(null);
       
-      // Force a re-render to update the UI
+
       setTimeout(() => {
         const streakElement = document.querySelector(`[data-habit-id="${habit_id}"] .streak-value`);
         if (streakElement) {
@@ -278,12 +285,13 @@ export function HabitCard({
       }, 0);
     } catch (error) {
       console.error("Error undoing habit entry:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const cardStyle = () => {
     let baseStyle = "w-full transition-all";
-
 
     if (status.type === "done" && (habit_type !== "bad_habit" || isWithin24Hours)) {
       baseStyle += " opacity-70 order-last";
@@ -327,7 +335,6 @@ export function HabitCard({
       return <CheckIcon className="h-4 w-4" />;
     }
   };
-
 
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -375,7 +382,6 @@ export function HabitCard({
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-1 sm:space-y-0 sm:space-x-2">
             <Repeat className="h-4 w-4 text-muted-foreground" />
             <span>
-              
               Minden {interval !== 1 && `${interval + "."} `}{" "}
               {translations[habit_interval_type] || habit_interval_type}
             </span>
@@ -413,17 +419,17 @@ export function HabitCard({
           </div>
           <div className="flex items-center space-x-2 ml-auto" onClick={(e) => e.stopPropagation()}>
             {(status.type && !(habit_type === "bad_habit" && status.type === "done" && !isWithin24Hours)) ? (
-              <Button variant="outline" onClick={handleUndo}>
+              <Button variant="outline" onClick={handleUndo} disabled={isLoading}>
                 <Undo2 className="h-4 w-4" />
               </Button>
             ) : (
               <>
                 {habit_type !== "bad_habit" && (
-                  <Button variant="outline" onClick={handleSkip}>
+                  <Button variant="outline" onClick={handleSkip} disabled={isLoading}>
                     <ForwardIcon className="h-4 w-4" />
                   </Button>
                 )}
-                <Button variant="outline" onClick={handleComplete}>
+                <Button variant="outline" onClick={handleComplete} disabled={isLoading}>
                   <CompleteButtonIcon />
                 </Button>
               </>
