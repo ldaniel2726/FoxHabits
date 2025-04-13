@@ -363,10 +363,12 @@ export function HabitCard({
                 <Badge className="ml-1.5" variant={is_active ? "default" : "secondary"}>
                   {is_active ? "Aktív" : "Inaktív"}
                 </Badge>
-                <Badge className="ml-1.5 border-orange-700 text-orange-700 font-bold" variant="outline">
-                  <FlameIcon className="h-4 w-4" />
-                  {habit_type === "normal_habit" ? streak : timeFromLastLog ? Math.floor(timeFromLastLog / (1000 * 60 * 60 * 24)) : 0}{" "}
-                </Badge>
+                {is_active && (
+                  <Badge className="ml-1.5 border-orange-700 text-orange-700 font-bold" variant="outline">
+                    <FlameIcon className="h-4 w-4" />
+                    {habit_type === "normal_habit" ? streak : timeFromLastLog ? Math.floor(timeFromLastLog / (1000 * 60 * 60 * 24)) : 0}{" "}
+                  </Badge>
+                )}
               </div>
             </CardTitle>
           </div>
@@ -417,24 +419,26 @@ export function HabitCard({
               Létrehozva: {format(new Date(created_date), "yyyy MMMM d.")}
             </span>
           </div>
-          <div className="flex items-center space-x-2 ml-auto" onClick={(e) => e.stopPropagation()}>
-            {(status.type && !(habit_type === "bad_habit" && status.type === "done" && !isWithin24Hours)) ? (
-              <Button variant="outline" onClick={handleUndo} disabled={isLoading}>
-                <Undo2 className="h-4 w-4" />
-              </Button>
-            ) : (
-              <>
-                {habit_type !== "bad_habit" && (
-                  <Button variant="outline" onClick={handleSkip} disabled={isLoading}>
-                    <ForwardIcon className="h-4 w-4" />
-                  </Button>
-                )}
-                <Button variant="outline" onClick={handleComplete} disabled={isLoading}>
-                  <CompleteButtonIcon />
+          {is_active && (
+            <div className="flex items-center space-x-2 ml-auto" onClick={(e) => e.stopPropagation()}>
+              {(status.type && !(habit_type === "bad_habit" && status.type === "done" && !isWithin24Hours)) ? (
+                <Button variant="outline" onClick={handleUndo} disabled={isLoading}>
+                  <Undo2 className="h-4 w-4" />
                 </Button>
-              </>
-            )}
-          </div>
+              ) : (
+                <>
+                  {habit_type !== "bad_habit" && (
+                    <Button variant="outline" onClick={handleSkip} disabled={isLoading}>
+                      <ForwardIcon className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button variant="outline" onClick={handleComplete} disabled={isLoading}>
+                    <CompleteButtonIcon />
+                  </Button>
+                </>
+              )}
+            </div>
+          )}
         </CardFooter>
       </Card>
     </div>
