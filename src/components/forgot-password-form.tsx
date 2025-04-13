@@ -14,10 +14,12 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { resetPassword } from "@/app/login/actions";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function ForgotPasswordForm() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -34,6 +36,7 @@ export function ForgotPasswordForm() {
       toast.error(response.error);
     } else {
       toast.success("Jelszó visszaállítási link elküldve az email címére!");
+      router.push("/login");
     }
   }
 
