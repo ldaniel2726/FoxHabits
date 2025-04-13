@@ -181,7 +181,17 @@ export async function PATCH(request: Request) {
       }
     }
 
-    const updates: Record<string, any> = {};
+    type HabitUpdate = {
+      habit_name_id?: number;
+      habit_type?: 'normal_habit' | 'bad_habit';
+      interval?: number;
+      habit_interval_type?: 'hours' | 'days' | 'weeks' | 'months' | 'years';
+      start_date?: string;
+      is_active?: boolean;
+      related_user_id?: string;
+    };
+
+    const updates: HabitUpdate = {};
     let habit_name_id;
 
     if (validatedData.habit_name) {
