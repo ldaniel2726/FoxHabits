@@ -31,7 +31,7 @@ import { useState, useEffect } from "react";
 import { DeleteHabitButton } from "./DeleteHabitButton";
 import { EditHabitButton } from "./EditHabitButton";
 import { HabitCardProps } from "@/types/HabitCardProps";
-import { isHabitCompletedOnDate } from "@/utils/habit-utils";
+import { calculateHabitStreak, isHabitCompletedOnDate } from "@/utils/habit-utils";
 
 export function HabitCard({
   habit_id,
@@ -50,6 +50,7 @@ export function HabitCard({
   });
   const [entryId, setEntryId] = useState<string | null>(null);
   const [isWithin24Hours, setIsWithin24Hours] = useState<boolean>(false);
+  const [streak, setStreak] = useState<number>(0);
 
   useEffect(() => {
     const habit = {
@@ -63,6 +64,9 @@ export function HabitCard({
     };
 
     const completionInfo = isHabitCompletedOnDate(habit);
+    const currentStreak = calculateHabitStreak(habit); // Calculate streak
+
+    setStreak(currentStreak); // Update streak state
 
     if (completionInfo.isCompleted) {
       const lastEntry = entries.findLast(entry => entry.entry_type === 'done');
@@ -99,8 +103,6 @@ export function HabitCard({
   };
 
   let timeFromLastLog;
-
-  const streak = 10;
 
   if (entries.length > 0) {
     const lastEntry = entries[entries.length - 1];
