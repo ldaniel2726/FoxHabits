@@ -14,6 +14,14 @@ const fontMono = GeistMono;
 export const metadata: Metadata = {
   title: "FoxHabits",
   description: "A FoxHabits egy webalkalmazás, amely segít a felhasználóknak megfigyelni a szokásaikat és teendőiket.",
+  icons: {
+    icon: [
+      { url: "/logo_transparent.svg", type: "image/svg+xml" },
+      { url: "/logo_transparent.svg" }
+    ],
+    shortcut: "/logo_transparent.svg",
+    apple: "/logo_transparent.svg",
+  },
 };
 
 const Header = lazy(() => import('@/components/header'));
