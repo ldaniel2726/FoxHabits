@@ -218,7 +218,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                       <TableCell className="px-4 py-3">
                         <Badge
                           variant={habit.habit_type === "bad_habit" ? "destructive" : "outline"}
-                          className={`font-medium text-black dark:text-white ${habit.habit_type === "normal_habit" ? "border-green-700" : ""}`}
+                          className={`font-medium text-black ${habit.habit_type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
                         >
                           {translateHabitType(habit.habit_type)}
                         </Badge>
@@ -351,7 +351,7 @@ export function HabitsTable({ habits }: HabitsTableProps) {
                           <p className="text-muted-foreground">Típus:</p>
                           <Badge 
                             variant={habit.habit_type === "bad_habit" ? "destructive" : "outline"}
-                            className={`font-medium text-black dark:text-white ${habit.habit_type === "normal_habit" ? "border-green-700" : ""}`}
+                            className={`font-medium text-black ${habit.habit_type === "normal_habit" ? "border-green-700 text-gray-900 dark:text-white" : "text-white"}`}
                           >
                             {translateHabitType(habit.habit_type)}
                           </Badge>

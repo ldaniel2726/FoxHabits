@@ -156,7 +156,7 @@ export default function Page() {
               <p className="text-lg mb-6 text-gray-500">
                 {habits.length} szokás található
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
                 {habits.map((habit: HabitCardProps) => (
                   <HabitCard key={habit.habit_id} {...habit} />
                 ))}

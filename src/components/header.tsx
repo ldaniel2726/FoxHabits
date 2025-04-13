@@ -96,9 +96,9 @@ export default function Header({ data }: { data: { user: User | null } }) {
                   className="group inline-flex h-9 w-max items-center justify-center rounded-md p-4 text-base font-medium transition-colors hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-gray-100/50 data-[state=open]:bg-gray-100/50 dark:bg-gray-950 dark:hover:bg-gray-800 dark:hover:text-gray-50 dark:focus:bg-gray-800 dark:focus:text-gray-50 dark:data-[active]:bg-gray-800/50 dark:data-[state=open]:bg-gray-800/50"
                   prefetch={false}
                 >
-                  <Button variant="ghost" className="justify-self-end hover:bg-transparent">
+                  <Button variant="ghost" className="justify-self-end hover:bg-transparent p-0">
                     {data.user?.user_metadata.name}
-                    <Avatar className="w-8 h-8">
+                    <Avatar className="h-8 w-8">
                       <AvatarImage src={imgSrc} alt="Avatar" />
                       <AvatarFallback>{data.user?.user_metadata.name.charAt(0).toUpperCase() + data.user?.user_metadata.name.charAt(1).toUpperCase()}</AvatarFallback>
                     </Avatar>
