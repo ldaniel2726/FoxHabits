@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     
     console.log(error)
 
-    return NextResponse.redirect(`${origin}/reset-password?token_hash=${token}&type=email`);
+    return NextResponse.redirect(`${origin}/auth/reset-password?token_hash=${token}&type=email`);
     
     /*if (!error) {
       return NextResponse.redirect(`${origin}/reset-password?token_hash=${token}&type=email`);
