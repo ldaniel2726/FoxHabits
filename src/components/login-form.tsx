@@ -59,7 +59,7 @@ export function LoginForm() {
       </CardHeader>
       <CardContent>
         {isBanned && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-4 max-w-md mx-auto">
             <ShieldAlert className="h-4 w-4" />
             <AlertTitle>Fiók tiltva</AlertTitle>
             <AlertDescription>
