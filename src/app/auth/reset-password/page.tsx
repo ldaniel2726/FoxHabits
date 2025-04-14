@@ -25,7 +25,7 @@ export default function ResetPasswordPage() {
     console.log('RESET PASSWORD PAGE LOADED');
     console.log('Search params:', Object.fromEntries(searchParams.entries()));
     
-    const token = searchParams.get('token_hash');
+    const token = searchParams.get('token');
     const type = searchParams.get('type');
     
     console.log('Token hash:', token);
