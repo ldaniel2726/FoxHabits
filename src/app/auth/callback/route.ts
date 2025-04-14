@@ -9,6 +9,8 @@ export async function GET(request: Request) {
   if (token && type === 'email') {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(token)
+
+    console.log(error)
     
     if (!error) {
       return NextResponse.redirect(`${origin}/reset-password?token_hash=${token}&type=email`);
