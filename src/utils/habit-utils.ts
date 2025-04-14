@@ -133,49 +133,6 @@ export function isHabitCompletedExactDay(habit: Habit, date: Date = new Date()):
   };
 }
 
-export function isHabitCompletedForPeriod(
-  habit: Habit, 
-  periodStart: Date, 
-  periodEnd: Date
-): {
-  completedDays: [number, number, number]; // [completed, skipped, total]
-} {
-  const startDate = startOfDay(periodStart);
-  const endDate = endOfDay(periodEnd);
-  
-  const habitStartDate = startOfDay(new Date(habit.start_date));
-  
-  if (habitStartDate > endDate) {
-    return {
-      completedDays: [0, 0, 0]
-    };
-  }
-  
-  const effectiveStartDate = habitStartDate > startDate ? habitStartDate : startDate;
-  
-  const totalDaysInPeriod = differenceInDays(endDate, effectiveStartDate) + 1;
-  
-  const completedEntries = habit.entries.filter(entry => {
-    const entryDate = new Date(entry.datetime);
-    return entryDate >= effectiveStartDate && 
-           entryDate <= endDate && 
-           entry.entry_type === 'done';
-  });
-  
-  const skippedEntries = habit.entries.filter(entry => {
-    const entryDate = new Date(entry.datetime);
-    return entryDate >= effectiveStartDate && 
-           entryDate <= endDate && 
-           entry.entry_type === 'skipped';
-  });
-  
-  const completedCount = completedEntries.length;
-  const skippedCount = skippedEntries.length;
-  
-  return {
-    completedDays: [completedCount, skippedCount, totalDaysInPeriod]
-  };
-}
 
 export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date()): number {
   if (!habit.entries.length) return 0;
@@ -244,7 +201,9 @@ export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date(
       break;
     }
 
-    streak++;
+    if (!isTodaySkipped) {
+      streak++;
+    }
     
     dateToCheck = addInterval(periodStart, habit.habit_interval_type, -habit.interval);
     
