@@ -78,7 +78,7 @@ export function HabitsWithFilters({ habits }: HabitsWithFiltersProps) {
                 </div>
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Típus szerint</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex gap-2">
                     <Button 
                       variant={typeFilter === "all" ? "default" : "outline"}
                       size="sm"
@@ -91,14 +91,14 @@ export function HabitsWithFilters({ habits }: HabitsWithFiltersProps) {
                       size="sm"
                       onClick={() => setTypeFilter("good")}
                     >
-                      Jó szokások
+                      Hasznos
                     </Button>
                     <Button 
                       variant={typeFilter === "bad" ? "default" : "outline"}
                       size="sm"
                       onClick={() => setTypeFilter("bad")}
                     >
-                      Rossz szokások
+                      Ártó
                     </Button>
                   </div>
                 </div>
