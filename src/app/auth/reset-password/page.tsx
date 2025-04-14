@@ -64,6 +64,7 @@ export default function ResetPasswordPage() {
       toast.success("Jelszó sikeresen módosítva!");
       router.push("/login");
     } catch (error) {
+      console.error("Error resetting password:", error);
       toast.error("Váratlan hiba történt a jelszó módosítása során");
     } finally {
       setIsLoading(false);
