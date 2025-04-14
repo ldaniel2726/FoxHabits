@@ -1,4 +1,3 @@
-import { z } from "zod";
 import {
   Card,
   CardContent,
@@ -7,9 +6,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import HabitCreateFormComponent from "@/components/habit-create-form";
-import { habitFormSchema } from "@/types/HabitFormSchema";
-
-type FormSchema = z.infer<typeof habitFormSchema>;
 
 export default function HabitCreatePage() {
   return (

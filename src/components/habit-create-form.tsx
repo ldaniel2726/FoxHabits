@@ -13,18 +13,64 @@ import {
   SelectItem,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createHabitFormSchema } from "@/types/HabitFormSchema";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 type FormSchema = z.infer<typeof createHabitFormSchema>;
 
 export default function HabitCreateFormComponent() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedHabitType, setSelectedHabitType] = useState<"normal_habit" | "bad_habit">("normal_habit");
+  const [approvedHabits, setApprovedHabits] = useState<{ habit_name: string }[]>([]);
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
+  const [filteredHabits, setFilteredHabits] = useState<{ habit_name: string }[]>([]);
   const router = useRouter();
+  
+  useEffect(() => {
+    const fetchApprovedHabits = async () => {
+      try {
+        const response = await fetch("/api/habits/approved-names");
+        if (response.ok) {
+          const data = await response.json();
+          setApprovedHabits(data);
+          setFilteredHabits(data);
+        }
+      } catch (error) {
+        console.error("Error fetching approved habits:", error);
+      }
+    };
+    
+    fetchApprovedHabits();
+  }, []);
+  
+  useEffect(() => {
+    if (inputValue) {
+      const filtered = approvedHabits.filter(habit => 
+        habit.habit_name.toLowerCase().includes(inputValue.toLowerCase())
+      );
+      setFilteredHabits(filtered);
+    } else {
+      setFilteredHabits(approvedHabits);
+    }
+  }, [inputValue, approvedHabits]);
 
- 
   const {
     register,
     handleSubmit,
@@ -71,7 +117,55 @@ export default function HabitCreateFormComponent() {
     }} className="space-y-6">
       <div>
         <Label htmlFor="habit_name">Szokás neve</Label>
-        <Input id="habit_name" {...register("habit_names")} />
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className="w-full justify-between"
+            >
+              {inputValue || "Válassz vagy írj be egy szokást..."}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" style={{ width: 'var(--radix-popover-trigger-width)' }}>
+            <Command>
+              <CommandInput 
+                placeholder="Keresés..." 
+                value={inputValue}
+                onValueChange={(value) => {
+                  setInputValue(value);
+                  setValue("habit_names", value);
+                }}
+              />
+              <CommandList>
+                <CommandEmpty>Nincs találat</CommandEmpty>
+                <CommandGroup>
+                  {filteredHabits.map((habit) => (
+                    <CommandItem
+                      key={habit.habit_name}
+                      value={habit.habit_name}
+                      onSelect={(currentValue) => {
+                        setValue("habit_names", currentValue);
+                        setInputValue(currentValue);
+                        setOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          inputValue === habit.habit_name ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                      {habit.habit_name}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
         {errors.habit_names && (
           <p className="text-red-500">{errors.habit_names.message}</p>
         )}
