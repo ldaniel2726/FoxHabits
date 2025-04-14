@@ -16,7 +16,7 @@ export default function ServerError() {
             <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
               <em>Alvó róka nem fog csirkét.</em> <br/>
               A szerver úgy döntött, hogy egy kis szünetet tart. <br/>
-              Ha a hiba továbbra is fennáll kérjük jelezd nekünk az info@foxhabits.com e-mail címen.
+              Ha a hiba továbbra is fennáll kérjük jelezd nekünk az foxhabits@zente.org e-mail címen.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <Link href="/">

@@ -26,7 +26,7 @@ export default function GlobalError({error, reset}: {
             <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
               <em>Kevés róka kerüli el a csávát.</em><br/>
               Úgy tűnik, egy hibába futottál. A rókák dolgoznak a hiba elhárításán.<br/>
-              Ha a hiba továbbra is fennáll, írj az info@foxhabits.com-ra
+              Ha a hiba továbbra is fennáll, írj az foxhabits@zente.org-ra
             </p>
             <div className="mt-8 flex justify-center">
               <Button
