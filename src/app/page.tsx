@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BadgeCheck, Bell, BarChart3, ArrowRight, Lightbulb, Smile, Plus, Check, ChartBar } from "lucide-react";
+import { BadgeCheck, Bell, BarChart3, ArrowRight, Lightbulb, Smile, Plus, Check, ChartBar, ListTodoIcon } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 
 export default async function Home() {
@@ -87,11 +87,11 @@ export default async function Home() {
                     </Card>
                     <Card className="shadow-lg transition transform hover:-translate-y-1 hover:shadow-2xl duration-300 border border-orange-700">
                 <CardHeader>
-                  <Bell className="w-12 h-12 text-orange-700 mb-4 mx-auto" />
-                  <CardTitle>Emlékeztetők</CardTitle>
+                  <ListTodoIcon className="w-12 h-12 text-orange-700 mb-4 mx-auto" />
+                  <CardTitle>Gyorslisták</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-500">Személyre szabott értesítések, hogy soha ne feledkezz meg a kitűzött céljaidról és feladataidról.</p>
+                  <p className="text-gray-500">Vezesd egyszerűbb teendőidet gyorsan és hatékonyan a gyorslisták segítségével.</p>
                 </CardContent>
                     </Card>
                     <Card className="shadow-lg transition transform hover:-translate-y-1 hover:shadow-2xl duration-300 border border-orange-700">
