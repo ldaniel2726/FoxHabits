@@ -10,7 +10,9 @@ import {
   BarChart4, 
   Flame, 
   Clock,
-  PieChart
+  PieChart,
+  Ban,
+  ShieldCheck
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -45,6 +47,7 @@ export function HabitStatistics({
   entries 
 }: HabitStatisticsProps) {
   const today = new Date();
+  const isBadHabit = habitType === "bad_habit";
   
   const habit = {
     habit_id: habitId,
@@ -66,7 +69,10 @@ export function HabitStatistics({
   const totalDaysSinceStart = differenceInDays(today, startDateObj) || 1;
   const totalCompletedEntries = entries.filter(e => e.entry_type === "done").length;
   const totalSkippedEntries = entries.filter(e => e.entry_type === "skipped").length;
-  const completionRate = Math.round((totalCompletedEntries / totalDaysSinceStart) * 100);
+  
+  const completionRate = isBadHabit
+    ? Math.round(((totalDaysSinceStart - totalCompletedEntries) / totalDaysSinceStart) * 100)
+    : Math.round((totalCompletedEntries / totalDaysSinceStart) * 100);
   
   const last30Days = eachDayOfInterval({
     start: subDays(today, 29),
@@ -83,13 +89,20 @@ export function HabitStatistics({
   
   const recentActivityData = last30DaysActivity.slice(-10).map(day => ({
     name: day.date,
-    value: day.status === 'completed' ? 1 : 0,
+    value: isBadHabit 
+      ? day.status === 'completed' ? 0 : 1  
+      : day.status === 'completed' ? 1 : 0,
   }));
+
+  const successLabel = isBadHabit ? 'Elkerülve' : 'Teljesítve';
+  const failureLabel = isBadHabit ? 'Megtörtént' : 'Elmulasztva';
+  const successCount = isBadHabit ? totalDaysSinceStart - totalCompletedEntries : totalCompletedEntries;
+  const failureCount = isBadHabit ? totalCompletedEntries : totalDaysSinceStart - totalCompletedEntries - totalSkippedEntries;
   
   const completionStats = [
-    { name: 'Teljesítve', value: totalCompletedEntries, color: '#22c55e' },
+    { name: successLabel, value: successCount, color: '#22c55e' },
     { name: 'Kihagyva', value: totalSkippedEntries, color: '#3b82f6' },
-    { name: 'Elmulasztva', value: Math.max(0, totalDaysSinceStart - totalCompletedEntries - totalSkippedEntries), color: '#ef4444' }
+    { name: failureLabel, value: failureCount, color: '#ef4444' }
   ];
 
   const filteredCompletionStats = completionStats.filter(item => item.value > 0);
@@ -100,7 +113,7 @@ export function HabitStatistics({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart4 className="h-5 w-5" />
-            Szokás statisztikák
+            Szokás statisztikák {isBadHabit && '(Káros szokás)'}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -109,7 +122,9 @@ export function HabitStatistics({
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center justify-center text-center">
                   <Flame className="h-8 w-8 text-orange-500 mb-2" />
-                  <h3 className="text-lg font-medium">Jelenlegi sorozat</h3>
+                  <h3 className="text-lg font-medium">
+                    {isBadHabit ? 'Elkerülési sorozat' : 'Jelenlegi sorozat'}
+                  </h3>
                   <p className="text-3xl font-bold mt-1">{currentStreak}</p>
                   <p className="text-sm text-muted-foreground mt-1">egymást követő alkalom</p>
                 </div>
@@ -119,8 +134,14 @@ export function HabitStatistics({
             <Card className="bg-muted/50">
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center justify-center text-center">
-                  <PieChart className="h-8 w-8 text-blue-500 mb-2" />
-                  <h3 className="text-lg font-medium">Teljesítési arány</h3>
+                  {isBadHabit ? (
+                    <ShieldCheck className="h-8 w-8 text-emerald-500 mb-2" />
+                  ) : (
+                    <PieChart className="h-8 w-8 text-blue-500 mb-2" />
+                  )}
+                  <h3 className="text-lg font-medium">
+                    {isBadHabit ? 'Elkerülési arány' : 'Teljesítési arány'}
+                  </h3>
                   <p className="text-3xl font-bold mt-1">{completionRate}%</p>
                   <Progress className="w-full mt-2" value={completionRate} />
                 </div>
@@ -134,8 +155,12 @@ export function HabitStatistics({
                   <h3 className="text-lg font-medium">Összes bejegyzés</h3>
                   <p className="text-3xl font-bold mt-1">{entries.length}</p>
                   <div className="flex flex-wrap gap-2 justify-center mt-2">
-                    <Badge variant="default" className="bg-green-500">
-                      <CheckCircle className="mr-1 h-3 w-3" /> {totalCompletedEntries}
+                    <Badge variant="default" className={isBadHabit ? "bg-red-500" : "bg-green-500"}>
+                      {isBadHabit ? (
+                        <><Ban className="mr-1 h-3 w-3" /> {totalCompletedEntries}</>
+                      ) : (
+                        <><CheckCircle className="mr-1 h-3 w-3" /> {totalCompletedEntries}</>
+                      )}
                     </Badge>
                     <Badge variant="default" className="bg-blue-500">
                       <SkipForward className="mr-1 h-3 w-3" /> {totalSkippedEntries}
@@ -163,7 +188,10 @@ export function HabitStatistics({
                           <div className="bg-background border border-border p-2 rounded-md shadow-md">
                             <p className="text-xs text-muted-foreground">{data.name}</p>
                             <p className="font-bold text-sm">
-                              {data.value ? "Teljesítve" : "Nem teljesítve"}
+                              {isBadHabit
+                                ? data.value ? "Elkerülve" : "Megtörtént"
+                                : data.value ? "Teljesítve" : "Nem teljesítve"
+                              }
                             </p>
                           </div>
                         );
@@ -171,7 +199,7 @@ export function HabitStatistics({
                     />
                     <Bar 
                       dataKey="value" 
-                      fill="#3b82f6" 
+                      fill={isBadHabit ? "#10b981" : "#3b82f6"} 
                       radius={[4, 4, 0, 0]}
                     />
                   </BarChart>
