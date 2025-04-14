@@ -21,6 +21,16 @@ export async function resetPassword(formData: FormData, token: string) {
 
   try {
     console.log("Attempting to reset password with token");
+
+    const { data: { user }, error: verifyError } = await supabase.auth.verifyOtp({
+        token_hash: token,
+        type: 'recovery'
+    });
+
+    if (verifyError || !user) {
+        console.error("Token verification error:", verifyError);
+        return { error: "Érvénytelen vagy lejárt jelszó-visszaállító token." };
+    }
     
     // Use the token to update the user's password
     const { error } = await supabase.auth.updateUser({
