@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,7 +19,6 @@ export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClient();
 
   useEffect(() => {
     console.log('Search params:', Object.fromEntries(searchParams.entries()));
