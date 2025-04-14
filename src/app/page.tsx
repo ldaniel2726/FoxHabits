@@ -7,7 +7,7 @@ import { createClient } from "@/utils/supabase/server";
 import { ErrorToast } from "@/components/error-toast";
 
 type Props = {
-  params: Record<string, never>;
+  params: Promise<Record<string, string>>;
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
