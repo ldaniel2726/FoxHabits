@@ -99,10 +99,14 @@ export function HabitStatistics({
   const successCount = isBadHabit ? totalDaysSinceStart - totalCompletedEntries : totalCompletedEntries;
   const failureCount = isBadHabit ? totalCompletedEntries : totalDaysSinceStart - totalCompletedEntries - totalSkippedEntries;
   
+  const successColor = '#22c55e';
+  const skipColor = '#3b82f6';
+  const failureColor = '#ef4444';
+  
   const completionStats = [
-    { name: successLabel, value: successCount, color: '#22c55e' },
-    { name: 'Kihagyva', value: totalSkippedEntries, color: '#3b82f6' },
-    { name: failureLabel, value: failureCount, color: '#ef4444' }
+    { name: successLabel, value: successCount, color: successColor },
+    { name: 'Kihagyva', value: totalSkippedEntries, color: skipColor },
+    { name: failureLabel, value: failureCount, color: failureColor }
   ];
 
   const filteredCompletionStats = completionStats.filter(item => item.value > 0);
@@ -210,12 +214,14 @@ export function HabitStatistics({
           
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Megoszlás</CardTitle>
+              <CardTitle className="text-base">
+                Megoszlás {isBadHabit && '- Elkerülés / Megtörténés'}
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col items-center justify-center">
                 {filteredCompletionStats.length > 0 ? (
-                  <div className="h-[200px] w-full max-w-md">
+                  <div className="h-[220px] w-full max-w-md">
                     <ResponsiveContainer width="100%" height="100%">
                       <RechartsPie>
                         <Pie
@@ -224,31 +230,69 @@ export function HabitStatistics({
                           nameKey="name"
                           cx="50%"
                           cy="50%"
-                          innerRadius={40}
+                          innerRadius={50}
                           outerRadius={80}
                           paddingAngle={2}
                           label={({name, percent}) => `${name}: ${(percent * 100).toFixed(0)}%`}
                           labelLine={false}
                         >
                           {filteredCompletionStats.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} stroke="rgba(255,255,255,0.2)" />
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={entry.color} 
+                              stroke="rgba(255,255,255,0.3)" 
+                              strokeWidth={2}
+                            />
                           ))}
                         </Pie>
                         <Tooltip
                           content={({ active, payload }) => {
                             if (!active || !payload?.length) return null;
                             const data = payload[0].payload;
+                            
+                            const percentage = Math.round((data.value / totalDaysSinceStart) * 100);
+                            
+                            let explanation = '';
+                            if (isBadHabit) {
+                              if (data.name === successLabel) {
+                                explanation = 'Sikeresen elkerülted a káros szokást';
+                              } else if (data.name === failureLabel) {
+                                explanation = 'Megtörtént a káros szokás';
+                              } else {
+                                explanation = 'Kihagytad a naplózást';
+                              }
+                            } else {
+                              if (data.name === successLabel) {
+                                explanation = 'Sikeresen elvégezted a szokást';
+                              } else if (data.name === failureLabel) {
+                                explanation = 'Elmulasztottad a szokást';
+                              } else {
+                                explanation = 'Kihagytad a naplózást';
+                              }
+                            }
+                            
                             return (
-                              <div className="bg-background border border-border p-2 rounded-md shadow-md">
-                                <p className="text-xs text-foreground">{data.name}</p>
-                                <p className="font-bold text-sm">
-                                  {data.value} ({Math.round((data.value / totalDaysSinceStart) * 100)}%)
+                              <div className="bg-background border border-border p-3 rounded-md shadow-md max-w-xs">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <div 
+                                    className="h-3 w-3 rounded-full" 
+                                    style={{ backgroundColor: data.color }}
+                                  />
+                                  <p className="font-semibold text-foreground">{data.name}</p>
+                                </div>
+                                <p className="text-sm font-bold mb-1">
+                                  {data.value} nap ({percentage}%)
                                 </p>
+                                <p className="text-xs text-muted-foreground">{explanation}</p>
                               </div>
                             );
                           }}
                         />
-                        <Legend />
+                        <Legend
+                          formatter={(value) => (
+                            <span className="text-xs">{value}</span>
+                          )}
+                        />
                       </RechartsPie>
                     </ResponsiveContainer>
                   </div>
