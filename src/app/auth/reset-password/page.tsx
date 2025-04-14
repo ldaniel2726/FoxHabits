@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     console.log('Search params:', Object.fromEntries(searchParams.entries()));
     
-    const token = searchParams.get('token');
+    const token = searchParams.get('token_hash');
     const type = searchParams.get('type');
     
     if (type !== 'email' || !token) {
