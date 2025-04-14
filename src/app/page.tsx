@@ -6,11 +6,14 @@ import { BadgeCheck, Bell, BarChart3, ArrowRight, Lightbulb, Smile, Plus, Check,
 import { createClient } from "@/utils/supabase/server";
 import { ErrorToast } from "@/components/error-toast";
 
+type Props = {
+  params: {};
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
 export default async function Home({
   searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
+}: Props) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
