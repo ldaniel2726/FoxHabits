@@ -24,7 +24,7 @@ export default function Error({error, reset}: {
         </h1>
         <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
           <em>Kevés róka kerüli el a csávát.</em> <br />
-          Valami hiba történt az oldal betöltésekor. <br />
+          Valami hiba történt az oldal betöltésekor. 
 
         </p>
         <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">

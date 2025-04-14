@@ -117,13 +117,6 @@ test('Test daily habit with entry with the appropriate date done at start of the
   expect(isCompletedResult.isSkipped).toBe(false);
 });
 
-// test('Test daily habit with entry with the appropriate date done at end of the day', () => {
-//   const isCompletedResult = isHabitCompletedOnDate(
-//     dailyNormalHabitWithEntry, new Date('2025-03-02T23:59:59.999+00:00'))
-//   expect(isCompletedResult.isCompleted).toBe(true);
-//   expect(isCompletedResult.isSkipped).toBe(false);
-// });
-
 test('Test daily habit with entry with the appropriate date skipped', () => {
   const isCompletedResult = isHabitCompletedOnDate(
     dailyNormalHabitWithEntry, new Date('2025-03-04T09:27:00+00:00'))
@@ -172,27 +165,3 @@ test('Test weekly habit with entry with the appropriate date done in the week 2'
   expect(isCompletedResult.isCompleted).toBe(true);
   expect(isCompletedResult.isSkipped).toBe(false);
 });
- 
-
-
-// test('Test weekly habit with entry with the appropriate date done at end of the week', () => {
-//   const isCompletedResult = isHabitCompletedOnDate(
-//     weeklyNormalHabitWithEntry, new Date('2025-03-08T23:59:59.999+00:00'))
-//   expect(isCompletedResult.isCompleted).toBe(true);
-//   expect(isCompletedResult.isSkipped).toBe(false);
-// });
-
-// test('Test weekly habit with entry with the appropriate date skipped', () => {
-//   const isCompletedResult = isHabitCompletedOnDate(
-//     weeklyNormalHabitWithEntry, new Date('2025-03-16T09:27:00+00:00'))
-//   expect(isCompletedResult.isCompleted).toBe(false);
-//   expect(isCompletedResult.isSkipped).toBe(true);
-// });
-
-// test('Test weekly habit with entry without done or skipped', () => {
-//   const isCompletedResult = isHabitCompletedOnDate(
-//     weeklyNormalHabitWithEntry, new Date('2025-03-23T09:27:00+00:00'))
-//   expect(isCompletedResult.isCompleted).toBe(false);
-//   expect(isCompletedResult.isSkipped).toBe(false);
-// });
-
