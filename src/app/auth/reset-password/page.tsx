@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -14,12 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
+import { resetPassword } from "@/app/auth/reset-password/actions";
 
 export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const supabase = createClient();
 
   useEffect(() => {
     console.log('RESET PASSWORD PAGE LOADED');
@@ -73,30 +72,8 @@ export default function ResetPasswordPage() {
       const token = searchParams.get('token_hash');
       console.log('Attempting password update with token:', token);
       
-      console.log('Supabase client initialized:', !!supabase);
       console.log('Calling supabase.auth.updateUser with password and redirect');
-      
-      const updateResult = await supabase.auth.updateUser({ 
-        password: password,
-      }, {
-        emailRedirectTo: window.location.origin
-      });
-      
-      console.log('Update user response received:', updateResult);
-      console.log('Update user data:', updateResult.data);
-      console.log('Update user error:', updateResult.error);
-
-      if (updateResult.error) {
-        console.error("Password reset error:", updateResult.error);
-        console.error("Error code:", updateResult.error.code);
-        console.error("Error message:", updateResult.error.message);
-        console.error("Full error object:", JSON.stringify(updateResult.error));
-        toast.error("Hiba történt a jelszó módosítása során: " + updateResult.error.message);
-      } else {
-        console.log('Password update successful');
-        toast.success("Jelszó sikeresen módosítva!");
-        router.push("/login");
-      }
+      await resetPassword(password);
     } catch (error) {
       console.error("Unexpected error during password reset:", error);
       if (error instanceof Error) {
