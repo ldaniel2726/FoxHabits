@@ -4,14 +4,14 @@ import { createClient } from '@/utils/supabase/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const token = searchParams.get('token_hash')
-  const next = searchParams.get('next') ?? '/'
+  const type = searchParams.get('type')
 
-  if (token) {
+  if (token && type === 'email') {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(token)
     
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      return NextResponse.redirect(`${origin}/reset-password?token_hash=${token}&type=email`);
     }
   }
 
