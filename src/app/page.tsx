@@ -2,17 +2,26 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BadgeCheck, Bell, BarChart3, ArrowRight, Lightbulb, Smile, Plus, Check, ChartBar, ListTodoIcon } from "lucide-react";
+import { BadgeCheck, Bell, BarChart3, ArrowRight, Lightbulb, Smile, Plus, Check, ChartBar, ListTodoIcon, AlertCircle } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
+import { ErrorToast } from "@/components/error-toast";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
+  const error = searchParams.error;
+  const errorDescription = searchParams.error_description;
+
   return (
     <div className="flex flex-col min-h-screen">
+      <ErrorToast error={error} errorDescription={errorDescription} />
       <main className="flex-grow">
-      <section className="bg-gradient-to-b from-white to-gray-200 dark:from-black dark:to-zinc-900 py-32 md:py-80">
+        <section className="bg-gradient-to-b from-white to-gray-200 dark:from-black dark:to-zinc-900 py-32 md:py-80">
           <div className="container mx-auto px-6 md:px-12 text-center">
             <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
               Alakítsd ki az ideális szokásaidat a <span className="text-orange-700">FoxHabits</span> segítségével
