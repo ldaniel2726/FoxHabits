@@ -81,7 +81,6 @@ export async function resetPassword(formData: FormData) {
     return { error: "Email cím megadása kötelező." };
   }
 
-  // Update the redirectTo to point to our callback route which will handle the token
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
   });
