@@ -14,26 +14,33 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 
 interface HabitsWithFiltersProps {
   habits: Habit[];
 }
 
 export function HabitsWithFilters({ habits }: HabitsWithFiltersProps) {
-  const [activeFilter, setActiveFilter] = useState("all"); // all, active, inactive
-  const [typeFilter, setTypeFilter] = useState("all"); // all, good, bad
+  const [activeFilter, setActiveFilter] = useState("all"); 
+  const [typeFilter, setTypeFilter] = useState("all");
 
-  const filteredHabits = habits.filter((habit) => {
-    // Filter by active status
-    if (activeFilter === "active" && !habit.is_active) return false;
-    if (activeFilter === "inactive" && habit.is_active) return false;
+  const filteredHabits = habits
+    .filter((habit) => {
+      if (activeFilter === "active" && !habit.is_active) return false;
+      if (activeFilter === "inactive" && habit.is_active) return false;
 
-    // Filter by habit type
-    if (typeFilter === "good" && habit.habit_type !== "normal_habit") return false;
-    if (typeFilter === "bad" && habit.habit_type !== "bad_habit") return false;
+      if (typeFilter === "good" && habit.habit_type !== "normal_habit") return false;
+      if (typeFilter === "bad" && habit.habit_type !== "bad_habit") return false;
 
-    return true;
-  });
+      return true;
+    })
+    .sort((a, b) => {
+      if (a.is_active === b.is_active) return 0;
+      return a.is_active ? -1 : 1;
+    });
+
+  const isFilterActive = activeFilter !== "all" || typeFilter !== "all";
+  const activeFilterCount = (activeFilter !== "all" ? 1 : 0) + (typeFilter !== "all" ? 1 : 0);
 
   return (
     <div className="px-4 md:px-14 py-10">
@@ -42,8 +49,16 @@ export function HabitsWithFilters({ habits }: HabitsWithFiltersProps) {
         <div className="flex gap-2 py-4 md:py-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="relative">
                 <Filter className="h-4 w-4" />
+                {isFilterActive && (
+                  <Badge 
+                    variant="secondary" 
+                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0"
+                  >
+                    {activeFilterCount}
+                  </Badge>
+                )}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
@@ -52,7 +67,7 @@ export function HabitsWithFilters({ habits }: HabitsWithFiltersProps) {
               <div className="p-2 space-y-4">
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium">Állapot szerint</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex gap-2">
                     <Button 
                       variant={activeFilter === "all" ? "default" : "outline"}
                       size="sm"
