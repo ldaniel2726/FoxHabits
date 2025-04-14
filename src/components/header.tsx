@@ -109,7 +109,11 @@ export default function Header({ data }: { data: { user: User | null } }) {
                     {data.user?.user_metadata.name}
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={imgSrc} alt="Avatar" />
-                      <AvatarFallback>{data.user?.user_metadata.name.charAt(0).toUpperCase() + data.user?.user_metadata.name.charAt(1).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>
+                        {data.user?.user_metadata.name && data.user.user_metadata.name.length > 1 
+                          ? data.user.user_metadata.name.charAt(0).toUpperCase() + data.user.user_metadata.name.charAt(1).toUpperCase() 
+                          : data.user?.user_metadata.name ? data.user.user_metadata.name.charAt(0).toUpperCase() : "U"}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </Link>
@@ -247,7 +251,11 @@ export default function Header({ data }: { data: { user: User | null } }) {
                   {data.user?.user_metadata.name}
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={imgSrc} alt="Avatar" />
-                    <AvatarFallback>{data.user?.user_metadata.name.charAt(0).toUpperCase() + data.user?.user_metadata.name.charAt(1).toUpperCase()}</AvatarFallback>
+                    <AvatarFallback>
+                      {data.user?.user_metadata.name && data.user.user_metadata.name.length > 1 
+                        ? data.user.user_metadata.name.charAt(0).toUpperCase() + data.user.user_metadata.name.charAt(1).toUpperCase() 
+                        : data.user?.user_metadata.name ? data.user.user_metadata.name.charAt(0).toUpperCase() : "U"}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </Link>

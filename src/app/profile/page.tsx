@@ -41,7 +41,9 @@ export default async function Page() {
               <Avatar className="w-20 h-20 sm:w-24 sm:h-24">
                 <AvatarImage src={imgSrc} alt="Avatar" />
                 <AvatarFallback>
-                  {user_metadata.name ? user_metadata.name.charAt(0) : "U"}
+                  {user_metadata.name && user_metadata.name.length > 1 
+                    ? user_metadata.name.charAt(0).toUpperCase() + user_metadata.name.charAt(1).toUpperCase() 
+                    : user_metadata.name ? user_metadata.name.charAt(0).toUpperCase() : "U"}
                 </AvatarFallback>
               </Avatar>
               <div className="text-center sm:text-left">
