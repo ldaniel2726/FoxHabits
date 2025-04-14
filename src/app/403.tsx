@@ -15,7 +15,7 @@ export default function Forbidden() {
             </h1>
             <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
             <em>Régi róka hamis cselt vet.</em> <br/>
-              Úgy tűnik, nincs jogosultságod ehhez az oldalhoz. Ha szerinted ez hiba, vedd fel velünk a kapcsolatot a info@foxhabits.com-on.
+              Úgy tűnik, nincs jogosultságod ehhez az oldalhoz. Ha szerinted ez hiba, vedd fel velünk a kapcsolatot a foxhabits@zente.org-on.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
               <Link href="/">

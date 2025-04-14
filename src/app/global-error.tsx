@@ -24,8 +24,9 @@ export default function GlobalError({error, reset}: {
               Kritikus hiba!
             </h1>
             <p className="mt-6 mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-              Úgy tűnik, a FoxHabits alkalmazás most épp szundikál. Lehet, hogy rókák nem dolgoznak éjszaka?
-              Vagy talán csak túl sok kávét ivott, és most túlterhelt.
+              <em>Kevés róka kerüli el a csávát.</em><br/>
+              Úgy tűnik, egy hibába futottál. A rókák dolgoznak a hiba elhárításán.<br/>
+              Ha a hiba továbbra is fennáll, írj az foxhabits@zente.org-ra
             </p>
             <div className="mt-8 flex justify-center">
               <Button

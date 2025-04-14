@@ -64,7 +64,7 @@ export function LoginForm() {
             <AlertTitle>Fiók tiltva</AlertTitle>
             <AlertDescription>
               A fiókod jelenleg tiltva van. Ha úgy gondolod, hogy ez tévedés,
-              kérjük, vedd fel a kapcsolatot az adminisztrátorral a
+              kérjük, vedd fel a kapcsolatot az adminisztrátorokkal az
               info@foxhabits.com címen.
             </AlertDescription>
           </Alert>
