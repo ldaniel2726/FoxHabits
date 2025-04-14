@@ -96,7 +96,7 @@ export async function PATCH(request: Request) {
   try {
     const habitUpdateSchema = z.object({
       habit_name: z.string().min(1).max(255).optional(),
-      habit_name_status: z.enum(["new", "private", "public", "rejected"]).optional(),
+      habit_name_status: z.enum(["new", "private", "approved", "rejected"]).optional(),
       habit_type: z.enum(["normal_habit", "bad_habit"]).optional(),
       interval: z.number().positive().optional(),
       habit_interval_type: z.enum(["hours", "days", "weeks", "months", "years"]).optional(),
@@ -170,7 +170,7 @@ export async function PATCH(request: Request) {
     if (validatedData.habit_name_status) {
       const validHabitNameStatus = ["new", "private"];
       if ([ADMIN, MODERATOR].includes(user.user_metadata?.role)) {
-        validHabitNameStatus.push("public", "rejected");
+        validHabitNameStatus.push("approved", "rejected");
       }
 
       if (!validHabitNameStatus.includes(validatedData.habit_name_status)) {
