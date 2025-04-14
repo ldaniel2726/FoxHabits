@@ -21,26 +21,18 @@ export default function ResetPasswordPage() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    console.log('RESET PASSWORD PAGE LOADED');
     console.log('Search params:', Object.fromEntries(searchParams.entries()));
     
     const token = searchParams.get('token');
     const type = searchParams.get('type');
     
-    console.log('Token hash:', token);
-    console.log('Type:', type);
-    
     if (type !== 'email' || !token) {
-      console.error('Invalid reset parameters:', { type, token });
       toast.error("Érvénytelen vagy lejárt jelszó-visszaállító link");
       router.push('/login');
-    } else {
-      console.log('Valid reset parameters detected');
     }
   }, [searchParams, router]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    console.log('PASSWORD RESET FORM SUBMITTED');
     event.preventDefault();
     setIsLoading(true);
 
@@ -48,44 +40,32 @@ export default function ResetPasswordPage() {
     const password = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
     
-    console.log('Password validation starting');
-    console.log('Password length:', password.length);
-    console.log('Has number:', /[0-9]/.test(password));
-    console.log('Has special char:', /[!@#$%^&*(),.?":{}|<>_-]/.test(password));
-    console.log('Passwords match:', password === confirmPassword);
-
     if (password !== confirmPassword) {
-      console.error('Password mismatch');
       toast.error("A jelszavak nem egyeznek");
       setIsLoading(false);
       return;
     }
 
     if (password.length < 8 || !/[0-9]/.test(password) || !/[!@#$%^&*(),.?":{}|<>_-]/.test(password)) {
-      console.error('Password does not meet requirements');
       toast.error("A jelszónak legalább 8 karakter hosszúnak kell lennie, és tartalmaznia kell legalább egy számot és egy speciális karaktert.");
       setIsLoading(false);
       return;
     }
 
     try {
-      const token = searchParams.get('token_hash');
-      console.log('Attempting password update with token:', token);
+      const updateResult = await resetPassword(formData);
       
-      console.log('Calling supabase.auth.updateUser with password and redirect');
-      await resetPassword(password);
-    } catch (error) {
-      console.error("Unexpected error during password reset:", error);
-      if (error instanceof Error) {
-        console.error("Error name:", error.name);
-        console.error("Error message:", error.message);
-        console.error("Error stack:", error.stack);
-      } else {
-        console.error("Non-Error object thrown:", error);
+      if (!updateResult.success) {
+        toast.error(updateResult.error);
+        setIsLoading(false);
+        return;
       }
+      
+      toast.success("Jelszó sikeresen módosítva!");
+      //router.push("/login");
+    } catch (error) {
       toast.error("Váratlan hiba történt a jelszó módosítása során");
     } finally {
-      console.log('Password reset attempt completed');
       setIsLoading(false);
     }
   }
@@ -127,4 +107,4 @@ export default function ResetPasswordPage() {
       </Card>
     </div>
   );
-} 
+}

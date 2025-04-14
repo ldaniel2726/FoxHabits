@@ -5,16 +5,7 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
-  const type = searchParams.get('type')
-  const token = searchParams.get('token_hash')
 
-  // Handle password reset flow
-  if (type === 'email' && token) {
-    // Redirect to the password reset page with the token
-    return NextResponse.redirect(`${origin}/auth/reset-password?token=${token}&type=${type}`)
-  }
-
-  // Handle normal authentication flow
   if (code) {
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
@@ -24,6 +15,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // Handle error
+  // todo: handle error and make an error page
   return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }

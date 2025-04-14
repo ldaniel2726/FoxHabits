@@ -1,17 +1,34 @@
-"use server"
+"use server";
 
 import { createClient } from "@/utils/supabase/server";
 
-const supabase = await createClient();
+export async function resetPassword(formData: FormData) {
+  const supabase = await createClient();
+  const password = formData.get("password") as string;
+  const confirmPassword = formData.get("confirmPassword") as string;
 
-export async function resetPassword(password: string) {
-    const updateResult = await supabase.auth.updateUser({ 
-        password: password,
+  if (!password || !confirmPassword) {
+    return { error: "Jelszó megadása kötelező." };
+  }
+
+  if (password !== confirmPassword) {
+    return { error: "A két jelszó nem egyezik." };
+  }
+
+  try {
+    const { error } = await supabase.auth.updateUser({
+      password: password,
     }, {
-        emailRedirectTo: window.location.origin
+      emailRedirectTo: window.location.origin
     });
-
-    if (updateResult.error) {
-        console.log("Password reset error:", updateResult.error)
+    
+    if (error) {
+      return { error: "Hiba történt a jelszó módosítása során." };
     }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Unexpected error in resetPassword:", error);
+    return { error: "Váratlan hiba történt. Kérjük próbálja újra később." };
+  }
 }
