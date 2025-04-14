@@ -16,7 +16,6 @@ import {
   MoreHorizontal,
   Pencil,
   Search,
-  Trash,
   Users as UsersIcon,
   ChevronDown,
   ShieldAlert,
@@ -219,6 +218,22 @@ export function UsersTable({ users }: UsersTableProps) {
     }
   };
 
+  const getAuthProvider = (user: User): string => {
+    const capitalizeFirstLetter = (string: string) => {
+      return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+    };
+    
+    if (user.app_metadata?.provider) {
+      return capitalizeFirstLetter(user.app_metadata.provider);
+    } else if (user.app_metadata?.providers && user.app_metadata.providers.length > 0) {
+      return user.app_metadata.providers
+        .map((provider: string) => capitalizeFirstLetter(provider))
+        .join(", ");
+    } else {
+      return "Email";
+    }
+  };
+
   return (
     <>
       <Card className="overflow-hidden">
@@ -266,6 +281,7 @@ export function UsersTable({ users }: UsersTableProps) {
                       <TableHead className="px-4 py-3">Név</TableHead>
                       <TableHead className="px-4 py-3">Email</TableHead>
                       <TableHead className="px-4 py-3">Szerep</TableHead>
+                      <TableHead className="px-4 py-3">Szolgáltató</TableHead>
                       <TableHead className="w-[100px] px-4 py-3">
                         Műveletek
                       </TableHead>
@@ -285,6 +301,9 @@ export function UsersTable({ users }: UsersTableProps) {
                         </TableCell>
                         <TableCell className="px-4 py-3">
                           {getUserRoleBadge(user)}
+                        </TableCell>
+                        <TableCell className="px-4 py-3">
+                          {getAuthProvider(user)}
                         </TableCell>
                         <TableCell>
                           <DropdownMenu>
@@ -451,6 +470,10 @@ export function UsersTable({ users }: UsersTableProps) {
                                 "hu-HU"
                               )}
                             </p>
+                          </div>
+                          <div>
+                            <p className="text-muted-foreground">Szolgáltató:</p>
+                            <p>{getAuthProvider(user)}</p>
                           </div>
                         </div>
                       </CollapsibleContent>
