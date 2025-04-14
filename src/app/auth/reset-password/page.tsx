@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const updateResult = await resetPassword(formData);
+      const updateResult = await resetPassword(formData, searchParams);
       
       if (!updateResult.success) {
         toast.error(updateResult.error);
