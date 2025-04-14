@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const updateResult = await resetPassword(formData);
+      const updateResult = await resetPassword(formData, searchParams);
       
       if (!updateResult.success) {
         toast.error(updateResult.error);
@@ -62,7 +62,7 @@ export default function ResetPasswordPage() {
       }
       
       toast.success("Jelszó sikeresen módosítva!");
-      //router.push("/login");
+      router.push("/login");
     } catch (error) {
       toast.error("Váratlan hiba történt a jelszó módosítása során");
     } finally {
