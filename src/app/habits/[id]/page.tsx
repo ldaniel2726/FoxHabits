@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { HabitEntries } from "@/components/HabitEntries";
 import { HabitDetailActions } from "@/components/HabitDetailActions";
+import { HabitStatistics } from "@/components/HabitStatistics";
 
 export default async function HabitPage({
   params,
@@ -119,11 +120,23 @@ export default async function HabitPage({
       </Card>
 
       <div className="max-w-3xl mx-auto">
-        <HabitEntries 
-          habitId={(await params).id} 
-          entries={habit.entries || []} 
+        <HabitStatistics
+          habitId={(await params).id}
           habitType={habit.habit_type}
+          habitName={habit.habit_names.habit_name}
+          startDate={habit.start_date}
+          interval={habit.interval}
+          intervalType={habit.habit_interval_type}
+          entries={habit.entries || []}
         />
+        
+        <div className="mt-6">
+          <HabitEntries 
+            habitId={(await params).id} 
+            entries={habit.entries || []} 
+            habitType={habit.habit_type}
+          />
+        </div>
       </div>
     </div>
   );
