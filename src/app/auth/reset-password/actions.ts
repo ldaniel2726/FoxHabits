@@ -6,6 +6,7 @@ export async function resetPassword(formData: FormData) {
   const supabase = await createClient();
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
+  const token = formData.get("token_hash") as string;
 
   if (!password || !confirmPassword) {
     return { error: "Jelszó megadása kötelező." };
@@ -15,17 +16,26 @@ export async function resetPassword(formData: FormData) {
     return { error: "A két jelszó nem egyezik." };
   }
 
+  if (!token) {
+    return { error: "Érvénytelen vagy lejárt jelszó-visszaállító token." };
+  }
+
   try {
+    console.log("Attempting to reset password with token");
+    
+    // Use the token to update the user's password
     const { error } = await supabase.auth.updateUser({
-      password: password,
+      password: password
     }, {
       emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://foxhabits.com'}/login`
     });
     
     if (error) {
+      console.error("Password reset error:", error);
       return { error: "Hiba történt a jelszó módosítása során." };
     }
 
+    console.log("Password reset successful");
     return { success: true };
   } catch (error) {
     console.error("Unexpected error in resetPassword:", error);
