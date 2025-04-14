@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { format, differenceInDays, subDays, eachDayOfInterval } from "date-fns";
 import { 
   Calendar, 
@@ -14,10 +15,11 @@ import {
   Ban,
   ShieldCheck
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { calculateHabitStreak, isHabitCompletedOnDate, isHabitCompletedExactDay } from "@/utils/habit-utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Bar, BarChart, Pie, PieChart as RechartsPie, Cell, ResponsiveContainer, XAxis, Tooltip, Legend } from "recharts";
 
 interface Entry {
@@ -48,6 +50,8 @@ export function HabitStatistics({
 }: HabitStatisticsProps) {
   const today = new Date();
   const isBadHabit = habitType === "bad_habit";
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [currentEntries, setCurrentEntries] = useState<Entry[]>(entries);
   
   const habit = {
     habit_id: habitId,
@@ -56,7 +60,7 @@ export function HabitStatistics({
     habit_interval_type: intervalType as 'days' | 'weeks' | 'months' | 'years',
     start_date: startDate,
     is_active: true,
-    entries: entries.map(e => ({
+    entries: currentEntries.map(e => ({
       entry_id: e.entry_id,
       datetime: e.datetime,
       entry_type: e.entry_type as 'done' | 'skipped'
@@ -67,8 +71,8 @@ export function HabitStatistics({
   
   const startDateObj = new Date(startDate);
   const totalDaysSinceStart = differenceInDays(today, startDateObj) || 1;
-  const totalCompletedEntries = entries.filter(e => e.entry_type === "done").length;
-  const totalSkippedEntries = entries.filter(e => e.entry_type === "skipped").length;
+  const totalCompletedEntries = currentEntries.filter(e => e.entry_type === "done").length;
+  const totalSkippedEntries = currentEntries.filter(e => e.entry_type === "skipped").length;
   
   const completionRate = isBadHabit
     ? Math.round(((totalDaysSinceStart - totalCompletedEntries) / totalDaysSinceStart) * 100)
@@ -110,6 +114,85 @@ export function HabitStatistics({
   ];
 
   const filteredCompletionStats = completionStats.filter(item => item.value > 0);
+
+  const handleComplete = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/entries/habit/${habitId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          habit_id: habitId,
+          time_of_entry: new Date().toISOString(),
+          entry_type: "done"
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        console.error("Error response:", responseData);
+        throw new Error(responseData.error || "Hiba történt a művelet során");
+      }
+
+      const newEntry = responseData.data && responseData.data[0] ? responseData.data[0] : null;
+      if (newEntry) {
+        setCurrentEntries(prev => [...prev, newEntry]);
+      }
+    } catch (error) {
+      console.error("Failed to complete habit:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSkip = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/entries/habit/${habitId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          habit_id: habitId,
+          time_of_entry: new Date().toISOString(),
+          entry_type: "skipped"
+        }),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        console.error("Error response:", responseData);
+        throw new Error(responseData.error || "Hiba történt a művelet során");
+      }
+
+      const newEntry = responseData.data && responseData.data[0] ? responseData.data[0] : null;
+      if (newEntry) {
+        setCurrentEntries(prev => [...prev, newEntry]);
+      }
+    } catch (error) {
+      console.error("Failed to skip habit:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const todayEntry = currentEntries.find(entry => {
+    const entryDate = new Date(entry.datetime);
+    return (
+      entryDate.getDate() === today.getDate() &&
+      entryDate.getMonth() === today.getMonth() &&
+      entryDate.getFullYear() === today.getFullYear()
+    );
+  });
+
+  const hasCompletedToday = todayEntry?.entry_type === "done";
+  const hasSkippedToday = todayEntry?.entry_type === "skipped";
+  const hasLoggedToday = hasCompletedToday || hasSkippedToday;
 
   return (
     <div className="space-y-4">
@@ -157,7 +240,7 @@ export function HabitStatistics({
                 <div className="flex flex-col items-center justify-center text-center">
                   <Clock className="h-8 w-8 text-emerald-500 mb-2" />
                   <h3 className="text-lg font-medium">Összes bejegyzés</h3>
-                  <p className="text-3xl font-bold mt-1">{entries.length}</p>
+                  <p className="text-3xl font-bold mt-1">{currentEntries.length}</p>
                   <div className="flex flex-wrap gap-2 justify-center mt-2">
                     <Badge variant="default" className={isBadHabit ? "bg-red-500" : "bg-green-500"}>
                       {isBadHabit ? (
@@ -174,6 +257,76 @@ export function HabitStatistics({
               </CardContent>
             </Card>
           </div>
+
+          <Card className="overflow-hidden">
+            <CardHeader>
+              <CardTitle className="text-base">Mai bejegyzés</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {hasLoggedToday ? (
+                  <div className="flex flex-col items-center justify-center text-center p-4">
+                    {hasCompletedToday ? (
+                      <div className="flex flex-col items-center">
+                        {isBadHabit ? (
+                          <>
+                            <Ban className="h-12 w-12 text-red-500 mb-2" />
+                            <p className="text-lg font-medium">A káros szokás ma megtörtént</p>
+                            <p className="text-sm text-muted-foreground mt-1">Újraindíthatod a sorozatot holnap</p>
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="h-12 w-12 text-green-500 mb-2" />
+                            <p className="text-lg font-medium">A szokás mai napra teljesítve!</p>
+                            <p className="text-sm text-muted-foreground mt-1">Szép munka, folytathatod holnap</p>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center">
+                        <SkipForward className="h-12 w-12 text-blue-500 mb-2" />
+                        <p className="text-lg font-medium">Ma kihagytad ezt a szokást</p>
+                        <p className="text-sm text-muted-foreground mt-1">Holnap újra próbálhatod</p>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col space-y-2">
+                    <p className="text-sm text-center text-muted-foreground mb-2">Mit szeretnél naplózni a mai napra?</p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      <Button
+                        variant={isBadHabit ? "destructive" : "default"}
+                        onClick={handleComplete}
+                        disabled={isLoading}
+                        className="min-w-[140px]"
+                      >
+                        {isBadHabit ? (
+                          <>
+                            <Ban className="mr-2 h-4 w-4" />
+                            Megtörtént
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            Teljesítve
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={handleSkip}
+                        disabled={isLoading}
+                        className="min-w-[140px]"
+                      >
+                        <SkipForward className="mr-2 h-4 w-4" />
+                        Kihagyva
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
           
           <Card>
             <CardHeader>
