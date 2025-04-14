@@ -558,7 +558,6 @@ export function HabitsTable({ habits }: HabitsTableProps) {
         )}
       </CardContent>
     </Card>
-  );
     </>
   );
 }

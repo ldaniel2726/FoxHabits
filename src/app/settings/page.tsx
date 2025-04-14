@@ -148,7 +148,7 @@ export default function SettingsPage() {
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Adatkezelés</CardTitle>
-            <CardDescription>Kezelheted a fiókod adatait</CardDescription>
+            <CardDescription>Exportálhatod a szokásaidat és a hozzájuk tartozó adataidat.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button type="button" variant="outline" onClick={handleExportData}>
