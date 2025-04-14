@@ -32,7 +32,6 @@ export async function resetPassword(formData: FormData, token: string) {
         return { error: "Érvénytelen vagy lejárt jelszó-visszaállító token." };
     }
     
-    // Use the token to update the user's password
     const { error } = await supabase.auth.updateUser({
       password: password
     }, {
@@ -44,7 +43,6 @@ export async function resetPassword(formData: FormData, token: string) {
       return { error: "Hiba történt a jelszó módosítása során." };
     }
 
-    console.log("Password reset successful");
     return { success: true };
   } catch (error) {
     console.error("Unexpected error in resetPassword:", error);

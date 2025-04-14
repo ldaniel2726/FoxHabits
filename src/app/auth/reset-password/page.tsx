@@ -22,8 +22,6 @@ export default function ResetPasswordPage() {
   const token = searchParams.get('token_hash');
 
   useEffect(() => {
-    console.log('Search params:', Object.fromEntries(searchParams.entries()));
-    
     const type = searchParams.get('type');
     
     if (type !== 'email' || !token) {

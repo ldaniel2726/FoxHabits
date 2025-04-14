@@ -10,16 +10,11 @@ export async function GET(request: Request) {
 
   console.log('Callback route received:', { code, token_hash, type })
 
-  // Handle password reset flow (don't try to exchange token_hash for session)
   if (token_hash && type === 'email') {
-    console.log('Password reset flow detected, redirecting to reset password page')
-    // Just pass the token_hash to the reset password page
     return NextResponse.redirect(`${origin}/auth/reset-password?token_hash=${token_hash}&type=${type}`);
   }
 
-  // Handle normal OAuth authentication flow
   if (code) {
-    console.log('OAuth flow detected, exchanging code for session')
     const supabase = await createClient()
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     
@@ -28,11 +23,9 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}/auth/auth-code-error`)
     }
     
-    console.log('Successfully exchanged code for session')
     return NextResponse.redirect(`${origin}${next}`)
   }
 
-  // No valid parameters found
   console.error('No valid authentication parameters found')
   return NextResponse.redirect(`${origin}/auth/auth-code-error`)
 }
