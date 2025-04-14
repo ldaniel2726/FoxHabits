@@ -115,13 +115,6 @@ export default async function HabitPage({
               </span>
             </div>
           </div>
-
-          <div className="mt-8">
-            <h3 className="text-xl font-semibold mb-4">Statisztikák</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* TODO: Add statistics */}
-            </div>
-          </div>
         </CardContent>
       </Card>
 
