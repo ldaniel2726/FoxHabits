@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useRouter } from 'next/navigation';
 
 import { toast } from 'sonner';
 import { signup } from '@/app/signup/actions';
@@ -20,6 +21,7 @@ import { GoogleButton } from '@/components/auth/google-button';
 export function SignUpForm() {
 
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -28,12 +30,12 @@ export function SignUpForm() {
     const formData = new FormData(event.currentTarget);
 
     const response = await signup(formData);
-
     if (response.error) {
       setError(response.error);
       toast.error(response.error);
-    } else {
-      toast.success('Sikeres regisztráció! Bejelentkezéshez lépj tovább.');
+    } else if (response.success) {
+      toast.success('Sikeres regisztráció! Kérjük, ellenőrizd az email fiókodat a visszaigazoló linkért.');
+      router.push('/login');
     }
   }
 
