@@ -2,11 +2,10 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-export async function resetPassword(formData: FormData, searchParams: URLSearchParams) {
+export async function resetPassword(formData: FormData, token: string) {
   const supabase = await createClient();
   const password = formData.get("password") as string;
   const confirmPassword = formData.get("confirmPassword") as string;
-  const token = searchParams.get('token_hash');
 
   if (!password || !confirmPassword) {
     return { error: "Jelszó megadása kötelező." };

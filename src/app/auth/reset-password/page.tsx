@@ -19,18 +19,18 @@ export default function ResetPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const token = searchParams.get('token_hash');
 
   useEffect(() => {
     console.log('Search params:', Object.fromEntries(searchParams.entries()));
     
-    const token = searchParams.get('token_hash');
     const type = searchParams.get('type');
     
     if (type !== 'email' || !token) {
       toast.error("Érvénytelen vagy lejárt jelszó-visszaállító link");
       router.push('/login');
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, token]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
     }
 
     try {
-      const updateResult = await resetPassword(formData, searchParams);
+      const updateResult = await resetPassword(formData, token as string);
       
       if (!updateResult.success) {
         toast.error(updateResult.error);
