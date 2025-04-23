@@ -276,7 +276,7 @@ export function HabitStatistics({
                         {isBadHabit ? (
                           <>
                             <Ban className="h-12 w-12 text-red-500 mb-2" />
-                            <p className="text-lg font-medium">A ártó szokás ma megtörtént</p>
+                            <p className="text-lg font-medium">Az ártó szokás ma megtörtént</p>
                             <p className="text-sm text-muted-foreground mt-1">Újraindíthatod a sorozatot holnap</p>
                           </>
                         ) : (

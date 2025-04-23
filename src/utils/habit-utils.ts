@@ -139,14 +139,15 @@ export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date(
 
   const sortedEntries = habit.entries
     .filter(entry => entry.entry_type === 'done')
-    .map(entry => new Date(entry.datetime))
+    .map(entry => new Date(entry.datetime.replace(' ', 'T') + 'Z'))
     .sort((a, b) => b.getTime() - a.getTime());
 
-    const today = startOfDay(currentDate);
+    const today = currentDate;
 
   if (sortedEntries.length === 0) {
     if (habit.habit_type === 'normal_habit') return 0;
     if (habit.habit_type === 'bad_habit') {
+      
       return differenceInDays(today, new Date(habit.start_date));
     }
   }
