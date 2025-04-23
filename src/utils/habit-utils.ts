@@ -208,8 +208,7 @@ export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date(
     });
     
     if (skippedInPeriod || 
-        (habit.habit_type === 'normal_habit' && completionsInPeriod.length === 0) ||
-        (habit.habit_type === 'bad_habit' && completionsInPeriod.length > 0)) {
+        (habit.habit_type === 'normal_habit' && completionsInPeriod.length === 0)) {
       break;
     }
 
