@@ -135,17 +135,29 @@ export function isHabitCompletedExactDay(habit: Habit, date: Date = new Date()):
 
 
 export function calculateHabitStreak(habit: Habit, currentDate: Date = new Date()): number {
-  if (!habit.entries.length) return 0;
+  if (!habit.entries.length && habit.habit_type === 'normal_habit') return 0;
 
   const sortedEntries = habit.entries
     .filter(entry => entry.entry_type === 'done')
     .map(entry => new Date(entry.datetime))
     .sort((a, b) => b.getTime() - a.getTime());
 
-  if (sortedEntries.length === 0) return 0;
+    const today = startOfDay(currentDate);
 
-  const today = startOfDay(currentDate);
+  if (sortedEntries.length === 0) {
+    if (habit.habit_type === 'normal_habit') return 0;
+    if (habit.habit_type === 'bad_habit') {
+      return differenceInDays(today, new Date(habit.start_date));
+    }
+  }
+
   const mostRecentEntry = startOfDay(sortedEntries[0]);
+
+  if (habit.habit_type === 'bad_habit') {
+   
+    return differenceInDays(today, mostRecentEntry);
+    
+  }
   
   if (habit.habit_interval_type === 'days' && habit.interval === 1) {
     const daysSinceLastEntry = differenceInDays(today, mostRecentEntry);

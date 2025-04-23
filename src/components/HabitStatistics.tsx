@@ -68,6 +68,7 @@ export function HabitStatistics({
   };
   
   const currentStreak = calculateHabitStreak(habit);
+  console.log(currentStreak + "Current Streak");
   
   const startDateObj = new Date(startDate);
   const totalDaysSinceStart = differenceInDays(today, startDateObj) || 1;
@@ -200,7 +201,7 @@ export function HabitStatistics({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart4 className="h-5 w-5" />
-            Szokás statisztikák {isBadHabit && '(Káros szokás)'}
+            Szokás statisztikák {isBadHabit && '(ártó szokás)'}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -238,20 +239,24 @@ export function HabitStatistics({
             <Card className="bg-muted/50">
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center justify-center text-center">
-                  <Clock className="h-8 w-8 text-emerald-500 mb-2" />
-                  <h3 className="text-lg font-medium">Összes bejegyzés</h3>
+                  {isBadHabit ? (
+                    <Ban className="h-8 w-8 text-red-500 mb-2" />
+                  ) : (
+                    <Clock className="h-8 w-8 text-emerald-500 mb-2" />
+                  )}
+                  <h3 className="text-lg font-medium">{isBadHabit ? "Összes megszakítás" : "Összes bejegyzés"}</h3>
                   <p className="text-3xl font-bold mt-1">{currentEntries.length}</p>
                   <div className="flex flex-wrap gap-2 justify-center mt-2">
-                    <Badge variant="default" className={isBadHabit ? "bg-red-500" : "bg-green-500"}>
-                      {isBadHabit ? (
-                        <><Ban className="mr-1 h-3 w-3" /> {totalCompletedEntries}</>
-                      ) : (
-                        <><CheckCircle className="mr-1 h-3 w-3" /> {totalCompletedEntries}</>
-                      )}
-                    </Badge>
-                    <Badge variant="default" className="bg-blue-500">
-                      <SkipForward className="mr-1 h-3 w-3" /> {totalSkippedEntries}
-                    </Badge>
+                    {!isBadHabit && (
+                      <>
+                        <Badge variant="default" className="bg-green-500">
+                          <CheckCircle className="mr-1 h-3 w-3" /> {totalCompletedEntries}
+                        </Badge>
+                        <Badge variant="default" className="bg-blue-500">
+                          <SkipForward className="mr-1 h-3 w-3" /> {totalSkippedEntries}
+                        </Badge>
+                      </>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -271,7 +276,7 @@ export function HabitStatistics({
                         {isBadHabit ? (
                           <>
                             <Ban className="h-12 w-12 text-red-500 mb-2" />
-                            <p className="text-lg font-medium">A káros szokás ma megtörtént</p>
+                            <p className="text-lg font-medium">A ártó szokás ma megtörtént</p>
                             <p className="text-sm text-muted-foreground mt-1">Újraindíthatod a sorozatot holnap</p>
                           </>
                         ) : (
@@ -292,7 +297,11 @@ export function HabitStatistics({
                   </div>
                 ) : (
                   <div className="flex flex-col space-y-2">
-                    <p className="text-sm text-center text-muted-foreground mb-2">Mit szeretnél naplózni a mai napra?</p>
+                    <p className="text-sm text-center text-muted-foreground mb-2">
+                      {isBadHabit 
+                        ? "Megszakítottad ma ennek a szokásnak a mellőzését?"
+                        : "Mit szeretnél naplózni a mai napra?"}
+                    </p>
                     <div className="flex flex-wrap gap-2 justify-center">
                       <Button
                         variant={isBadHabit ? "destructive" : "default"}
@@ -312,15 +321,17 @@ export function HabitStatistics({
                           </>
                         )}
                       </Button>
-                      <Button
-                        variant="outline"
-                        onClick={handleSkip}
-                        disabled={isLoading}
-                        className="min-w-[140px]"
-                      >
-                        <SkipForward className="mr-2 h-4 w-4" />
-                        Kihagyva
-                      </Button>
+                      {!isBadHabit && (
+                        <Button
+                          variant="outline"
+                          onClick={handleSkip}
+                          disabled={isLoading}
+                          className="min-w-[140px]"
+                        >
+                          <SkipForward className="mr-2 h-4 w-4" />
+                          Kihagyva
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -330,7 +341,7 @@ export function HabitStatistics({
           
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Utóbbi 10 nap aktivitás</CardTitle>
+              <CardTitle className="text-base">A legutóbbi 10 nap aktivitása</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="h-[180px] w-full">
@@ -346,7 +357,7 @@ export function HabitStatistics({
                             <p className="text-xs text-muted-foreground">{data.name}</p>
                             <p className="font-bold text-sm">
                               {isBadHabit
-                                ? data.value ? "Elkerülve" : "Megtörtént"
+                                ? data.value ? "Megszakadt" : "Elkerülve"
                                 : data.value ? "Teljesítve" : "Nem teljesítve"
                               }
                             </p>
@@ -355,7 +366,7 @@ export function HabitStatistics({
                       }}
                     />
                     <Bar 
-                      dataKey="value" 
+                      dataKey={d => 1 - d.value}
                       fill={isBadHabit ? "#10b981" : "#3b82f6"} 
                       radius={[4, 4, 0, 0]}
                     />
@@ -408,9 +419,9 @@ export function HabitStatistics({
                             let explanation = '';
                             if (isBadHabit) {
                               if (data.name === successLabel) {
-                                explanation = 'Sikeresen elkerülted a káros szokást';
+                                explanation = 'Sikeresen elkerülted az ártó szokást';
                               } else if (data.name === failureLabel) {
-                                explanation = 'Megtörtént a káros szokás';
+                                explanation = 'Megtörtént az ártó szokás';
                               } else {
                                 explanation = 'Kihagytad a naplózást';
                               }
