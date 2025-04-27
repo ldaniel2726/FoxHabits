@@ -148,6 +148,17 @@ export async function POST(request: Request) {
 
     const requestData = await request.json();
     console.log("Request data:", requestData);
+
+    if (requestData.habit_id && Number(requestData.habit_id) !== Number(habit_id)) {
+      return NextResponse.json(
+        { error: "A szokás azonosító nem egyezik a kérésben megadott azonosítóval!" },
+        { status: 400 }
+      );
+    }
+
+    if (requestData.habit_id) {
+      requestData.habit_id = Number(requestData.habit_id);
+    }
     
     const result = habit_entry_schema.safeParse(requestData);
     console.log("Validation result:", result);

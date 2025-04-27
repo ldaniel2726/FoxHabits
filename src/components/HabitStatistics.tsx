@@ -379,7 +379,7 @@ export function HabitStatistics({
           <Card>
             <CardHeader>
               <CardTitle className="text-base">
-                Megoszlás {isBadHabit && '- Elkerülés / Megtörténés'}
+                Megoszlás {isBadHabit && '- elkerülés / megtörténés'}
               </CardTitle>
             </CardHeader>
             <CardContent>
