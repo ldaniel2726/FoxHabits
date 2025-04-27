@@ -47,7 +47,7 @@ export function HabitEntries({ habitId, entries: initialEntries, habitType }: Ha
                 <TableHead>Dátum</TableHead>
                 <TableHead>Óra, perc</TableHead>
                 <TableHead>Állapot</TableHead>
-                <TableHead className="w-[80px]">Műveletek</TableHead>
+                <TableHead className="w-[80px]">Törlés</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

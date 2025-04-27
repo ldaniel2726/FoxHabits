@@ -282,8 +282,8 @@ export function HabitStatistics({
                         ) : (
                           <>
                             <CheckCircle className="h-12 w-12 text-green-500 mb-2" />
-                            <p className="text-lg font-medium">A szokás mai napra teljesítve!</p>
-                            <p className="text-sm text-muted-foreground mt-1">Szép munka, folytathatod holnap</p>
+                            <p className="text-lg font-medium">A szokást a mai napon teljesítetted!</p>
+                            <p className="text-sm text-muted-foreground mt-1">Szép munka, folytasd holnap is!</p>
                           </>
                         )}
                       </div>
@@ -366,7 +366,7 @@ export function HabitStatistics({
                       }}
                     />
                     <Bar 
-                      dataKey={d => 1 - d.value}
+                      dataKey={d => isBadHabit ? 1 - d.value : d.value}
                       fill={isBadHabit ? "#10b981" : "#3b82f6"} 
                       radius={[4, 4, 0, 0]}
                     />
