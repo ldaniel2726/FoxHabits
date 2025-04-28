@@ -1,0 +1,222 @@
+generator client {
+  provider        = "prisma-client-js"
+  output          = "../generated/prisma"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["auth", "public"]
+}
+
+// Supabase provided
+model users {
+  instance_id                 String?           @db.Uuid
+  id                          String            @id @db.Uuid
+  aud                         String?           @db.VarChar(255)
+  role                        String?           @db.VarChar(255)
+  email                       String?           @db.VarChar(255)
+  encrypted_password          String?           @db.VarChar(255)
+  email_confirmed_at          DateTime?         @db.Timestamptz(6)
+  invited_at                  DateTime?         @db.Timestamptz(6)
+  confirmation_token          String?           @db.VarChar(255)
+  confirmation_sent_at        DateTime?         @db.Timestamptz(6)
+  recovery_token              String?           @db.VarChar(255)
+  recovery_sent_at            DateTime?         @db.Timestamptz(6)
+  email_change_token_new      String?           @db.VarChar(255)
+  email_change                String?           @db.VarChar(255)
+  email_change_sent_at        DateTime?         @db.Timestamptz(6)
+  last_sign_in_at             DateTime?         @db.Timestamptz(6)
+  raw_app_meta_data           Json?
+  raw_user_meta_data          Json?
+  is_super_admin              Boolean?
+  created_at                  DateTime?         @db.Timestamptz(6)
+  updated_at                  DateTime?         @db.Timestamptz(6)
+  phone                       String?           @unique
+  phone_confirmed_at          DateTime?         @db.Timestamptz(6)
+  phone_change                String?           @default("")
+  phone_change_token          String?           @default("") @db.VarChar(255)
+  phone_change_sent_at        DateTime?         @db.Timestamptz(6)
+  confirmed_at                DateTime?         @default(dbgenerated("LEAST(email_confirmed_at, phone_confirmed_at)")) @db.Timestamptz(6)
+  email_change_token_current  String?           @default("") @db.VarChar(255)
+  email_change_confirm_status Int?              @default(0) @db.SmallInt
+  banned_until                DateTime?         @db.Timestamptz(6)
+  reauthentication_token      String?           @default("") @db.VarChar(255)
+  reauthentication_sent_at    DateTime?         @db.Timestamptz(6)
+  is_sso_user                 Boolean           @default(false)
+  deleted_at                  DateTime?         @db.Timestamptz(6)
+  is_anonymous                Boolean           @default(false)
+  checklists                  checklists[]
+  habit_names                 habit_names[]
+  habits                      habits[]
+  settings                    settings?
+
+  @@index([instance_id])
+  @@index([is_anonymous])
+  @@schema("auth")
+}
+
+model checklists {
+  id         BigInt    @id(map: "checklist_pkey") @default(autoincrement())
+  user_id    String?   @db.Uuid
+  name       String?
+  elements   Json?     @db.Json
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  users      users?    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "checklist_user_id_fkey")
+
+  @@schema("public")
+}
+
+model entries {
+  entry_id      BigInt     @id @unique @default(autoincrement())
+  habit_id      BigInt
+  datetime      DateTime   @db.Timestamp(6)
+  time_of_entry DateTime   @default(now()) @db.Timestamptz(6)
+  entry_type    entry_type @default(done)
+  habits        habits     @relation(fields: [habit_id], references: [habit_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+model habit_names {
+  habit_name        String             @unique @db.VarChar
+  habit_name_status habit_names_status
+  sender_user_id    String?            @db.Uuid
+  created_at        DateTime?          @db.Timestamptz(6)
+  habit_name_id     BigInt             @id @unique @default(autoincrement())
+  users             users?             @relation(fields: [sender_user_id], references: [id], onUpdate: NoAction)
+  habits            habits[]
+
+  @@schema("public")
+}
+
+model habits {
+  habit_id            BigInt        @id @unique @default(autoincrement())
+  related_user_id     String        @db.Uuid
+  habit_type          habit_type
+  interval            Int           @db.SmallInt
+  habit_interval_type interval_type @default(days)
+  start_date          DateTime      @default(now()) @db.Timestamptz(6)
+  is_active           Boolean       @default(false)
+  created_date        DateTime      @default(now()) @db.Timestamptz(6)
+  habit_name_id       BigInt
+  entries             entries[]
+  habit_names         habit_names   @relation(fields: [habit_name_id], references: [habit_name_id])
+  users               users         @relation(fields: [related_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+
+model settings {
+  user_id             String        @id @unique @default(dbgenerated("auth.uid()")) @db.Uuid
+  dark_mode           dark_mode     @default(system)
+  localization        localization? @default(hu)
+  email_notifications Boolean       @default(true)
+  users               users         @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+// Supabase provided
+enum aal_level {
+  aal1
+  aal2
+  aal3
+
+  @@schema("auth")
+}
+
+// Supabase provided
+enum code_challenge_method {
+  s256
+  plain
+
+  @@schema("auth")
+}
+
+// Supabase provided
+enum factor_status {
+  unverified
+  verified
+
+  @@schema("auth")
+}
+
+// Supabase provided
+enum factor_type {
+  totp
+  webauthn
+  phone
+
+  @@schema("auth")
+}
+
+// Supabase provided
+enum one_time_token_type {
+  confirmation_token
+  reauthentication_token
+  recovery_token
+  email_change_token_new
+  email_change_token_current
+  phone_change_token
+
+  @@schema("auth")
+}
+
+enum dark_mode {
+  system
+  dark
+  light
+
+  @@schema("public")
+}
+
+enum entry_type {
+  done
+  skipped
+
+  @@schema("public")
+}
+
+enum habit_names_status {
+  new
+  approved
+  rejected
+  private
+
+  @@schema("public")
+}
+
+enum habit_status {
+  active
+  archived
+
+  @@schema("public")
+}
+
+enum habit_type {
+  normal_habit
+  bad_habit
+
+  @@schema("public")
+}
+
+enum interval_type {
+  hours
+  days
+  weeks
+  months
+  years
+
+  @@schema("public")
+}
+
+enum localization {
+  hu
+  en
+
+  @@schema("public")
+}

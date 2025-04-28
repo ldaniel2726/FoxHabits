@@ -1,0 +1,25 @@
+Tesztelési adatok a FoxHabits webes felületéshez
+======================================================================
+
+Tesztelésre javasolt felület: 		https://foxhabits.com
+
+1. felhasználó neve: 			Teszt Felhasznalo
+E-mail cím: 				tesztfelhasznalo@foxhabits.com
+Jelszó: 				TesztFelhasznalo.123
+Jogosultsági szint:			Felhasználó
+Megjegyzés:				szokások, gyorslista példa adatok hozzáadva
+
+2. felhasználó neve:			Teszt Moderátor
+E-mail cím:				tesztmoderator@foxhabits.com
+Jelszó:					TesztModerator.123
+Jogosultsági szint:			Moderátor
+
+3. felhasználó neve:			Teszt Admin
+E-mail cím:				tesztadmin@foxhabits.com
+Jelszó:					TesztAdmin.123
+Jogosultsági szint:			Adminisztrátor
+
+4. felhasználó neve:			Tiltott Felhasználó
+E-mail cím:				tiltott@foxhabits.com
+Jelszó:					Tiltott.123
+Jogosultsági szint:			Kitiltott felhasználó
